@@ -3,7 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { logger } from '../common/index.js';
 
-const document_domain_name = "https://9-25.co";
+const domain_name = "https://9-25.co";
 
 const __basedir = path.join(__dirname, "../..", "");
 const __document_chow_925 = path.join(__dirname, "../../../", "chow-9-25-docs"); // change to - `whatever the domain will be with sub domain as 'document.whatever.whatever'`, when deploy
@@ -103,14 +103,14 @@ export const file_length_100Mb = 100000000;
 // End - File lengths
 
 // Paths and document names
-export const default_profile_image = document_domain_name + "/resources/images/user.svg";
-export const default_platform_image = document_domain_name + "/resources/images/platform.svg";
-export const default_cover_image = document_domain_name + "/resources/images/cover.svg";
+export const default_profile_image = domain_name + "/resources/images/user.svg";
+export const default_platform_image = domain_name + "/resources/images/platform.svg";
+export const default_cover_image = domain_name + "/resources/images/cover.svg";
 
 export const user_documents_path = __document_chow_925 + "/resources/documents/users/";
 export const platform_documents_path = __document_chow_925 + "/resources/documents/platforms/";
 
-export const save_document_domain = document_domain_name;
+export const save_document_domain = domain_name;
 
 export const save_user_document_dir = "/resources/documents/users/";
 export const save_platform_document_dir = "/resources/documents/platforms/";
@@ -174,6 +174,9 @@ export const route_methods = ['GET', 'POST', 'PUT', 'DELETE'];
 export const api_key_start = "chow_925_";
 export const tag_internal_api_key = "Internal";
 export const tag_external_api_key = "External";
+
+// Vendors Access Url 
+export const vendor_access_url = domain_name + "/vendors/access/";
 
 // PG Age
 export const pg_age = 13;

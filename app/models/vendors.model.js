@@ -28,6 +28,10 @@ export default (sequelize, Sequelize) => {
             type: Sequelize.TEXT,
             allowNull: false,
         },
+        access_url: {
+            type: Sequelize.STRING(500),
+            allowNull: false
+        },
         opening_hours: {
             type: Sequelize.TIME,
             allowNull: true,

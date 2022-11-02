@@ -5,7 +5,7 @@ import db from "../models/index.js";
 import { logger } from '../common/index.js';
 import { 
     api_key_start, random_uuid, default_status, percentage, service_charge_percentage, subscription_fee, max_user_addressess, strip_text,
-    save_document_domain, default_platform_image, access_granted, platform_documents_path, save_image_dir, default_cover_image
+    save_document_domain, default_platform_image, access_granted, platform_documents_path, save_image_dir, default_cover_image, vendor_access_url
 } from './config.js';
 
 const API_KEYS = db.api_keys;
@@ -102,6 +102,7 @@ export async function createDefaultVendor() {
         stripped,
         email: "default@9-25.co",
         description: "This is 9:25's default vendor",
+        access_url: vendor_access_url + stripped,
         profile_image_base_url: save_document_domain,
         profile_image_dir: save_image_dir,
         profile_image: default_platform_image,
