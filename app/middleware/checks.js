@@ -242,6 +242,7 @@ export default {
     verifyKey,
     verifyVendorToken,
     verifyVendorUserToken,
+    verifyRiderToken,
     verifyToken,
     isVendor,
     isVendorUser,
