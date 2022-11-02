@@ -210,6 +210,12 @@ export const max_user_addressess = {
     value: 3
 };
 
+export const max_vendor_bank_accounts = {
+    criteria: "Max Vendor Bank Accounts",
+    data_type: "INTEGER",
+    value: 5
+};
+
 // End - App Defaults
 
 export const chow_925_header_token = "chow-925-access-token";

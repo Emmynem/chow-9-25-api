@@ -5,7 +5,8 @@ import db from "../models/index.js";
 import { logger } from '../common/index.js';
 import { 
     api_key_start, random_uuid, default_status, percentage, service_charge_percentage, subscription_fee, max_user_addressess, strip_text,
-    save_document_domain, default_platform_image, access_granted, platform_documents_path, save_image_dir, default_cover_image, vendor_access_url
+    save_document_domain, default_platform_image, access_granted, platform_documents_path, save_image_dir, default_cover_image, 
+    vendor_access_url, max_vendor_bank_accounts
 } from './config.js';
 
 const API_KEYS = db.api_keys;
@@ -36,6 +37,11 @@ export async function createAppDefaults() {
         {
             unique_id: uuidv4(),
             ...max_user_addressess,
+            status: default_status
+        },
+        {
+            unique_id: uuidv4(),
+            ...max_vendor_bank_accounts,
             status: default_status
         }
     ];
