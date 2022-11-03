@@ -210,8 +210,8 @@ export const max_user_addressess = {
     value: 3
 };
 
-export const max_vendor_bank_accounts = {
-    criteria: "Max Vendor Bank Accounts",
+export const max_bank_accounts = {
+    criteria: "Max Bank Accounts",
     data_type: "INTEGER",
     value: 5
 };

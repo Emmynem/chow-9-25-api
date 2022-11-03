@@ -79,7 +79,7 @@ export const vendor_bank_account_rules = {
             .custom(async vendor_unique_id => {
                 const vendor_bank_account_count = await VENDOR_BANK_ACCOUNTS.count({ where: { vendor_unique_id } });
 
-                const _max_vendor_bank_accounts = await APP_DEFAULTS.findOne({ where: { criteria: { [Op.like]: "Max Vendor Bank Accounts" } } });
+                const _max_vendor_bank_accounts = await APP_DEFAULTS.findOne({ where: { criteria: { [Op.like]: "Max Bank Accounts" } } });
                 const max_vendor_bank_accounts = return_default_value(_max_vendor_bank_accounts['dataValues']);
                 if (vendor_bank_account_count >= max_vendor_bank_accounts) return Promise.reject('Max bank accounts reached!');
             }),
