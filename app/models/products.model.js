@@ -88,7 +88,7 @@ export default (sequelize, Sequelize) => {
         },
         sales_price: {
             type: Sequelize.FLOAT,
-            allowNull: false,
+            allowNull: true,
         },
         views: {
             type: Sequelize.BIGINT,
