@@ -4,6 +4,8 @@ import { default_status, default_delete_status } from '../config/config.js';
 
 const VENDORS = db.vendors;
 const VENDOR_BANK_ACCOUNTS = db.vendor_bank_accounts;
+const APP_DEFAULTS = db.app_defaults;
+const Op = db.Sequelize.Op;
 
 export const vendor_bank_account_rules = {
     forFindingVendorBankAccount: [
