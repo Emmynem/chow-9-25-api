@@ -465,3 +465,25 @@ export const validate_payment_method = (obj) => {
     if (method !== payment_methods.card && method !== payment_methods.wallet) return false;
     return true;
 };
+
+export const get_min_and_max_ratings = () => {
+    let min = ratings[0].value;
+    let max = ratings[0].value;
+
+    ratings.forEach(element => {
+        const _value = element.value;
+        if (_value < min) min = _value;
+        if (_value > max) max = _value;
+    });
+
+    let both = { min, max };
+
+    return both;
+};
+
+export const validate_ratings = (rating) => {
+    const min_max = get_min_and_max_ratings();
+    if (rating < min_max.min) return false;
+    if (rating > min_max.max) return false;
+    return true;
+};
