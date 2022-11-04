@@ -67,6 +67,10 @@ export const ratings = [
         value: 5
     }
 ];
+export const payment_methods = {
+    card: "Credit/Debit Card",
+    wallet: "Wallet"
+};
 // End - Default Actions
 
 // Default Transaction Types
@@ -453,5 +457,11 @@ export const validate_future_end_date = (_start, _end) => {
     if (start === "Invalid Date") return false;
     if (end === "Invalid Date") return false;
     if (start.getTime() >= end.getTime()) return false;
+    return true;
+};
+
+export const validate_payment_method = (obj) => {
+    const method = obj;
+    if (method !== payment_methods.card && method !== payment_methods.wallet) return false;
     return true;
 };
