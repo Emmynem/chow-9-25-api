@@ -220,7 +220,7 @@ export const order_rules = {
             .isString().isLength({ min: 3, max: 20 })
             .withMessage("Invalid length (3 - 20) characters")
             .bail()
-            .custom(payment_method => !!validate_payment_method(payment_method)).withMessage(`Invalid payment method, accepted methods (${payment_methods.toString()})`),
+            .custom(payment_method => !!validate_payment_method(payment_method)).withMessage(`Invalid payment method, accepted methods (${payment_methods.card, payment_methods.wallet})`),
         check('delivery_status', "Delivery Status is required")
             .exists({ checkNull: true, checkFalsy: true })
             .bail()
@@ -234,6 +234,6 @@ export const order_rules = {
             .isString().isLength({ min: 3, max: 20 })
             .withMessage("Invalid length (3 - 20) characters")
             .bail()
-            .custom(payment_method => !!validate_payment_method(payment_method)).withMessage(`Invalid payment method, accepted methods (${payment_methods.toString()})`)
+            .custom(payment_method => !!validate_payment_method(payment_method)).withMessage(`Invalid payment method, accepted methods (${payment_methods.card, payment_methods.wallet})`)
     ]
 };  
