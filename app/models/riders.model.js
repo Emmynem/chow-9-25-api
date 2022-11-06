@@ -79,7 +79,7 @@ export default (sequelize, Sequelize) => {
             allowNull: true,
         },
         verification: {
-            type: Sequelize.INTEGER(1),
+            type: Sequelize.BOOLEAN,
             allowNull: false,
         },
         access: {

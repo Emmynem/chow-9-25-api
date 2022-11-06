@@ -88,6 +88,10 @@ export default (sequelize, Sequelize) => {
             type: Sequelize.DATE,
             allowNull: true,
         },
+        verification: {
+            type: Sequelize.BOOLEAN,
+            allowNull: false,
+        },
         access: {
             type: Sequelize.INTEGER(1),
             allowNull: false,
