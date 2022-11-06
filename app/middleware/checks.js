@@ -174,9 +174,9 @@ const isRider = (req, res, next) => {
         }
     }).then(rider => {
         if (!rider) {
-            ForbiddenError(res, "Require Vendor User!", null);
+            ForbiddenError(res, "Require Rider!", null);
         } else if (rider.status === default_delete_status) {
-            ForbiddenError(res, "Vendor User not available!", null);
+            ForbiddenError(res, "Rider not available!", null);
         } else if (rider.access != access_granted) {
             const err = rider.access === access_suspended ? "Access is suspended" : "Access is revoked";
             ForbiddenError(res, err, null);

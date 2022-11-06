@@ -6,12 +6,13 @@ import { logger } from '../common/index.js';
 import { 
     api_key_start, random_uuid, default_status, percentage, service_charge_percentage, subscription_fee, max_user_addressess, strip_text,
     save_document_domain, default_platform_image, access_granted, platform_documents_path, save_image_dir, default_cover_image, 
-    vendor_access_url, max_bank_accounts
+    vendor_access_url, max_bank_accounts, zero
 } from './config.js';
 
 const API_KEYS = db.api_keys;
 const APP_DEFAULTS = db.app_defaults;
 const VENDORS = db.vendors;
+const VENDOR_ACCOUNT = db.vendor_account;
 const VENDOR_USERS = db.vendor_users;
 
 const { existsSync, mkdirSync } = fs;
@@ -143,6 +144,33 @@ export async function createDefaultVendor() {
     }
 
     // End of creating default vendor
+
+    // Creating default vendor account
+    const vendor_account_unique_id = uuidv4();
+
+    const vendor_account_details = {
+        unique_id: vendor_account_unique_id,
+        vendor_unique_id,
+        balance: zero,
+        service_charge: zero,
+        status: default_status
+    };
+
+    const vendor_account_count = await VENDOR_ACCOUNT.count();
+
+    if (vendor_account_count <= 0) {
+        try {
+            await db.sequelize.transaction((t) => {
+                const vendor_account = VENDOR_ACCOUNT.create(vendor_account_details, { transaction: t });
+                return vendor_account;
+            })
+            logger.info('Added vendor account defaults');
+        } catch (error) {
+            logger.error('Error adding vendor account defaults');
+        }
+    }
+
+    // End of creating default vendor account
 
     // Creating default vendor user
     const vendor_user_unique_id = uuidv4();

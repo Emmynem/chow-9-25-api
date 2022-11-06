@@ -124,6 +124,7 @@ export const save_user_document_path = save_document_domain + "/resources/docume
 export const save_platform_document_path = save_document_domain + "/resources/documents/platforms/";
 
 export const profile_image_document_name = "Profile Image";
+export const cover_image_document_name = "Cover Image";
 export const category_image_document_name = "Category Image";
 export const dispute_image_document_name = "Dispute Image";
 export const product_image_document_name = "Product Image";
@@ -181,6 +182,9 @@ export const tag_external_api_key = "External";
 
 // Vendors Access Url 
 export const vendor_access_url = domain_name + "/vendors/access/";
+
+// Users Access Url
+export const user_refferal_access_url = domain_name + "/signup/";
 
 // PG Age
 export const pg_age = 13;
