@@ -6,7 +6,7 @@ import { logger } from '../common/index.js';
 import { 
     api_key_start, random_uuid, default_status, percentage, service_charge_percentage, subscription_fee, max_user_addressess, strip_text,
     save_document_domain, default_platform_image, access_granted, platform_documents_path, save_image_dir, default_cover_image, 
-    vendor_access_url, max_bank_accounts, zero
+    vendor_access_url, max_bank_accounts, zero, verified_status
 } from './config.js';
 
 const API_KEYS = db.api_keys;
@@ -118,6 +118,7 @@ export async function createDefaultVendor() {
         cover_image: default_cover_image,
         pro: true,
         pro_expiring: next_year,
+        verification: verified_status,
         access: access_granted,
         status: default_status
     };

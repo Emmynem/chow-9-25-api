@@ -65,7 +65,7 @@ export function rootGetVendorUser(req, res) {
     }
 };
 
-export function getVendorUsers(req, res) {
+export async function getVendorUsers(req, res) {
     const vendor_unique_id = req.VENDOR_UNIQUE_ID;
     const vendor_user_unique_id = req.VENDOR_USER_UNIQUE_ID;
 
@@ -106,7 +106,7 @@ export function getVendorUsers(req, res) {
     }
 };
 
-export function getVendorUser(req, res) {
+export async function getVendorUser(req, res) {
     const vendor_unique_id = req.VENDOR_UNIQUE_ID;
     const vendor_user_unique_id = req.VENDOR_USER_UNIQUE_ID;
 

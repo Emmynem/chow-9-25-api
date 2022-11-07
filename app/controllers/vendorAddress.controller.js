@@ -63,7 +63,7 @@ export function rootGetVendorAddress(req, res) {
     }
 };
 
-export function getVendorAddress(req, res) {
+export async function getVendorAddress(req, res) {
     const vendor_unique_id = req.VENDOR_UNIQUE_ID;
     const vendor_user_unique_id = req.VENDOR_USER_UNIQUE_ID;
 
@@ -136,7 +136,7 @@ export async function addVendorAddress(req, res) {
     }
 };
 
-export async function updateUserAddress(req, res) {
+export async function updateVendorAddress(req, res) {
     const vendor_unique_id = req.VENDOR_UNIQUE_ID;
     const vendor_user_unique_id = req.VENDOR_USER_UNIQUE_ID;
 

@@ -95,7 +95,7 @@ export function rootGetDefaultVendorBankAccounts(req, res) {
     }
 };
 
-export function getVendorBankAccounts(req, res) {
+export async function getVendorBankAccounts(req, res) {
     const vendor_unique_id = req.VENDOR_UNIQUE_ID;
     const vendor_user_unique_id = req.VENDOR_USER_UNIQUE_ID;
 
@@ -130,7 +130,7 @@ export function getVendorBankAccounts(req, res) {
     }
 };
 
-export function getVendorDefaultBankAccount(req, res) {
+export async function getVendorDefaultBankAccount(req, res) {
     const vendor_unique_id = req.VENDOR_UNIQUE_ID;
     const vendor_user_unique_id = req.VENDOR_USER_UNIQUE_ID;
 
@@ -165,7 +165,7 @@ export function getVendorDefaultBankAccount(req, res) {
     }
 };
 
-export function getVendorBankAccount(req, res) {
+export async function getVendorBankAccount(req, res) {
     const vendor_unique_id = req.VENDOR_UNIQUE_ID;
     const vendor_user_unique_id = req.VENDOR_USER_UNIQUE_ID;
 
