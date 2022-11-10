@@ -71,7 +71,16 @@ export const payment_methods = {
     card: "Credit/Debit Card",
     wallet: "Wallet"
 };
+export const vendor_payment_methods = {
+    card: "Credit/Debit Card",
+    wallet: "Wallet",
+    transfer: "Transfer"
+};
 // End - Default Actions
+
+// Default Currency
+export const currency = "NGN"; // NGN - Naira
+// End - Default Currency
 
 // Default Transaction Types
 export const subscription = "Subscription";
@@ -222,6 +231,12 @@ export const max_bank_accounts = {
     criteria: "Max Bank Accounts",
     data_type: "INTEGER",
     value: 5
+};
+
+export const max_debt = {
+    criteria: "Max Debt",
+    data_type: "INTEGER",
+    value: 5000
 };
 
 // End - App Defaults
@@ -467,6 +482,12 @@ export const validate_future_end_date = (_start, _end) => {
 export const validate_payment_method = (obj) => {
     const method = obj;
     if (method !== payment_methods.card && method !== payment_methods.wallet) return false;
+    return true;
+};
+
+export const validate_vendor_payment_method = (obj) => {
+    const method = obj;
+    if (method !== vendor_payment_methods.card && method !== vendor_payment_methods.wallet && method !== vendor_payment_methods.transfer) return false;
     return true;
 };
 

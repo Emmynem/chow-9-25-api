@@ -1,6 +1,6 @@
 import { check } from 'express-validator';
 import db from "../models/index.js";
-import { default_status, default_delete_status } from '../config/config.js';
+import { default_status, default_delete_status, validate_vendor_payment_method, vendor_payment_methods } from '../config/config.js';
 
 const VENDORS = db.vendors;
 const TRANSACTIONS = db.transactions;
@@ -112,5 +112,37 @@ export const transaction_rules = {
             .bail()
             .isString().isLength({ min: 3, max: 50 })
             .withMessage("Invalid length (3 - 50) characters")
+    ],
+    forServiceChargePayment: [
+        check('amount', "Amount is required")
+            .exists({ checkNull: true, checkFalsy: true })
+            .bail()
+            .isFloat()
+            .custom(amount => {
+                if (amount === 0) return false;
+                else if (amount < 0) return false;
+                else return true;
+            })
+            .withMessage("Amount invalid"),
+        check('payment_method', "Payment Method is required")
+            .exists({ checkNull: true, checkFalsy: true })
+            .bail()
+            .isString().isLength({ min: 3, max: 20 })
+            .withMessage("Invalid length (3 - 20) characters")
+            .bail()
+            .custom(payment_method => !!validate_vendor_payment_method(payment_method))
+            .withMessage(`Invalid payment method, accepted methods (${vendor_payment_methods.card, vendor_payment_methods.wallet, vendor_payment_methods.transfer})`)
+    ],
+    forWithdrawal: [
+        check('amount', "Amount is required")
+            .exists({ checkNull: true, checkFalsy: true })
+            .bail()
+            .isFloat()
+            .custom(amount => {
+                if (amount === 0) return false;
+                else if (amount < 0) return false;
+                else return true;
+            })
+            .withMessage("Amount invalid")
     ]
 };  
