@@ -45,6 +45,7 @@ export const disputed = "Disputed";
 export const refunded = "Refunded";
 export const checked_out = "Checked Out";
 export const anonymous = "Anonymous";
+export const product_availablity = { available: "Available", unavailable: "Unavailable" }
 export const ratings = [
     {
         rate: "Very Bad",

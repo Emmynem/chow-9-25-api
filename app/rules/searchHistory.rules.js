@@ -65,8 +65,8 @@ export const search_history_rules = {
             })
     ],
     forAdding: [
-        check('user_unique_id', "User Unique Id is required")
-            .exists({ checkNull: true, checkFalsy: true })
+        check('user_unique_id')
+            .optional({ checkFalsy: false })
             .bail()
             .custom(user_unique_id => {
                 return USERS.findOne({ where: { unique_id: user_unique_id, status: default_status } }).then(data => {
@@ -76,7 +76,7 @@ export const search_history_rules = {
         check('search', "Search is required")
             .exists({ checkNull: true, checkFalsy: true })
             .bail()
-            .isString().isLength({ min: 3, max: 300 })
-            .withMessage("Invalid length (3 - 300) characters"),
+            .isString().isLength({ min: 1, max: 300 })
+            .withMessage("Invalid length (1 - 300) characters"),
     ]
 };  

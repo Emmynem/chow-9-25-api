@@ -94,14 +94,14 @@ export const transaction_rules = {
             .isString().isLength({ min: 3, max: 50 })
             .withMessage("Invalid length (3 - 50) characters"),
         check('details', "Details is required")
-            .exists({ checkFalsy: false })
+            .optional({ checkFalsy: false })
             .bail()
             .isString().isLength({ min: 3, max: 500 })
             .withMessage("Invalid length (3 - 500) characters"),
     ],
     forUpdatingDetails: [
         check('details', "Details is required")
-            .exists({ checkFalsy: false })
+            .optional({ checkFalsy: false })
             .bail()
             .isString().isLength({ min: 3, max: 500 })
             .withMessage("Invalid length (3 - 500) characters")

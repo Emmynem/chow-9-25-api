@@ -77,7 +77,7 @@ export const product_rules = {
                 });
             }),
         check('menu_unique_id')
-            .exists({ checkFalsy: false })
+            .optional({ checkFalsy: false })
             .bail()
             .custom((menu_unique_id, { req }) => {
                 return MENUS.findOne({ 
@@ -151,7 +151,7 @@ export const product_rules = {
             })
             .withMessage("Quantity invalid"),
         check('remaining')
-            .exists({ checkFalsy: false })
+            .optional({ checkFalsy: false })
             .bail()
             .isInt()
             .custom(remaining => {
@@ -171,7 +171,7 @@ export const product_rules = {
             })
             .withMessage("Price invalid"),
         check('sales_price')
-            .exists({ checkFalsy: false })
+            .optional({ checkFalsy: false })
             .bail()
             .isFloat()
             .custom(sales_price => {
@@ -239,7 +239,7 @@ export const product_rules = {
             })
             .withMessage("Quantity invalid"),
         check('remaining')
-            .exists({ checkFalsy: false })
+            .optional({ checkFalsy: false })
             .bail()
             .isInt()
             .custom(remaining => {
@@ -261,7 +261,7 @@ export const product_rules = {
             })
             .withMessage("Price invalid"),
         check('sales_price')
-            .exists({ checkFalsy: false })
+            .optional({ checkFalsy: false })
             .bail()
             .isFloat()
             .custom(sales_price => {
@@ -273,7 +273,7 @@ export const product_rules = {
     ],
     forUpdatingMenu: [
         check('menu_unique_id')
-            .exists({ checkFalsy: false })
+            .optional({ checkFalsy: false })
             .bail()
             .custom((menu_unique_id, { req }) => {
                 return MENUS.findOne({

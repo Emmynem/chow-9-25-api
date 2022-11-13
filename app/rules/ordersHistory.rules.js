@@ -137,7 +137,7 @@ export const order_history_rules = {
                 });
             }),
         check('price')
-            .exists({ checkFalsy: false })
+            .optional({ checkFalsy: false })
             .bail()
             .isFloat()
             .custom(price => {

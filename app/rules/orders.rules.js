@@ -157,7 +157,7 @@ export const order_rules = {
                 });
             }),
         check('shipping_fee_unique_id')
-            .exists({ checkFalsy: false })
+            .optional({ checkFalsy: false })
             .bail()
             .custom(shipping_fee_unique_id => {
                 return RIDER_SHIPPING.findOne({ where: { unique_id: shipping_fee_unique_id, status: default_status } }).then(data => {
