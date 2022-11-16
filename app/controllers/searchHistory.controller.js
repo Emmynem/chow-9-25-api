@@ -6,6 +6,7 @@ import db from "../models/index.js";
 
 const SEARCH_HISTORY = db.search_history;
 const USERS = db.users;
+const PRODUCTS = db.products;
 const Op = db.Sequelize.Op;
 
 export function rootGetSearchHistories(req, res) {
@@ -66,12 +67,12 @@ export function getSearchHistories(req, res) {
     const user_unique_id = req.UNIQUE_ID;
 
     SEARCH_HISTORY.findAndCountAll({
-        attributes: { exclude: ['id', 'user_unique_id', 'createdAt', 'updatedAt'] },
+        attributes: { exclude: ['id', 'user_unique_id', 'createdAt'] },
         where: {
             user_unique_id
         },
         order: [
-            ['createdAt', 'DESC']
+            ['updatedAt', 'DESC']
         ]
     }).then(search_histories => {
         if (!search_histories || search_histories.length == 0) {

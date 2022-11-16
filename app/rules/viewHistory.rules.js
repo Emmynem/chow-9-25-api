@@ -65,6 +65,30 @@ export const view_history_rules = {
                 });
             })
     ],
+    forFindingViewHistoryViaProductId: [
+        check('user_unique_id', "User Unique Id is required")
+            .exists({ checkNull: true, checkFalsy: true })
+            .bail()
+            .custom(user_unique_id => {
+                return USERS.findOne({ where: { unique_id: user_unique_id, status: default_status } }).then(data => {
+                    if (!data) return Promise.reject('User not found!');
+                });
+            }),
+        check('product_unique_id', "Product Unique Id is required")
+            .exists({ checkNull: true, checkFalsy: true })
+            .bail()
+            .custom((product_unique_id, { req }) => {
+                return VIEW_HISTORY.findOne({
+                    where: {
+                        product_unique_id,
+                        user_unique_id: req.query.user_unique_id || req.body.user_unique_id || '',
+                        status: default_status
+                    }
+                }).then(data => {
+                    if (!data) return Promise.reject('View History not found!');
+                });
+            })
+    ],
     forAdding: [
         check('user_unique_id', "User Unique Id is required")
             .exists({ checkNull: true, checkFalsy: true })
