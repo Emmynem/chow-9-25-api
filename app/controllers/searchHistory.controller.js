@@ -18,7 +18,7 @@ export function rootGetSearchHistories(req, res) {
         include: [
             {
                 model: USERS,
-                attributes: ['firstname', 'middlename', 'lastname', 'email', 'mobile_number']
+                attributes: ['firstname', 'middlename', 'lastname', 'email', 'mobile_number', 'profile_image']
             }
         ]
     }).then(search_histories => {
@@ -48,7 +48,7 @@ export function rootGetSearchHistory(req, res) {
             include: [
                 {
                     model: USERS,
-                    attributes: ['firstname', 'middlename', 'lastname', 'email', 'mobile_number']
+                    attributes: ['firstname', 'middlename', 'lastname', 'email', 'mobile_number', 'profile_image']
                 }
             ]
         }).then(search_history => {

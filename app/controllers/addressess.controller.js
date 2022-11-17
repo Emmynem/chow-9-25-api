@@ -18,7 +18,7 @@ export function rootGetAddressess(req, res) {
         include: [
             {
                 model: USERS,
-                attributes: ['firstname', 'middlename', 'lastname', 'email', 'mobile_number']
+                attributes: ['firstname', 'middlename', 'lastname', 'email', 'mobile_number', 'profile_image']
             }
         ]
     }).then(addressess => {
@@ -44,7 +44,7 @@ export function rootGetDefaultAddressess(req, res) {
         include: [
             {
                 model: USERS,
-                attributes: ['firstname', 'middlename', 'lastname', 'email', 'mobile_number']
+                attributes: ['firstname', 'middlename', 'lastname', 'email', 'mobile_number', 'profile_image']
             }
         ]
     }).then(addressess => {
@@ -74,7 +74,7 @@ export function rootGetAddress(req, res) {
             include: [
                 {
                     model: USERS,
-                    attributes: ['firstname', 'middlename', 'lastname', 'email', 'mobile_number']
+                    attributes: ['firstname', 'middlename', 'lastname', 'email', 'mobile_number', 'profile_image']
                 }
             ]
         }).then(address => {

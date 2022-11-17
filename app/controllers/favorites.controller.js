@@ -7,6 +7,7 @@ import db from "../models/index.js";
 const FAVORITES = db.favorites;
 const USERS = db.users;
 const PRODUCTS = db.products;
+const PRODUCT_IMAGES = db.product_images;
 const Op = db.Sequelize.Op;
 
 export function rootGetFavorites(req, res) {
@@ -18,11 +19,17 @@ export function rootGetFavorites(req, res) {
         include: [
             {
                 model: USERS,
-                attributes: ['firstname', 'middlename', 'lastname', 'email', 'mobile_number']
+                attributes: ['firstname', 'middlename', 'lastname', 'email', 'mobile_number', 'profile_image']
             },
             {
                 model: PRODUCTS,
-                attributes: ['name', 'stripped', 'duration', 'weight', 'price', 'sales_price', 'views', 'favorites', 'good_rating', 'bad_rating']
+                attributes: ['name', 'stripped', 'duration', 'weight', 'price', 'sales_price', 'views', 'favorites', 'good_rating', 'bad_rating'],
+                include: [
+                    {
+                        model: PRODUCT_IMAGES,
+                        attributes: ['image']
+                    }
+                ]
             }
         ]
     }).then(favorites => {
@@ -52,11 +59,17 @@ export function rootGetFavorite(req, res) {
             include: [
                 {
                     model: USERS,
-                    attributes: ['firstname', 'middlename', 'lastname', 'email', 'mobile_number']
+                    attributes: ['firstname', 'middlename', 'lastname', 'email', 'mobile_number', 'profile_image']
                 },
                 {
                     model: PRODUCTS,
-                    attributes: ['name', 'stripped', 'duration', 'weight', 'price', 'sales_price', 'views', 'favorites', 'good_rating', 'bad_rating']
+                    attributes: ['name', 'stripped', 'duration', 'weight', 'price', 'sales_price', 'views', 'favorites', 'good_rating', 'bad_rating'],
+                    include: [
+                        {
+                            model: PRODUCT_IMAGES,
+                            attributes: ['image']
+                        }
+                    ]
                 }
             ]
         }).then(favorite => {
@@ -85,7 +98,13 @@ export function getFavorites(req, res) {
         include: [
             {
                 model: PRODUCTS,
-                attributes: ['name', 'stripped', 'duration', 'weight', 'price', 'sales_price', 'views', 'favorites', 'good_rating', 'bad_rating']
+                attributes: ['name', 'stripped', 'duration', 'weight', 'price', 'sales_price', 'views', 'favorites', 'good_rating', 'bad_rating'],
+                include: [
+                    {
+                        model: PRODUCT_IMAGES,
+                        attributes: ['image']
+                    }
+                ]
             }
         ]
     }).then(favorites => {
