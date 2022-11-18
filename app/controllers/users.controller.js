@@ -6,6 +6,7 @@ import db from "../models/index.js";
 import { addUserNotification } from './notifications.controller.js';
 
 const USERS = db.users;
+const USER_ACCOUNT = db.user_account;
 const NOTIFICATIONS = db.notifications;
 const PRIVATES = db.privates;
 const REFERRALS = db.referrals;
@@ -385,8 +386,9 @@ export async function removeUserPermanently (req, res) {
             const notifications = await db.sequelize.transaction((t) => { return NOTIFICATIONS.destroy({ where: { user_unique_id: payload.unique_id } }, { transaction: t }) });
             const privates = await db.sequelize.transaction((t) => { return PRIVATES.destroy({ where: { user_unique_id: payload.unique_id } }, { transaction: t }) });
             const referrals = await db.sequelize.transaction((t) => { return REFERRALS.destroy({ where: { user_unique_id: payload.unique_id } }, { transaction: t }) });
+            const user_account = await db.sequelize.transaction((t) => { return USER_ACCOUNT.destroy({ where: { user_unique_id: payload.unique_id } }, { transaction: t }) });
 
-            const affected_rows = notifications + privates + referrals;
+            const affected_rows = notifications + privates + referrals + user_account;
 
             if (affected_rows > 0) {
                 const action_2 = await db.sequelize.transaction((t) => { 
