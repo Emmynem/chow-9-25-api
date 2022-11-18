@@ -4,6 +4,7 @@ import apiKeysModel from "./apiKeys.model.js";
 import appDefaultsModel from "./appDefaults.model.js";
 import usersModel from "./users.model.js";
 import privatesModel from "./privates.model.js";
+import userAccountModel from "./userAccount.model.js";
 import notificationsModel from "./notifications.model.js";
 import addressessModel from "./addressess.model.js";
 import cartsModel from "./carts.model.js";
@@ -66,6 +67,7 @@ db.api_keys = apiKeysModel(sequelize, Sequelize);
 db.app_defaults = appDefaultsModel(sequelize, Sequelize);
 db.users = usersModel(sequelize, Sequelize);
 db.privates = privatesModel(sequelize, Sequelize);
+db.user_account = userAccountModel(sequelize, Sequelize);
 db.notifications = notificationsModel(sequelize, Sequelize);
 db.addressess = addressessModel(sequelize, Sequelize);
 db.vendors = vendorsModel(sequelize, Sequelize);
@@ -99,6 +101,10 @@ db.orders_history = ordersHistoryModel(sequelize, Sequelize);
 //    - Privates Associations
 db.privates.hasMany(db.users, { foreignKey: 'unique_id', sourceKey: 'user_unique_id' });
 db.users.belongsTo(db.privates, { foreignKey: 'unique_id', targetKey: 'user_unique_id' });
+
+//    - User Account Associations
+db.user_account.hasMany(db.users, { foreignKey: 'unique_id', sourceKey: 'user_unique_id' });
+db.users.belongsTo(db.user_account, { foreignKey: 'unique_id', targetKey: 'user_unique_id' });
 
 //    - Notifications Associations
 db.notifications.hasMany(db.users, { foreignKey: 'unique_id', sourceKey: 'user_unique_id' });

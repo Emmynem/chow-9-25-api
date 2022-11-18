@@ -14,6 +14,7 @@ import { addUserNotification } from './notifications.controller.js';
 const USERS = db.users;
 const PRIVATES = db.privates;
 const REFERRALS = db.referrals;
+const USER_ACCOUNT = db.user_account;
 const VENDORS = db.vendors;
 const VENDOR_USERS = db.vendor_users;
 const VENDOR_ACCOUNT = db.vendor_account;
@@ -49,6 +50,15 @@ export async function userSignUp(req, res) {
                 }, { transaction: t });
             });
 
+            const user_account = await db.sequelize.transaction((t) => {
+                return USER_ACCOUNT.create({
+                    unique_id: uuidv4(),
+                    user_unique_id: users.unique_id,
+                    balance: zero,
+                    status: default_status
+                }, { transaction: t });
+            });
+
             const privates = await db.sequelize.transaction((t) => {
                 return PRIVATES.create({
                     unique_id: uuidv4(),
@@ -77,7 +87,7 @@ export async function userSignUp(req, res) {
                 }, { transaction: t });
             });
 
-            if (users) {
+            if (users && user_account) {
                 const folder_name = user_documents_path + users.unique_id;
                 if (!existsSync(folder_name)) mkdirSync(folder_name);
                 if (existsSync(folder_name)) {
