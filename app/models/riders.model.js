@@ -78,6 +78,10 @@ export default (sequelize, Sequelize) => {
             type: Sequelize.BIGINT,
             allowNull: true,
         },
+        availability: {
+            type: Sequelize.BOOLEAN,
+            allowNull: false,
+        },
         verification: {
             type: Sequelize.BOOLEAN,
             allowNull: false,

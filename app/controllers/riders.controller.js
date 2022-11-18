@@ -81,8 +81,7 @@ export async function updateRider(req, res) {
 
     if (!errors.isEmpty()) {
         ValidationError(res, { unique_id: rider_unique_id, text: "Validation Error Occured" }, errors.array())
-    }
-    else {
+    } else {
         try {
             const rider = await db.sequelize.transaction((t) => {
                 return RIDERS.update({ ...payload }, {
@@ -95,6 +94,44 @@ export async function updateRider(req, res) {
 
             if (rider > 0) {
                 SuccessResponse(res, { unique_id: rider_unique_id, text: "Rider details updated successfully!" }, rider);
+            } else {
+                BadRequestError(res, { unique_id: rider_unique_id, text: "Rider not found!" }, null);
+            }
+        } catch (err) {
+            ServerError(res, { unique_id: rider_unique_id, text: err.message }, null);
+        }
+    }
+};
+
+export async function changeRiderAvailability(req, res) {
+    const rider_unique_id = req.RIDER_UNIQUE_ID || payload.unique_id || '';
+    const errors = validationResult(req);
+    const payload = matchedData(req);
+
+    if (!errors.isEmpty()) {
+        ValidationError(res, { unique_id: rider_unique_id, text: "Validation Error Occured" }, errors.array())
+    } else {
+        try {
+            const rider_availability = await RIDERS.findOne({
+                where: {
+                    unique_id: rider_unique_id,
+                    status: default_status
+                }
+            });
+
+            const rider = await db.sequelize.transaction((t) => {
+                return RIDERS.update({ 
+                    availability: rider_availability.availability ? false_status : true_status
+                 }, {
+                    where: {
+                        unique_id: rider_unique_id,
+                        status: default_status
+                    }
+                }, { transaction: t });
+            });
+
+            if (rider > 0) {
+                SuccessResponse(res, { unique_id: rider_unique_id, text: "Rider availability updated successfully!" }, rider);
             } else {
                 BadRequestError(res, { unique_id: rider_unique_id, text: "Rider not found!" }, null);
             }
