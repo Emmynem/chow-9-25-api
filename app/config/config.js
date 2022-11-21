@@ -91,6 +91,8 @@ export const deposit = "Deposit"; // Might not use this self sha
 export const debt_incurred = "Service charge incurred";
 export const debt_nullified = "Service charge nullified";
 export const debt_payed = "Service charge payed";
+export const refund = "Refund";
+export const payment = "Payment";
 // End - Default Transaction Types
 
 // File lengths
@@ -208,6 +210,12 @@ export const percentage = {
     criteria: "Percentage",
     data_type: "INTEGER",
     value: 5
+};
+
+export const order_cancellation_percentage = {
+    criteria: "Order Cancellation Percentage",
+    data_type: "INTEGER",
+    value: 10
 };
 
 export const service_charge_percentage = {
