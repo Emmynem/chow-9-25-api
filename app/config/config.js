@@ -93,6 +93,7 @@ export const debt_nullified = "Service charge nullified";
 export const debt_payed = "Service charge payed";
 export const refund = "Refund";
 export const payment = "Payment";
+export const compensation = "Compensation";
 // End - Default Transaction Types
 
 // File lengths
@@ -216,6 +217,18 @@ export const order_cancellation_percentage = {
     criteria: "Order Cancellation Percentage",
     data_type: "INTEGER",
     value: 10
+};
+
+export const vendor_cancellation_percentage = {
+    criteria: "Vendor Cancellation Percentage",
+    data_type: "INTEGER",
+    value: 60
+};
+
+export const rider_cancellation_percentage = {
+    criteria: "Rider Cancellation Percentage",
+    data_type: "INTEGER",
+    value: 40
 };
 
 export const service_charge_percentage = {
