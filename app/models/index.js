@@ -27,6 +27,7 @@ import riderBankAccountsModel from "./riderBankAccounts.model.js";
 import riderShippingModel from "./riderShipping.model.js";
 import searchHistoryModel from "./searchHistory.model.js";
 import transactionsModel from "./transactions.model.js";
+import riderTransactionsModel from "./riderTransactions.model.js";
 import vendorAccountModel from "./vendorAccount.model.js";
 import vendorAddressModel from "./vendorAddress.model.js";
 import vendorBankAccountsModel from "./vendorBankAccounts.model.js";
@@ -87,6 +88,7 @@ db.rider_bank_accounts = riderBankAccountsModel(sequelize, Sequelize);
 db.rider_shipping = riderShippingModel(sequelize, Sequelize);
 db.search_history = searchHistoryModel(sequelize, Sequelize);
 db.transactions = transactionsModel(sequelize, Sequelize);
+db.rider_transactions = riderTransactionsModel(sequelize, Sequelize);
 db.vendor_account = vendorAccountModel(sequelize, Sequelize);
 db.vendor_address = vendorAddressModel(sequelize, Sequelize);
 db.vendor_bank_accounts = vendorBankAccountsModel(sequelize, Sequelize);
@@ -186,6 +188,10 @@ db.users.belongsTo(db.search_history, { foreignKey: 'unique_id', targetKey: 'use
 //    - Transactions Associations
 db.transactions.hasMany(db.vendors, { foreignKey: 'unique_id', sourceKey: 'vendor_unique_id' });
 db.vendors.belongsTo(db.transactions, { foreignKey: 'unique_id', targetKey: 'vendor_unique_id' });
+
+//    - Rider Transactions Associations
+db.rider_transactions.hasMany(db.riders, { foreignKey: 'unique_id', sourceKey: 'rider_unique_id' });
+db.riders.belongsTo(db.rider_transactions, { foreignKey: 'unique_id', targetKey: 'rider_unique_id' });
 
 //    - Vendor Account Associations
 db.vendor_account.hasMany(db.vendors, { foreignKey: 'unique_id', sourceKey: 'vendor_unique_id' });
