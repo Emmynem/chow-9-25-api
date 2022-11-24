@@ -219,16 +219,34 @@ export const order_cancellation_percentage = {
     value: 10
 };
 
+export const order_refund_percentage = {
+    criteria: "Order Refund Percentage",
+    data_type: "INTEGER",
+    value: 15
+};
+
+export const platform_refund_percentage = {
+    criteria: "Platform Refund Percentage",
+    data_type: "INTEGER",
+    value: 20
+};
+
+export const vendor_refund_percentage = {
+    criteria: "Vendor Refund Percentage",
+    data_type: "INTEGER",
+    value: 80
+};
+
 export const vendor_cancellation_percentage = {
     criteria: "Vendor Cancellation Percentage",
     data_type: "INTEGER",
-    value: 60
+    value: 70
 };
 
 export const rider_cancellation_percentage = {
     criteria: "Rider Cancellation Percentage",
     data_type: "INTEGER",
-    value: 40
+    value: 30
 };
 
 export const service_charge_percentage = {
