@@ -43,6 +43,7 @@ export const add_coupon = "Coupon Added";
 export const add_shipping_fee = "Shipping Fee Added";
 export const disputed = "Disputed";
 export const refunded = "Refunded";
+export const refund_denied = "Refund Denied";
 export const checked_out = "Checked Out";
 export const anonymous = "Anonymous";
 export const product_availablity = { available: "Available", unavailable: "Unavailable" }
@@ -233,6 +234,12 @@ export const platform_refund_percentage = {
 
 export const vendor_refund_percentage = {
     criteria: "Vendor Refund Percentage",
+    data_type: "INTEGER",
+    value: 80
+};
+
+export const rider_refund_percentage = {
+    criteria: "Rider Refund Percentage",
     data_type: "INTEGER",
     value: 80
 };
