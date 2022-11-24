@@ -104,21 +104,26 @@ export async function addCategory(req, res) {
         ValidationError(res, { unique_id: tag_admin, text: "Validation Error Occured" }, errors.array())
     } else {
         try {
-            const category_name = payload.name;
-            const stripped = strip_text(category_name);
+            await db.sequelize.transaction(async (transaction) => {
 
-            const categories = await db.sequelize.transaction((t) => {
-                return CATEGORIES.create({
-                    unique_id: uuidv4(),
-                    name: category_name,
-                    stripped,
-                    status: default_status
-                }, { transaction: t });
+                const category_name = payload.name;
+                const stripped = strip_text(category_name);
+    
+                const categories = await CATEGORIES.create(
+                    {
+                        unique_id: uuidv4(),
+                        name: category_name,
+                        stripped,
+                        status: default_status
+                    }, { transaction }
+                );
+    
+                if (categories) {
+                    CreationSuccessResponse(res, { unique_id: tag_admin, text: "Category created successfully!" });
+                } else {
+                    throw new Error("Error creating category");
+                }
             });
-
-            if (categories) {
-                CreationSuccessResponse(res, { unique_id: tag_admin, text: "Category created successfully!" });
-            }
         } catch (err) {
             ServerError(res, { unique_id: tag_admin, text: err.message }, null);
         }
@@ -133,26 +138,30 @@ export async function updateCategory(req, res) {
         ValidationError(res, { unique_id: tag_admin, text: "Validation Error Occured" }, errors.array())
     } else {
         try {
-            const category_name = payload.name;
-            const stripped = strip_text(category_name);
-
-            const category = await db.sequelize.transaction((t) => {
-                return CATEGORIES.update({
-                    name: category_name,
-                    stripped,
-                }, {
-                    where: {
-                        unique_id: payload.unique_id,
-                        status: default_status
+            await db.sequelize.transaction(async (transaction) => {
+                
+                const category_name = payload.name;
+                const stripped = strip_text(category_name);
+    
+                const category = await CATEGORIES.update(
+                    {
+                        name: category_name,
+                        stripped,
+                    }, {
+                        where: {
+                            unique_id: payload.unique_id,
+                            status: default_status
+                        }, 
+                        transaction
                     }
-                }, { transaction: t });
+                );
+    
+                if (category > 0) {
+                    OtherSuccessResponse(res, { unique_id: tag_admin, text: "Category was updated successfully!" });
+                } else {
+                    throw new Error("Error updating category!");
+                }
             });
-
-            if (category > 0) {
-                OtherSuccessResponse(res, { unique_id: tag_admin, text: "Category was updated successfully!" });
-            } else {
-                BadRequestError(res, { unique_id: tag_admin, text: "Error updating category!" }, null);
-            }
         } catch (err) {
             ServerError(res, { unique_id: tag_admin, text: err.message }, null);
         }
@@ -167,42 +176,48 @@ export async function removeCategory(req, res) {
         ValidationError(res, { unique_id: tag_admin, text: "Validation Error Occured" }, errors.array())
     } else {
         try {
-            const category = await db.sequelize.transaction((t) => {
-                return CATEGORIES.update({
-                    status: default_delete_status
-                }, {
-                    where: {
-                        unique_id: payload.unique_id,
-                        status: default_status
+            await db.sequelize.transaction(async (transaction) => {
+
+                const category = await CATEGORIES.update(
+                    {
+                        status: default_delete_status
+                    }, {
+                        where: {
+                            unique_id: payload.unique_id,
+                            status: default_status
+                        }, 
+                        transaction
                     }
-                }, { transaction: t });
+                );
+    
+                if (category > 0) {
+                    const products = await PRODUCTS.update(
+                        {
+                            status: default_delete_status
+                        }, {
+                            where: {
+                                category_unique_id: payload.unique_id
+                            }, 
+                            transaction
+                        }
+                    );
+    
+                    const category_images = await CATEGORY_IMAGES.update(
+                        {
+                            status: default_delete_status
+                        }, {
+                            where: {
+                                category_unique_id: payload.unique_id
+                            }, 
+                            transaction
+                        }
+                    );
+    
+                    OtherSuccessResponse(res, { unique_id: tag_admin, text: `Category was removed successfully, ${products} product(s) affected!` });
+                } else {
+                    throw new Error("Error removing category!");
+                }
             });
-
-            if (category > 0) {
-                const products = await db.sequelize.transaction((t) => {
-                    return PRODUCTS.update({
-                        status: default_delete_status
-                    }, {
-                        where: {
-                            category_unique_id: payload.unique_id
-                        }
-                    }, { transaction: t });
-                });
-
-                const category_images = await db.sequelize.transaction((t) => {
-                    return CATEGORY_IMAGES.update({
-                        status: default_delete_status
-                    }, {
-                        where: {
-                            category_unique_id: payload.unique_id
-                        }
-                    }, { transaction: t });
-                });
-
-                OtherSuccessResponse(res, { unique_id: tag_admin, text: `Category was removed successfully, ${products} product(s) affected!` });
-            } else {
-                BadRequestError(res, { unique_id: tag_admin, text: "Error removing category!" }, null);
-            }
         } catch (err) {
             ServerError(res, { unique_id: tag_admin, text: err.message }, null);
         }
@@ -217,42 +232,48 @@ export async function restoreCategory(req, res) {
         ValidationError(res, { unique_id: tag_admin, text: "Validation Error Occured" }, errors.array())
     } else {
         try {
-            const category = await db.sequelize.transaction((t) => {
-                return CATEGORIES.update({
-                    status: default_status
-                }, {
-                    where: {
-                        unique_id: payload.unique_id,
-                        status: default_delete_status
+            await db.sequelize.transaction(async (transaction) => {
+
+                const category = await CATEGORIES.update(
+                    {
+                        status: default_status
+                    }, {
+                        where: {
+                            unique_id: payload.unique_id,
+                            status: default_delete_status
+                        }, 
+                        transaction
                     }
-                }, { transaction: t });
+                );
+    
+                if (category > 0) {
+                    const products = await PRODUCTS.update(
+                        {
+                            status: default_status
+                        }, {
+                            where: {
+                                category_unique_id: payload.unique_id
+                            }, 
+                            transaction
+                        }
+                    );
+    
+                    const category_images = await CATEGORY_IMAGES.update(
+                        {
+                            status: default_status
+                        }, {
+                            where: {
+                                category_unique_id: payload.unique_id
+                            }, 
+                            transaction
+                        }
+                    );
+    
+                    OtherSuccessResponse(res, { unique_id: tag_admin, text: `Category was restored successfully, ${products} product(s) affected!` });
+                } else {
+                    throw new Error("Error restoring category!");
+                }
             });
-
-            if (category > 0) {
-                const products = await db.sequelize.transaction((t) => {
-                    return PRODUCTS.update({
-                        status: default_status
-                    }, {
-                        where: {
-                            category_unique_id: payload.unique_id
-                        }
-                    }, { transaction: t });
-                });
-
-                const category_images = await db.sequelize.transaction((t) => {
-                    return CATEGORY_IMAGES.update({
-                        status: default_status
-                    }, {
-                        where: {
-                            category_unique_id: payload.unique_id
-                        }
-                    }, { transaction: t });
-                });
-
-                OtherSuccessResponse(res, { unique_id: tag_admin, text: `Category was restored successfully, ${products} product(s) affected!` });
-            } else {
-                BadRequestError(res, { unique_id: tag_admin, text: "Error restoring category!" }, null);
-            }
         } catch (err) {
             ServerError(res, { unique_id: tag_admin, text: err.message }, null);
         }

@@ -168,27 +168,31 @@ export async function addUserAddress(req, res) {
         ValidationError(res, { unique_id: user_unique_id, text: "Validation Error Occured" }, errors.array())
     } else {
         try {
-            const address_count = await ADDRESSESS.count({ where: { user_unique_id } });
-
-            const addressess = await db.sequelize.transaction((t) => {
-                return ADDRESSESS.create({
-                    unique_id: uuidv4(),
-                    user_unique_id,
-                    ...payload,
-                    default_address: address_count === 0 ? true_status : false_status,
-                    status: default_status
-                }, { transaction: t });
+            await db.sequelize.transaction(async (transaction) => {
+                const address_count = await ADDRESSESS.count({ where: { user_unique_id }, transaction });
+    
+                const addressess = await ADDRESSESS.create(
+                    {
+                        unique_id: uuidv4(),
+                        user_unique_id,
+                        ...payload,
+                        default_address: address_count === 0 ? true_status : false_status,
+                        status: default_status
+                    }, { transaction }
+                );
+    
+                if (addressess) {
+                    const notification_data = {
+                        user_unique_id,
+                        type: "Address",
+                        action: "Created new address successfully!"
+                    };
+                    addUserNotification(req, res, notification_data, transaction);
+                    CreationSuccessResponse(res, { unique_id: user_unique_id, text: "Address created successfully!" });
+                } else {
+                    throw new Error("Error creating address!");
+                }
             });
-
-            if (addressess) {
-                const notification_data = {
-                    user_unique_id,
-                    type: "Address",
-                    action: "Created new address successfully!"
-                };
-                addUserNotification(req, res, notification_data);
-                CreationSuccessResponse(res, { unique_id: user_unique_id, text: "Address created successfully!" });
-            }
         } catch (err) {
             ServerError(res, { unique_id: user_unique_id, text: err.message }, null);
         }
@@ -204,29 +208,32 @@ export async function updateUserAddress(req, res) {
         ValidationError(res, { unique_id: user_unique_id, text: "Validation Error Occured" }, errors.array())
     } else {
         try {
-            const address = await db.sequelize.transaction((t) => {
-                return ADDRESSESS.update({
-                    ...payload
-                }, {
-                    where: {
-                        unique_id: payload.unique_id,
-                        user_unique_id,
-                        status: default_status
+            await db.sequelize.transaction(async (transaction) => {
+                const address = await ADDRESSESS.update(
+                    {
+                        ...payload
+                    }, {
+                        where: {
+                            unique_id: payload.unique_id,
+                            user_unique_id,
+                            status: default_status
+                        }, 
+                        transaction
                     }
-                }, { transaction: t });
+                );
+    
+                if (address > 0) {
+                    const notification_data = {
+                        user_unique_id,
+                        type: "Address",
+                        action: "Updated address details successfully!"
+                    };
+                    addUserNotification(req, res, notification_data, transaction);
+                    OtherSuccessResponse(res, { unique_id: user_unique_id, text: "Address was updated successfully!" });
+                } else {
+                    throw new Error("Error updating address details!");
+                }
             });
-
-            if (address > 0) {
-                const notification_data = {
-                    user_unique_id,
-                    type: "Address",
-                    action: "Updated address details successfully!"
-                };
-                addUserNotification(req, res, notification_data);
-                OtherSuccessResponse(res, { unique_id: user_unique_id, text: "Address was updated successfully!" });
-            } else {
-                BadRequestError(res, { unique_id: user_unique_id, text: "Error updating address details!" }, null);
-            }
         } catch (err) {
             ServerError(res, { unique_id: user_unique_id, text: err.message }, null);
         }
@@ -242,43 +249,48 @@ export async function changeUserDefaultAddress(req, res) {
         ValidationError(res, { unique_id: user_unique_id, text: "Validation Error Occured" }, errors.array())
     } else {
         try {
-            const not_default_address = await db.sequelize.transaction((t) => {
-                return ADDRESSESS.update({
-                    default_address: false_status
-                }, {
-                    where: {
-                        unique_id: {
-                            [Op.ne]: payload.unique_id,
-                        },
-                        user_unique_id,
-                        status: default_status
-                    }
-                }, { transaction: t });
-            });
-            
-            const address = await db.sequelize.transaction((t) => {
-                return ADDRESSESS.update({
-                    default_address: true_status
-                }, {
-                    where: {
-                        unique_id: payload.unique_id,
-                        user_unique_id,
-                        status: default_status
-                    }
-                }, { transaction: t });
-            });
+            await db.sequelize.transaction(async (transaction) => {
 
-            if (address > 0) {
-                const notification_data = {
-                    user_unique_id,
-                    type: "Address",
-                    action: "Updated default address successfully!"
-                };
-                addUserNotification(req, res, notification_data);
-                OtherSuccessResponse(res, { unique_id: user_unique_id, text: "Default address was updated successfully!" });
-            } else {
-                BadRequestError(res, { unique_id: user_unique_id, text: "Error updating default address!" }, null);
-            }
+                const not_default_address = await ADDRESSESS.update(
+                    {
+                        default_address: false_status
+                    }, {
+                        where: {
+                            unique_id: {
+                                [Op.ne]: payload.unique_id,
+                            },
+                            user_unique_id,
+                            status: default_status
+                        },
+                        transaction
+                    }
+                );
+                
+                const address = await ADDRESSESS.update(
+                    {
+                        default_address: true_status
+                    }, {
+                        where: {
+                            unique_id: payload.unique_id,
+                            user_unique_id,
+                            status: default_status
+                        },
+                        transaction
+                    }
+                );
+    
+                if (address > 0) {
+                    const notification_data = {
+                        user_unique_id,
+                        type: "Address",
+                        action: "Updated default address successfully!"
+                    };
+                    addUserNotification(req, res, notification_data, transaction);
+                    OtherSuccessResponse(res, { unique_id: user_unique_id, text: "Default address was updated successfully!" });
+                } else {
+                    throw new Error("Error updating default address!");
+                }
+            });
         } catch (err) {
             ServerError(res, { unique_id: user_unique_id, text: err.message }, null);
         }
@@ -294,39 +306,44 @@ export async function deleteUserAddress(req, res) {
         ValidationError(res, { unique_id: user_unique_id, text: "Validation Error Occured" }, errors.array())
     } else {
         try {
-            const addresses = await ADDRESSESS.findOne({
-                where: {
-                    user_unique_id,
-                    default_address: true_status,
-                    status: default_status
-                },
-            });
+            await db.sequelize.transaction(async (transaction) => {
 
-            if (addresses.unique_id === payload.unique_id) {
-                BadRequestError(res, { unique_id: user_unique_id, text: "Error deleting default address!" }, null);
-            } else {
-                const address = await db.sequelize.transaction((t) => {
-                    return ADDRESSESS.destroy({
-                        where: {
-                            unique_id: payload.unique_id,
-                            user_unique_id,
-                            status: default_status
-                        }
-                    }, { transaction: t });
+                const addresses = await ADDRESSESS.findOne({
+                    where: {
+                        user_unique_id,
+                        default_address: true_status,
+                        status: default_status
+                    },
+                    transaction
                 });
     
-                if (address > 0) {
-                    const notification_data = {
-                        user_unique_id,
-                        type: "Address",
-                        action: "Deleted address successfully!"
-                    };
-                    addUserNotification(req, res, notification_data);
-                    OtherSuccessResponse(res, { unique_id: user_unique_id, text: "Address was deleted successfully!" });
+                if (addresses.unique_id === payload.unique_id) {
+                    BadRequestError(res, { unique_id: user_unique_id, text: "Error deleting default address!" }, null);
                 } else {
-                    BadRequestError(res, { unique_id: user_unique_id, text: "Error deleting address!" }, null);
+                    const address = await ADDRESSESS.destroy(
+                        {
+                            where: {
+                                unique_id: payload.unique_id,
+                                user_unique_id,
+                                status: default_status
+                            }, 
+                            transaction
+                        }
+                    );
+        
+                    if (address > 0) {
+                        const notification_data = {
+                            user_unique_id,
+                            type: "Address",
+                            action: "Deleted address successfully!"
+                        };
+                        addUserNotification(req, res, notification_data, transaction);
+                        OtherSuccessResponse(res, { unique_id: user_unique_id, text: "Address was deleted successfully!" });
+                    } else {
+                        throw new Error("Error deleting address!");
+                    }
                 }
-            }
+            });
 
         } catch (err) {
             ServerError(res, { unique_id: user_unique_id, text: err.message }, null);

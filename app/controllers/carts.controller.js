@@ -284,84 +284,92 @@ export async function addCart(req, res) {
         ValidationError(res, { unique_id: user_unique_id, text: "Validation Error Occured" }, errors.array())
     } else {
         try {
-            const address = await ADDRESSESS.findOne({
-                where: {
-                    user_unique_id,
-                    default_address: true_status,
-                    status: default_status
-                }
-            });
+            await db.sequelize.transaction(async (transaction) => {
 
-            const product = await PRODUCTS.findOne({
-                where: {
-                    unique_id: payload.product_unique_id,
-                    vendor_unique_id: payload.vendor_unique_id,
-                    status: default_status
-                }
-            });
-
-            const rider_shipping = await RIDER_SHIPPING.findOne({
-                where: {
-                    unique_id: payload.shipping_fee_unique_id,
-                    status: default_status
-                }
-            });
-
-            const existing_cart = await CARTS.findOne({
-                where: {
-                    user_unique_id,
-                    vendor_unique_id: payload.vendor_unique_id,
-                    product_unique_id: payload.product_unique_id,
-                    status: default_status
-                }
-            });
-
-            if (address) {
-                if (product.remaining >= payload.quantity) {
-                    if (existing_cart) {
-                        const new_quantity = existing_cart.quantity + 1;
-
-                        const cart = await db.sequelize.transaction((t) => {
-                            return CARTS.update({
-                                quantity: new_quantity,
-                            }, {
-                                where: {
-                                    user_unique_id,
-                                    vendor_unique_id: payload.vendor_unique_id,
-                                    product_unique_id: payload.product_unique_id,
-                                    status: default_status
+                const address = await ADDRESSESS.findOne({
+                    where: {
+                        user_unique_id,
+                        default_address: true_status,
+                        status: default_status
+                    },
+                    transaction
+                });
+    
+                const product = await PRODUCTS.findOne({
+                    where: {
+                        unique_id: payload.product_unique_id,
+                        vendor_unique_id: payload.vendor_unique_id,
+                        status: default_status
+                    },
+                    transaction
+                });
+    
+                const rider_shipping = await RIDER_SHIPPING.findOne({
+                    where: {
+                        unique_id: payload.shipping_fee_unique_id,
+                        status: default_status
+                    }, 
+                    transaction
+                });
+    
+                const existing_cart = await CARTS.findOne({
+                    where: {
+                        user_unique_id,
+                        vendor_unique_id: payload.vendor_unique_id,
+                        product_unique_id: payload.product_unique_id,
+                        status: default_status
+                    }, 
+                    transaction
+                });
+    
+                if (address) {
+                    if (product.remaining >= payload.quantity) {
+                        if (existing_cart) {
+                            const new_quantity = existing_cart.quantity + 1;
+    
+                            const cart = await CARTS.update(
+                                {
+                                    quantity: new_quantity,
+                                }, {
+                                    where: {
+                                        user_unique_id,
+                                        vendor_unique_id: payload.vendor_unique_id,
+                                        product_unique_id: payload.product_unique_id,
+                                        status: default_status
+                                    }, 
+                                    transaction
                                 }
-                            }, { transaction: t });
-                        });
-
-                        if (cart > 0) {
-                            OtherSuccessResponse(res, { unique_id: user_unique_id, text: "Cart updated successfully!" });
+                            );
+    
+                            if (cart > 0) {
+                                OtherSuccessResponse(res, { unique_id: user_unique_id, text: "Cart updated successfully!" });
+                            } else {
+                                throw new Error("Error updating cart!");
+                            }
                         } else {
-                            BadRequestError(res, { unique_id: user_unique_id, text: "Error updating cart!" }, null);
+                            const carts = await CARTS.create(
+                                {
+                                    unique_id: uuidv4(),
+                                    user_unique_id,
+                                    ...payload,
+                                    shipping_fee_unique_id: rider_shipping ? rider_shipping.unique_id : null,
+                                    status: default_status
+                                }, { transaction }
+                            );
+    
+                            if (carts) {
+                                CreationSuccessResponse(res, { unique_id: user_unique_id, text: "Cart added successfully!" });
+                            } else {
+                                throw new Error("Error adding cart!");
+                            }
                         }
                     } else {
-                        const carts = await db.sequelize.transaction((t) => {
-                            return CARTS.create({
-                                unique_id: uuidv4(),
-                                user_unique_id,
-                                ...payload,
-                                shipping_fee_unique_id: rider_shipping ? rider_shipping.unique_id : null,
-                                status: default_status
-                            }, { transaction: t });
-                        });
-
-                        if (carts) {
-                            CreationSuccessResponse(res, { unique_id: user_unique_id, text: "Cart added successfully!" });
-                        } else {
-                            BadRequestError(res, { unique_id: user_unique_id, text: "Error adding cart!" }, null);
-                        }
+                        BadRequestError(res, { unique_id: user_unique_id, text: "Product is out of stock!" }, null);
                     }
                 } else {
-                    BadRequestError(res, { unique_id: user_unique_id, text: "Product is out of stock!" }, null);
+                    BadRequestError(res, { unique_id: user_unique_id, text: "Address not found!" }, null);
                 }
-            } else {
-                BadRequestError(res, { unique_id: user_unique_id, text: "Address not found!" }, null);
-            }
+            });
         } catch (err) {
             ServerError(res, { unique_id: user_unique_id, text: err.message }, null);
         }
@@ -377,23 +385,27 @@ export async function updateCart(req, res) {
         ValidationError(res, { unique_id: user_unique_id, text: "Validation Error Occured" }, errors.array())
     } else {
         try {
-            const cart = await db.sequelize.transaction((t) => {
-                return CARTS.update({
-                    ...payload
-                }, {
-                    where: {
-                        unique_id: payload.unique_id,
-                        user_unique_id,
-                        status: default_status
-                    }
-                }, { transaction: t });
-            });
+            await db.sequelize.transaction(async (transaction) => {
 
-            if (cart > 0) {
-                OtherSuccessResponse(res, { unique_id: user_unique_id, text: "Cart updated successfully!" });
-            } else {
-                BadRequestError(res, { unique_id: user_unique_id, text: "Error updating cart!" }, null);
-            }
+                const cart = await CARTS.update(
+                    {
+                        ...payload
+                    }, {
+                        where: {
+                            unique_id: payload.unique_id,
+                            user_unique_id,
+                            status: default_status
+                        },
+                        transaction
+                    }
+                );
+    
+                if (cart > 0) {
+                    OtherSuccessResponse(res, { unique_id: user_unique_id, text: "Cart updated successfully!" });
+                } else {
+                    throw new Error("Error updating cart!");
+                }
+            });
         } catch (err) {
             ServerError(res, { unique_id: user_unique_id, text: err.message }, null);
         }
@@ -409,21 +421,25 @@ export async function deleteCart(req, res) {
         ValidationError(res, { unique_id: user_unique_id, text: "Validation Error Occured" }, errors.array())
     } else {
         try {
-            const cart = await db.sequelize.transaction((t) => {
-                return CARTS.destroy({
-                    where: {
-                        unique_id: payload.unique_id,
-                        user_unique_id,
-                        status: default_status
-                    }
-                }, { transaction: t });
-            });
+            await db.sequelize.transaction(async (transaction) => {
 
-            if (cart > 0) {
-                OtherSuccessResponse(res, { unique_id: user_unique_id, text: "Cart was deleted successfully!" });
-            } else {
-                BadRequestError(res, { unique_id: user_unique_id, text: "Error deleting cart!" }, null);
-            }
+                const cart = await CARTS.destroy(
+                    {
+                        where: {
+                            unique_id: payload.unique_id,
+                            user_unique_id,
+                            status: default_status
+                        }, 
+                        transaction
+                    }
+                );
+    
+                if (cart > 0) {
+                    OtherSuccessResponse(res, { unique_id: user_unique_id, text: "Cart was deleted successfully!" });
+                } else {
+                    throw new Error("Error deleting cart!");
+                }
+            });
 
         } catch (err) {
             ServerError(res, { unique_id: user_unique_id, text: err.message }, null);
