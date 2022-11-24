@@ -5,6 +5,7 @@ import { default_status, default_delete_status, validate_payment_method, payment
 const USERS = db.users;
 const ORDERS = db.orders;
 const PRODUCTS = db.products;
+const RIDERS = db.riders;
 const VENDORS = db.vendors;
 const RIDER_SHIPPING = db.rider_shipping;
 
@@ -56,6 +57,34 @@ export const order_rules = {
                     if (!data) return Promise.reject('Orders not found!');
                 });
             })
+    ],
+    forFindingOrdersViaDeliveryStatus: [
+        check('delivery_status', "Delivery Status is required")
+            .exists({ checkNull: true, checkFalsy: true })
+            .bail()
+            .isString().isLength({ min: 3, max: 20 })
+            .withMessage("Invalid length (3 - 20) characters")
+    ],
+    forFindingPaidOrders: [
+        check('paid', "Paid is required")
+            .exists({ checkNull: true, checkFalsy: false })
+            .bail()
+            .isBoolean()
+            .withMessage("Value should be true or false"),
+    ],
+    forFindingShippedOrders: [
+        check('shipped', "Shipped is required")
+            .exists({ checkNull: true, checkFalsy: false })
+            .bail()
+            .isBoolean()
+            .withMessage("Value should be true or false"),
+    ],
+    forFindingDisputedOrders: [
+        check('disputed', "Disputed is required")
+            .exists({ checkNull: true, checkFalsy: false })
+            .bail()
+            .isBoolean()
+            .withMessage("Value should be true or false"),
     ],
     forFindingOrderFalsy: [
         check('user_unique_id', "User Unique Id is required")
@@ -122,6 +151,53 @@ export const order_rules = {
             .custom(tracking_number => {
                 return ORDERS.findOne({ where: { tracking_number, status: default_status } }).then(data => {
                     if (!data) return Promise.reject('Orders not found!');
+                });
+            })
+    ],
+    forFindingOrderByRider: [
+        check('rider_unique_id', "User Unique Id is required")
+            .exists({ checkNull: true, checkFalsy: true })
+            .bail()
+            .custom(rider_unique_id => {
+                return RIDERS.findOne({ where: { unique_id: rider_unique_id, status: default_status } }).then(data => {
+                    if (!data) return Promise.reject('Rider not found!');
+                });
+            }),
+        check('unique_id', "Unique Id is required")
+            .exists({ checkNull: true, checkFalsy: true })
+            .bail()
+            .custom((unique_id, { req }) => {
+                return ORDERS.findOne({
+                    where: {
+                        unique_id,
+                        status: default_status
+                    }
+                }).then(data => {
+                    if (!data) return Promise.reject('Order not found!');
+                });
+            })
+    ],
+    forFindingOrderByVendor: [
+        check('vendor_unique_id', "Vendor Unique Id is required")
+            .exists({ checkNull: true, checkFalsy: true })
+            .bail()
+            .custom(vendor_unique_id => {
+                return VENDORS.findOne({ where: { unique_id: vendor_unique_id, status: default_status } }).then(data => {
+                    if (!data) return Promise.reject('Vendor not found!');
+                });
+            }),
+        check('unique_id', "Unique Id is required")
+            .exists({ checkNull: true, checkFalsy: true })
+            .bail()
+            .custom((unique_id, { req }) => {
+                return ORDERS.findOne({
+                    where: {
+                        unique_id,
+                        vendor_unique_id: req.query.vendor_unique_id || req.body.vendor_unique_id || '',
+                        status: default_status
+                    }
+                }).then(data => {
+                    if (!data) return Promise.reject('Order not found!');
                 });
             })
     ],
@@ -227,6 +303,28 @@ export const order_rules = {
             .isString().isLength({ min: 3, max: 20 })
             .withMessage("Invalid length (3 - 20) characters")
     ],
+    forAddingViaCartIDs: [
+        check('user_unique_id', "User Unique Id is required")
+            .exists({ checkNull: true, checkFalsy: true })
+            .bail()
+            .custom(user_unique_id => {
+                return USERS.findOne({ where: { unique_id: user_unique_id, status: default_status } }).then(data => {
+                    if (!data) return Promise.reject('User not found!');
+                });
+            }),
+        check('payment_method', "Payment Method is required")
+            .exists({ checkNull: true, checkFalsy: true })
+            .bail()
+            .isString().isLength({ min: 3, max: 20 })
+            .withMessage("Invalid length (3 - 20) characters")
+            .bail()
+            .custom(payment_method => !!validate_payment_method(payment_method)).withMessage(`Invalid payment method, accepted methods (${payment_methods.card, payment_methods.wallet})`),
+        check('cart_unique_ids', "Cart Unique IDs are required")
+            .exists({ checkNull: true, checkFalsy: true })
+            .bail()
+            .isArray().isEmpty()
+            .withMessage("Must be an array if objects (not empty)")
+    ],
     forUpdatingPaymentMethod: [
         check('payment_method', "Payment Method is required")
             .exists({ checkNull: true, checkFalsy: true })
@@ -235,5 +333,12 @@ export const order_rules = {
             .withMessage("Invalid length (3 - 20) characters")
             .bail()
             .custom(payment_method => !!validate_payment_method(payment_method)).withMessage(`Invalid payment method, accepted methods (${payment_methods.card, payment_methods.wallet})`)
+    ],
+    forDenyingRefund: [
+        check('feedback', "Feedback is required")
+            .exists({ checkNull: true, checkFalsy: true })
+            .bail()
+            .isString().isLength({ min: 3, max: 1000 })
+            .withMessage("Invalid length (3 - 1000) characters")
     ]
 };  

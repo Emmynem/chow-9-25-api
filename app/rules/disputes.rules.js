@@ -142,4 +142,11 @@ export const dispute_rules = {
             .isString().isLength({ min: 3, max: 1000 })
             .withMessage("Invalid length (3 - 1000) characters")
     ],
+    forAddingViaRefunds: [
+        check('message', "Message is required")
+            .exists({ checkNull: true, checkFalsy: true })
+            .bail()
+            .isString().isLength({ min: 3, max: 930 })
+            .withMessage("Invalid length (3 - 930) characters")
+    ]
 };  

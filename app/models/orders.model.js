@@ -71,6 +71,14 @@ export default (sequelize, Sequelize) => {
             type: Sequelize.FLOAT,
             allowNull: false,
         },
+        rider_credit: {
+            type: Sequelize.FLOAT,
+            allowNull: false,
+        },
+        rider_service_charge: {
+            type: Sequelize.FLOAT,
+            allowNull: false,
+        },
         credit: {
             type: Sequelize.FLOAT,
             allowNull: false,
