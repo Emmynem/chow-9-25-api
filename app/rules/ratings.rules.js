@@ -1,6 +1,6 @@
 import { check } from 'express-validator';
 import db from "../models/index.js";
-import { default_status, default_delete_status, validate_ratings } from '../config/config.js';
+import { default_status, default_delete_status, validate_ratings, get_min_and_max_ratings } from '../config/config.js';
 
 const USERS = db.users;
 const RATINGS = db.ratings;

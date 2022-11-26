@@ -262,28 +262,33 @@ export async function addProduct(req, res) {
             ValidationError(res, { unique_id: vendor_unique_id, text: "Validation Error Occured" }, errors.array())
         } else {
             try {
-                const product_name = payload.name;
-                const stripped = strip_text(product_name);
+                await db.sequelize.transaction(async (transaction) => {
 
-                const product = await db.sequelize.transaction((t) => {
-                    return PRODUCTS.create({
-                        unique_id: uuidv4(),
-                        vendor_unique_id,
-                        vendor_user_unique_id,
-                        name: product_name,
-                        stripped,
-                        ...payload,
-                        views: zero,
-                        favorites: zero,
-                        good_rating: zero,
-                        bad_rating: zero,
-                        status: default_status
-                    }, { transaction: t });
+                    const product_name = payload.name;
+                    const stripped = strip_text(product_name);
+    
+                    const product = await PRODUCTS.create(
+                        {
+                            unique_id: uuidv4(),
+                            vendor_unique_id,
+                            vendor_user_unique_id,
+                            name: product_name,
+                            stripped,
+                            ...payload,
+                            views: zero,
+                            favorites: zero,
+                            good_rating: zero,
+                            bad_rating: zero,
+                            status: default_status
+                        }, { transaction }
+                    );
+    
+                    if (product) {
+                        CreationSuccessResponse(res, { unique_id: vendor_unique_id, text: "Product created successfully!" });
+                    } else {
+                        throw new Error("Error creating product");
+                    }
                 });
-
-                if (product) {
-                    CreationSuccessResponse(res, { unique_id: vendor_unique_id, text: "Product created successfully!" });
-                }
             } catch (err) {
                 ServerError(res, { unique_id: vendor_unique_id, text: err.message }, null);
             }
@@ -313,28 +318,31 @@ export async function updateProductName(req, res) {
             ValidationError(res, { unique_id: vendor_unique_id, text: "Validation Error Occured" }, errors.array())
         } else {
             try {
-                const product_name = payload.name;
-                const stripped = strip_text(product_name);
-
-                const product = await db.sequelize.transaction((t) => {
-                    return PRODUCTS.update({
-                        name: product_name,
-                        stripped,
-                        vendor_user_unique_id,
-                    }, {
-                        where: {
-                            unique_id: payload.unique_id,
-                            vendor_unique_id,
-                            status: default_status
+                await db.sequelize.transaction(async (transaction) => {
+                    const product_name = payload.name;
+                    const stripped = strip_text(product_name);
+    
+                    const product = await PRODUCTS.update(
+                        {
+                            name: product_name,
+                            stripped,
+                            vendor_user_unique_id,
+                        }, {
+                            where: {
+                                unique_id: payload.unique_id,
+                                vendor_unique_id,
+                                status: default_status
+                            },
+                            transaction
                         }
-                    }, { transaction: t });
+                    );
+    
+                    if (product > 0) {
+                        OtherSuccessResponse(res, { unique_id: vendor_unique_id, text: "Product was updated successfully!" });
+                    } else {
+                        throw new Error("Error updating product");
+                    }
                 });
-
-                if (product > 0) {
-                    OtherSuccessResponse(res, { unique_id: vendor_unique_id, text: "Product was updated successfully!" });
-                } else {
-                    BadRequestError(res, { unique_id: vendor_unique_id, text: "Error updating product!" }, null);
-                }
             } catch (err) {
                 ServerError(res, { unique_id: vendor_unique_id, text: err.message }, null);
             }
@@ -364,81 +372,28 @@ export async function updateProductOthers(req, res) {
             ValidationError(res, { unique_id: vendor_unique_id, text: "Validation Error Occured" }, errors.array())
         } else {
             try {
-                const product = await db.sequelize.transaction((t) => {
-                    return PRODUCTS.update({
-                        ...payload,
-                        vendor_user_unique_id,
-                    }, {
-                        where: {
-                            unique_id: payload.unique_id,
-                            vendor_unique_id,
-                            status: default_status
-                        }
-                    }, { transaction: t });
-                });
+                await db.sequelize.transaction(async (transaction) => {
 
-                if (product > 0) {
-                    OtherSuccessResponse(res, { unique_id: vendor_unique_id, text: "Product was updated successfully!" });
-                } else {
-                    BadRequestError(res, { unique_id: vendor_unique_id, text: "Error updating product!" }, null);
-                }
-            } catch (err) {
-                ServerError(res, { unique_id: vendor_unique_id, text: err.message }, null);
-            }
-        }
-    }
-};
-
-export async function restoreProduct(req, res) {
-    const vendor_unique_id = req.VENDOR_UNIQUE_ID;
-    const vendor_user_unique_id = req.VENDOR_USER_UNIQUE_ID;
-
-    const vendor_user_routes = await VENDOR_USERS.findOne({
-        where: {
-            unique_id: vendor_user_unique_id,
-            vendor_unique_id,
-            status: default_status
-        }
-    });
-
-    if (check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
-        BadRequestError(res, { unique_id: vendor_unique_id, text: "You don't have access to perform this action!" }, null);
-    } else {
-        const errors = validationResult(req);
-        const payload = matchedData(req);
-
-        if (!errors.isEmpty()) {
-            ValidationError(res, { unique_id: vendor_unique_id, text: "Validation Error Occured" }, errors.array())
-        } else {
-            try {
-                const products = await db.sequelize.transaction((t) => {
-                    return PRODUCTS.update({
-                        status: default_delete_status
-                    }, {
-                        where: {
-                            unique_id: payload.unique_id,
-                            vendor_unique_id,
-                            status: default_status
-                        }
-                    }, { transaction: t });
-                });
-
-                if (products > 0) {
-                    const product_images = await db.sequelize.transaction((t) => {
-                        return PRODUCT_IMAGES.update({
-                            status: default_delete_status   
+                    const product = await PRODUCTS.update(
+                        {
+                            ...payload,
+                            vendor_user_unique_id,
                         }, {
                             where: {
-                                product_unique_id: payload.unique_id,
-                                vendor_unique_id
-                            }
-                        }, { transaction: t });
-                    });
-                    OtherSuccessResponse(res, { unique_id: vendor_unique_id, text: "Product was removed successfully!" });
-                } else {
-                    BadRequestError(res, { unique_id: vendor_unique_id, text: "Error removing product!" }, null);
-                }
-
+                                unique_id: payload.unique_id,
+                                vendor_unique_id,
+                                status: default_status
+                            },
+                            transaction
+                        }
+                    );
+    
+                    if (product > 0) {
+                        OtherSuccessResponse(res, { unique_id: vendor_unique_id, text: "Product was updated successfully!" });
+                    } else {
+                        throw new Error("Error updating product");
+                    }
+                });
             } catch (err) {
                 ServerError(res, { unique_id: vendor_unique_id, text: err.message }, null);
             }
@@ -446,7 +401,7 @@ export async function restoreProduct(req, res) {
     }
 };
 
-export async function restoreProduct(req, res) {
+export async function removeProduct(req, res) {
     const vendor_unique_id = req.VENDOR_UNIQUE_ID;
     const vendor_user_unique_id = req.VENDOR_USER_UNIQUE_ID;
 
@@ -468,33 +423,100 @@ export async function restoreProduct(req, res) {
             ValidationError(res, { unique_id: vendor_unique_id, text: "Validation Error Occured" }, errors.array())
         } else {
             try {
-                const products = await db.sequelize.transaction((t) => {
-                    return PRODUCTS.update({
-                        status: default_status
-                    }, {
-                        where: {
-                            unique_id: payload.unique_id,
-                            vendor_unique_id,
+                await db.sequelize.transaction(async (transaction) => {
+
+                    const products = await PRODUCTS.update(
+                        {
                             status: default_delete_status
+                        }, {
+                            where: {
+                                unique_id: payload.unique_id,
+                                vendor_unique_id,
+                                status: default_status
+                            },
+                            transaction
                         }
-                    }, { transaction: t });
+                    );
+    
+                    if (products > 0) {
+                        const product_images = await PRODUCT_IMAGES.update(
+                            {
+                                status: default_delete_status   
+                            }, {
+                                where: {
+                                    product_unique_id: payload.unique_id,
+                                    vendor_unique_id
+                                },
+                                transaction
+                            }
+                        );
+                        OtherSuccessResponse(res, { unique_id: vendor_unique_id, text: "Product was removed successfully!" });
+                    } else {
+                        throw new Error("Error removing product");
+                    }
                 });
 
-                if (products > 0) {
-                    const product_images = await db.sequelize.transaction((t) => {
-                        return PRODUCT_IMAGES.update({
+            } catch (err) {
+                ServerError(res, { unique_id: vendor_unique_id, text: err.message }, null);
+            }
+        }
+    }
+};
+
+export async function restoreProduct(req, res) {
+    const vendor_unique_id = req.VENDOR_UNIQUE_ID;
+    const vendor_user_unique_id = req.VENDOR_USER_UNIQUE_ID;
+
+    const vendor_user_routes = await VENDOR_USERS.findOne({
+        where: {
+            unique_id: vendor_user_unique_id,
+            vendor_unique_id,
+            status: default_status
+        }
+    });
+
+    if (check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
+        BadRequestError(res, { unique_id: vendor_unique_id, text: "You don't have access to perform this action!" }, null);
+    } else {
+        const errors = validationResult(req);
+        const payload = matchedData(req);
+
+        if (!errors.isEmpty()) {
+            ValidationError(res, { unique_id: vendor_unique_id, text: "Validation Error Occured" }, errors.array())
+        } else {
+            try {
+                await db.sequelize.transaction(async (transaction) => {
+
+                    const products = await PRODUCTS.update(
+                        {
                             status: default_status
                         }, {
                             where: {
-                                product_unique_id: payload.unique_id,
-                                vendor_unique_id
+                                unique_id: payload.unique_id,
+                                vendor_unique_id,
+                                status: default_delete_status
+                            },
+                            transaction
+                        }
+                    );
+    
+                    if (products > 0) {
+                        const product_images = await PRODUCT_IMAGES.update(
+                            {
+                                status: default_status
+                            }, {
+                                where: {
+                                    product_unique_id: payload.unique_id,
+                                    vendor_unique_id
+                                },
+                                transaction
                             }
-                        }, { transaction: t });
-                    });
-                    OtherSuccessResponse(res, { unique_id: vendor_unique_id, text: "Product was restored successfully!" });
-                } else {
-                    BadRequestError(res, { unique_id: vendor_unique_id, text: "Error restoring product!" }, null);
-                }
+                        );
+                        OtherSuccessResponse(res, { unique_id: vendor_unique_id, text: "Product was restored successfully!" });
+                    } else {
+                        throw new Error("Error restoring product");
+                    }
+                });
 
             } catch (err) {
                 ServerError(res, { unique_id: vendor_unique_id, text: err.message }, null);
