@@ -64,44 +64,50 @@ export async function getUserNotification (req, res) {
 
     if (!errors.isEmpty()) {
         ValidationError(res, { unique_id: user_unique_id, text: "Validation Error Occured" }, errors.array())
-    }
-    else {
+    } else {
         try {
-            const notification = await db.sequelize.transaction((t) => {
-                return NOTIFICATIONS.update({ seen: true_status }, {
-                    where: {
-                        ...payload,
-                        user_unique_id,
-                        status: default_status
+            await db.sequelize.transaction(async (transaction) => {
+                
+                const notification = await NOTIFICATIONS.update(
+                    { 
+                        seen: true_status 
+                    }, {
+                        where: {
+                            ...payload,
+                            user_unique_id,
+                            status: default_status
+                        }, 
+                        transaction
                     }
-                }, { transaction: t });
+                );
+    
+                if (notification > 0) {
+                    NOTIFICATIONS.findOne({
+                        attributes: { exclude: ['id', 'user_unique_id', 'updatedAt', 'status'] },
+                        where: {
+                            ...payload,
+                            user_unique_id,
+                            status: default_status
+                        },
+                        transaction
+                    }).then(notification => {
+                        if (!notification) {
+                            throw new Error("Notification not found");
+                        } else {
+                            SuccessResponse(res, { unique_id: user_unique_id, text: "Notification loaded" }, notification);
+                        }
+                    })
+                } else {
+                    throw new Error("Notification not found");
+                }
             });
-
-            if (notification > 0) {
-                NOTIFICATIONS.findOne({
-                    attributes: { exclude: ['id', 'user_unique_id', 'updatedAt', 'status'] },
-                    where: {
-                        ...payload,
-                        user_unique_id,
-                        status: default_status
-                    },
-                }).then(notification => {
-                    if (!notification) {
-                        NotFoundError(res, { unique_id: user_unique_id, text: "Notification not found" }, null);
-                    } else {
-                        SuccessResponse(res, { unique_id: user_unique_id, text: "Notification loaded" }, notification);
-                    }
-                })
-            } else {
-                BadRequestError(res, { unique_id: user_unique_id, text: "Notification not found!" }, null);
-            }
         } catch (err) {
             ServerError(res, { unique_id: user_unique_id, text: err.message }, null);
         }
     }
 };
 
-export async function addUserNotification(req, res, data) {
+export async function addUserNotification(req, res, data, transaction) {
 
     let msg;
     let param;
@@ -132,15 +138,13 @@ export async function addUserNotification(req, res, data) {
         logger.warn({ unique_id: data.user_unique_id, text: `Notifications | Validation Error Occured - ${param} : ${msg}` });
     } else {
         try {
-            await db.sequelize.transaction((t) => {
-                const notification = NOTIFICATIONS.create({
-                    ...data,
-                    unique_id: uuidv4(),
-                    seen: false_status,
-                    status: default_status
-                }, { transaction: t });
-                return notification;
-            });
+            const notification = NOTIFICATIONS.create({
+                ...data,
+                unique_id: uuidv4(),
+                seen: false_status,
+                status: default_status
+            }, { transaction });
+            return notification;
             logger.info({ unique_id: data.user_unique_id, text: `Notification - ${data.action}` });
         } catch (err) {
             logger.error({ unique_id: data.user_unique_id, text: err.message });
@@ -158,21 +162,27 @@ export async function updateUserNotificationSeen (req, res) {
     }
     else {
         try {
-            const notification = await db.sequelize.transaction((t) => {
-                return NOTIFICATIONS.update({ seen: true_status }, {
-                    where: {
-                        ...payload,
-                        user_unique_id,
-                        status: default_status
+            await db.sequelize.transaction(async (transaction) => {
+                
+                const notification = await NOTIFICATIONS.update(
+                    { 
+                        seen: true_status 
+                    }, {
+                        where: {
+                            ...payload,
+                            user_unique_id,
+                            status: default_status
+                        }, 
+                        transaction
                     }
-                }, { transaction: t });
+                );
+    
+                if (notification > 0) {
+                    OtherSuccessResponse(res, { unique_id: user_unique_id, text: "Notification read!" });
+                } else {
+                    throw new Error("Notification not found");
+                }
             });
-
-            if (notification > 0) {
-                OtherSuccessResponse(res, { unique_id: user_unique_id, text: "Notification read!" });
-            } else {
-                BadRequestError(res, { unique_id: user_unique_id, text: "Notification not found!" }, null);
-            }
         } catch (err) {
             ServerError(res, { unique_id: user_unique_id, text: err.message }, null);
         }
@@ -189,21 +199,27 @@ export async function removeUserNotification(req, res) {
     }
     else {
         try {
-            const notification = await db.sequelize.transaction((t) => {
-                return NOTIFICATIONS.update({ status: default_delete_status }, {
-                    where: {
-                        ...payload,
-                        user_unique_id,
-                        status: default_status
-                    }
-                }, { transaction: t });
-            });
+            await db.sequelize.transaction(async (transaction) => {
 
-            if (notification > 0) {
-                OtherSuccessResponse(res, { unique_id: user_unique_id, text: "Notification deleted!" });
-            } else {
-                BadRequestError(res, { unique_id: user_unique_id, text: "Notification not found!" }, null);
-            }
+                const notification = await NOTIFICATIONS.update(
+                    { 
+                        status: default_delete_status 
+                    }, {
+                        where: {
+                            ...payload,
+                            user_unique_id,
+                            status: default_status
+                        },
+                        transaction
+                    }
+                );
+    
+                if (notification > 0) {
+                    OtherSuccessResponse(res, { unique_id: user_unique_id, text: "Notification deleted!" });
+                } else {
+                    throw new Error("Notification not found");
+                }
+            });
         } catch (err) {
             ServerError(res, { unique_id: user_unique_id, text: err.message }, null);
         }

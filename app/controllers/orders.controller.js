@@ -12,6 +12,7 @@ import db from "../models/index.js";
 
 const ORDERS = db.orders;
 const ORDERS_HISTORY = db.orders_history;
+const ORDERS_COMPLETED = db.orders_completed;
 const DISPUTES = db.disputes;
 const TRANSACTIONS = db.transactions;
 const RIDER_TRANSACTIONS = db.rider_transactions;
@@ -1798,7 +1799,22 @@ export async function updateOrderInTransit(req, res) {
                         );
 
                         if (order > 0) {
-                            SuccessResponse(res, { unique_id: rider_unique_id, text: "Order in transit!" }, null);
+                            const order_history = await ORDERS_HISTORY.create(
+                                {
+                                    unique_id: uuidv4(),
+                                    user_unique_id: current_order.user_unique_id,
+                                    order_unique_id: current_order.unique_id,
+                                    price: null,
+                                    completion: shipping,
+                                    status: default_status
+                                }, { transaction }
+                            );
+
+                            if (order_history) {
+                                SuccessResponse(res, { unique_id: rider_unique_id, text: "Order in transit!" }, null);
+                            } else {
+                                throw new Error("Error adding order history");
+                            }
                         } else {
                             throw new Error("Error updating order in transit");
                         }
@@ -1851,18 +1867,33 @@ export async function updateOrderShipped(req, res) {
                             {
                                 delivery_status: shipped
                             }, {
-                            where: {
-                                unique_id: current_order.unique_id,
-                                shipping_fee_unique_id: current_order.shipping_fee_unique_id,
-                                tracking_number: current_order.tracking_number,
-                                vendor_unique_id: current_order.vendor_unique_id,
-                            },
-                            transaction
-                        }
+                                where: {
+                                    unique_id: current_order.unique_id,
+                                    shipping_fee_unique_id: current_order.shipping_fee_unique_id,
+                                    tracking_number: current_order.tracking_number,
+                                    vendor_unique_id: current_order.vendor_unique_id,
+                                },
+                                transaction
+                            }
                         );
 
                         if (order > 0) {
-                            SuccessResponse(res, { unique_id: rider_unique_id, text: "Order shipped successfully!" }, null);
+                            const order_history = await ORDERS_HISTORY.create(
+                                {
+                                    unique_id: uuidv4(),
+                                    user_unique_id: current_order.user_unique_id,
+                                    order_unique_id: current_order.unique_id,
+                                    price: null,
+                                    completion: shipped,
+                                    status: default_status
+                                }, { transaction }
+                            );
+
+                            if (order_history) {
+                                SuccessResponse(res, { unique_id: rider_unique_id, text: "Order shipped successfully!" }, null);
+                            } else {
+                                throw new Error("Error adding order history");
+                            }
                         } else {
                             throw new Error("Error updating shipped order");
                         }
@@ -1907,6 +1938,40 @@ export async function updateOrderCompleted(req, res) {
                         },
                         transaction
                     });
+
+                    const address = await ADDRESSESS.findOne({
+                        where: {
+                            user_unique_id: current_order.user_unique_id,
+                            default_address: true_status,
+                            status: default_status
+                        },
+                        transaction
+                    });
+
+                    const product = await PRODUCTS.findOne({
+                        where: {
+                            unique_id: current_order.product_unique_id,
+                            vendor_unique_id: current_order.vendor_unique_id,
+                            status: default_status
+                        },
+                        transaction
+                    });
+
+                    const rider_shipping = await RIDER_SHIPPING.findOne({
+                        where: {
+                            unique_id: current_order.shipping_fee_unique_id,
+                            status: default_status
+                        },
+                        transaction
+                    });
+
+                    const rider_account = await RIDER_ACCOUNT.findOne({
+                        where: {
+                            rider_unique_id: rider_shipping.rider_unique_id,
+                            status: default_status
+                        },
+                        transaction
+                    });
     
                     if (current_order.vendor_unique_id !== vendor_unique_id) {
                         BadRequestError(res, { unique_id: vendor_unique_id, text: "Order not found on vendor!" }, null);
@@ -1932,7 +1997,47 @@ export async function updateOrderCompleted(req, res) {
                             );
     
                             if (order > 0) {
-                                SuccessResponse(res, { unique_id: vendor_unique_id, text: "Order completed successfully!" }, null);
+                                const order_history = await ORDERS_HISTORY.create(
+                                    {
+                                        unique_id: uuidv4(),
+                                        user_unique_id: current_order.user_unique_id,
+                                        order_unique_id: current_order.unique_id,
+                                        price: null,
+                                        completion: completed,
+                                        status: default_status
+                                    }, { transaction }
+                                );
+
+                                if (order_history) {
+                                    const order_completed = await ORDERS_COMPLETED.create(
+                                        {
+                                            unique_id: uuidv4(),
+                                            user_unique_id: current_order.user_unique_id,
+                                            vendor_unique_id: current_order.vendor_unique_id,
+                                            order_unique_id: current_order.unique_id,
+                                            tracking_number: current_order.tracking_number,
+                                            quantity: current_order.quantity,
+                                            payment_method: current_order.payment_method,
+                                            product_name: product.name,
+                                            address_fullname: address.firstname + " " + address.lastname,
+                                            full_address: address.address,
+                                            city: address.city,
+                                            state: address.state,
+                                            country: address.country,
+                                            shipping_fee_price: rider_shipping.price,
+                                            total_price: current_order.amount,
+                                            status: default_status
+                                        }, { transaction }
+                                    );
+
+                                    if (order_completed) {
+                                        SuccessResponse(res, { unique_id: vendor_unique_id, text: "Order completed successfully!" }, null);
+                                    } else {
+                                        throw new Error("Error adding order completed");
+                                    }
+                                } else {
+                                    throw new Error("Error adding order history");
+                                }
                             } else {
                                 throw new Error("Error updating completed order");
                             }
