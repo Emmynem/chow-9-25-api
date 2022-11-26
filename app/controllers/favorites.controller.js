@@ -128,45 +128,51 @@ export async function addFavorite(req, res) {
         ValidationError(res, { unique_id: user_unique_id, text: "Validation Error Occured" }, errors.array())
     } else {
         try {
-            const last_favorite = await FAVORITES.findOne({
-                where: {
-                    user_unique_id: payload.user_unique_id,
-                    product_unique_id: payload.product_unique_id,
-                    status: default_status
-                },
-            });
+            await db.sequelize.transaction(async (transaction) => {
 
-            if (last_favorite) {
-                const favorite = await db.sequelize.transaction((t) => {
-                    return FAVORITES.destroy({
-                        where: {
-                            unique_id: payload.unique_id,
+                const last_favorite = await FAVORITES.findOne({
+                    where: {
+                        user_unique_id: payload.user_unique_id,
+                        product_unique_id: payload.product_unique_id,
+                        status: default_status
+                    },
+                    transaction
+                });
+    
+                if (last_favorite) {
+                    const favorite = await FAVORITES.destroy(
+                        {
+                            where: {
+                                unique_id: payload.unique_id,
+                                user_unique_id,
+                                status: default_status
+                            },
+                            transaction
+                        }
+                    );
+    
+                    if (favorite > 0) {
+                        OtherSuccessResponse(res, { unique_id: user_unique_id, text: "Favorite was deleted successfully!" });
+                    } else {
+                        throw new Error("Error deleting favorite");
+                    }
+                } else {
+                    const favorite = await FAVORITES.create(
+                        {
+                            ...payload,
+                            unique_id: uuidv4(),
                             user_unique_id,
                             status: default_status
-                        }
-                    }, { transaction: t });
-                });
-
-                if (favorite > 0) {
-                    OtherSuccessResponse(res, { unique_id: user_unique_id, text: "Favorite was deleted successfully!" });
-                } else {
-                    BadRequestError(res, { unique_id: user_unique_id, text: "Error deleting favorite!" }, null);
+                        }, { transaction }
+                    );
+                    
+                    if (favorite) {
+                        CreationSuccessResponse(res, { unique_id: user_unique_id, text: "Favorite added successfully!" });
+                    } else {
+                        throw new Error("Error adding favorite");
+                    }
                 }
-            } else {
-                const favorite = await db.sequelize.transaction((t) => {
-                    return FAVORITES.create({
-                        ...payload,
-                        unique_id: uuidv4(),
-                        status: default_status
-                    }, { transaction: t });
-                });
-                
-                if (favorite) {
-                    CreationSuccessResponse(res, { unique_id: user_unique_id, text: "Favorite added successfully!" });
-                } else {
-                    BadRequestError(res, { unique_id: user_unique_id, text: "Error deleting favorite!" }, null);
-                }
-            }
+            });
         } catch (err) {
             ServerError(res, { unique_id: user_unique_id, text: err.message }, null);
         }
@@ -183,22 +189,25 @@ export async function deleteFavorite(req, res) {
         ValidationError(res, { unique_id: user_unique_id, text: "Validation Error Occured" }, errors.array())
     } else {
         try {
-            const favorite = await db.sequelize.transaction((t) => {
-                return FAVORITES.destroy({
-                    where: {
-                        unique_id: payload.unique_id,
-                        user_unique_id,
-                        status: default_status
+            await db.sequelize.transaction(async (transaction) => {
+
+                const favorite = await FAVORITES.destroy(
+                    {
+                        where: {
+                            unique_id: payload.unique_id,
+                            user_unique_id,
+                            status: default_status
+                        }, 
+                        transaction
                     }
-                }, { transaction: t });
+                );
+    
+                if (favorite > 0) {
+                    OtherSuccessResponse(res, { unique_id: user_unique_id, text: "Favorite was deleted successfully!" });
+                } else {
+                    throw new Error("Error deleting favorite");
+                }
             });
-
-            if (favorite > 0) {
-                OtherSuccessResponse(res, { unique_id: user_unique_id, text: "Favorite was deleted successfully!" });
-            } else {
-                BadRequestError(res, { unique_id: user_unique_id, text: "Error deleting favorite!" }, null);
-            }
-
         } catch (err) {
             ServerError(res, { unique_id: user_unique_id, text: err.message }, null);
         }

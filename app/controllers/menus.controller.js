@@ -170,24 +170,29 @@ export async function addMenu(req, res) {
             ValidationError(res, { unique_id: vendor_unique_id, text: "Validation Error Occured" }, errors.array())
         } else {
             try {
-                const menu_name = payload.name;
-                const stripped = strip_text(menu_name);
-
-                const menu = await db.sequelize.transaction((t) => {
-                    return MENUS.create({
-                        unique_id: uuidv4(),
-                        vendor_unique_id,
-                        vendor_user_unique_id,
-                        name: menu_name,
-                        stripped,
-                        ...payload,
-                        status: default_status
-                    }, { transaction: t });
+                await db.sequelize.transaction(async (transaction) => {
+                    
+                    const menu_name = payload.name;
+                    const stripped = strip_text(menu_name);
+    
+                    const menu = await MENUS.create(
+                        {
+                            unique_id: uuidv4(),
+                            vendor_unique_id,
+                            vendor_user_unique_id,
+                            name: menu_name,
+                            stripped,
+                            ...payload,
+                            status: default_status
+                        }, { transaction }
+                    );
+    
+                    if (menu) {
+                        CreationSuccessResponse(res, { unique_id: vendor_unique_id, text: "Menu created successfully!" });
+                    } else {
+                        throw new Error("Error creating menu");
+                    }
                 });
-
-                if (menu) {
-                    CreationSuccessResponse(res, { unique_id: vendor_unique_id, text: "Menu created successfully!" });
-                }
             } catch (err) {
                 ServerError(res, { unique_id: vendor_unique_id, text: err.message }, null);
             }
@@ -217,28 +222,32 @@ export async function updateMenuName(req, res) {
             ValidationError(res, { unique_id: vendor_unique_id, text: "Validation Error Occured" }, errors.array())
         } else {
             try {
-                const menu_name = payload.name;
-                const stripped = strip_text(menu_name);
-
-                const menu = await db.sequelize.transaction((t) => {
-                    return MENUS.update({
-                        name: menu_name,
-                        stripped,
-                        vendor_user_unique_id,
-                    }, {
-                        where: {
-                            unique_id: payload.unique_id,
-                            vendor_unique_id,
-                            status: default_status
+                await db.sequelize.transaction(async (transaction) => {
+                    
+                    const menu_name = payload.name;
+                    const stripped = strip_text(menu_name);
+    
+                    const menu = await MENUS.update(
+                        {
+                            name: menu_name,
+                            stripped,
+                            vendor_user_unique_id,
+                        }, {
+                            where: {
+                                unique_id: payload.unique_id,
+                                vendor_unique_id,
+                                status: default_status
+                            }, 
+                            transaction
                         }
-                    }, { transaction: t });
+                    );
+    
+                    if (menu > 0) {
+                        OtherSuccessResponse(res, { unique_id: vendor_unique_id, text: "Menu was updated successfully!" });
+                    } else {
+                        throw new Error("Error updating menu");
+                    }
                 });
-
-                if (menu > 0) {
-                    OtherSuccessResponse(res, { unique_id: vendor_unique_id, text: "Menu was updated successfully!" });
-                } else {
-                    BadRequestError(res, { unique_id: vendor_unique_id, text: "Error updating menu!" }, null);
-                }
             } catch (err) {
                 ServerError(res, { unique_id: vendor_unique_id, text: err.message }, null);
             }
@@ -268,24 +277,28 @@ export async function updateMenuDuration(req, res) {
             ValidationError(res, { unique_id: vendor_unique_id, text: "Validation Error Occured" }, errors.array())
         } else {
             try {
-                const menu = await db.sequelize.transaction((t) => {
-                    return MENUS.update({
-                        ...payload,
-                        vendor_user_unique_id,
-                    }, {
-                        where: {
-                            unique_id: payload.unique_id,
-                            vendor_unique_id,
-                            status: default_status
+                await db.sequelize.transaction(async (transaction) => {
+                    
+                    const menu = await MENUS.update(
+                        {
+                            ...payload,
+                            vendor_user_unique_id,
+                        }, {
+                            where: {
+                                unique_id: payload.unique_id,
+                                vendor_unique_id,
+                                status: default_status
+                            },
+                            transaction
                         }
-                    }, { transaction: t });
+                    );
+    
+                    if (menu > 0) {
+                        OtherSuccessResponse(res, { unique_id: vendor_unique_id, text: "Menu duration was updated successfully!" });
+                    } else {
+                        throw new Error("Error updating menu duration");
+                    }
                 });
-
-                if (menu > 0) {
-                    OtherSuccessResponse(res, { unique_id: vendor_unique_id, text: "Menu duration was updated successfully!" });
-                } else {
-                    BadRequestError(res, { unique_id: vendor_unique_id, text: "Error updating menu duration!" }, null);
-                }
             } catch (err) {
                 ServerError(res, { unique_id: vendor_unique_id, text: err.message }, null);
             }
@@ -315,32 +328,36 @@ export async function deleteMenu(req, res) {
             ValidationError(res, { unique_id: vendor_unique_id, text: "Validation Error Occured" }, errors.array())
         } else {
             try {
-                const menu = await db.sequelize.transaction((t) => {
-                    return MENUS.destroy({
-                        where: {
-                            unique_id: payload.unique_id,
-                            vendor_unique_id,
-                            status: default_status
-                        }
-                    }, { transaction: t });
-                });
-
-                if (menu > 0) {
-                    const products = await db.sequelize.transaction((t) => {
-                        return PRODUCTS.update({
-                            menu_unique_id: null
-                        }, {
+                await db.sequelize.transaction(async (transaction) => {
+                    
+                    const menu = await MENUS.destroy(
+                        {
                             where: {
-                                menu_unique_id: payload.unique_id,
-                                vendor_unique_id
+                                unique_id: payload.unique_id,
+                                vendor_unique_id,
+                                status: default_status
+                            },
+                            transaction
+                        }
+                    );
+    
+                    if (menu > 0) {
+                        const products = await PRODUCTS.update(
+                            {
+                                menu_unique_id: null
+                            }, {
+                                where: {
+                                    menu_unique_id: payload.unique_id,
+                                    vendor_unique_id
+                                }, 
+                                transaction
                             }
-                        }, { transaction: t });
-                    });
-                    OtherSuccessResponse(res, { unique_id: vendor_unique_id, text: "Menu was deleted successfully!" });
-                } else {
-                    BadRequestError(res, { unique_id: vendor_unique_id, text: "Error deleting menu!" }, null);
-                }
-
+                        );
+                        OtherSuccessResponse(res, { unique_id: vendor_unique_id, text: "Menu was deleted successfully!" });
+                    } else {
+                        throw new Error("Error deleting menu");
+                    }
+                });
             } catch (err) {
                 ServerError(res, { unique_id: vendor_unique_id, text: err.message }, null);
             }
