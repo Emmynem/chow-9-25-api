@@ -93,166 +93,179 @@ export async function searchProducts(req, res) {
         ValidationError(res, { unique_id: payload.user_unique_id || anonymous, text: "Validation Error Occured" }, errors.array())
     } else {
 
-        const last_search_history = await SEARCH_HISTORY.findOne({
-            where: {
-                search: {
-                    [Op.like]: `%${payload.search}`
-                },
-                user_unique_id: payload.user_unique_id,
-                status: default_status
-            },
-        });
+        try {
+            await db.sequelize.transaction(async (transaction) => {
+                
+                const last_search_history = await SEARCH_HISTORY.findOne({
+                    where: {
+                        search: {
+                            [Op.like]: `%${payload.search}`
+                        },
+                        user_unique_id: payload.user_unique_id,
+                        status: default_status
+                    },
+                    transaction
+                });
+        
+                const last_general_search_history = await SEARCH_HISTORY.findOne({
+                    where: {
+                        search: {
+                            [Op.like]: `%${payload.search}`
+                        },
+                        user_unique_id: {
+                            [Op.ne]: payload.user_unique_id
+                        },
+                        status: default_status
+                    },
+                    transaction
+                });
 
-        const last_general_search_history = await SEARCH_HISTORY.findOne({
-            where: {
-                search: {
-                    [Op.like]: `%${payload.search}`
-                },
-                user_unique_id: {
-                    [Op.ne]: payload.user_unique_id
-                },
-                status: default_status
-            },
-        });
+                const products = await PRODUCTS.findAndCountAll({
+                    attributes: { exclude: ['id', 'vendor_unique_id', 'createdAt', 'updatedAt', 'status'] },
+                    where: {
+                        name: {
+                            [Op.or]: {
+                                [Op.like]: `%${payload.search}`,
+                                [Op.startsWith]: `${payload.search}`,
+                                [Op.endsWith]: `${payload.search}`,
+                                [Op.substring]: `${payload.search}`,
+                            }
+                        }
+                    },
+                    order: [
+                        ['createdAt', 'DESC']
+                    ],
+                    include: [
+                        {
+                            model: VENDORS,
+                            attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'pro']
+                        },
+                        {
+                            model: MENUS,
+                            attributes: ['name', 'stripped', 'start_time', 'end_time']
+                        },
+                        {
+                            model: CATEGORIES,
+                            attributes: ['name', 'stripped']
+                        }
+                    ],
+                    transaction
+                });
 
-        PRODUCTS.findAndCountAll({
-            attributes: { exclude: ['id', 'vendor_unique_id', 'createdAt', 'updatedAt', 'status'] },
-            where: {
-                name: { 
-                    [Op.or]: {
-                        [Op.like]: `%${payload.search}`,
-                        [Op.startsWith]: `${payload.search}`,
-                        [Op.endsWith]: `${payload.search}`,
-                        [Op.substring]: `${payload.search}`,
+                if (!products || products.length == 0) {
+                    if (last_search_history) {
+                        const updated_search_history_timestamp = await SEARCH_HISTORY.update(
+                            {
+                                status: product_availablity.unavailable,
+                            }, {
+                                where: {
+                                    search: {
+                                        [Op.like]: `%${payload.search}`
+                                    },
+                                    user_unique_id: payload.user_unique_id,
+                                    status: default_status
+                                }, 
+                                transaction
+                            }
+                        );
+                    } else {
+                        const search_history = await SEARCH_HISTORY.create(
+                            {
+                                unique_id: uuidv4(),
+                                user_unique_id: payload.user_unique_id || null,
+                                search: payload.search,
+                                status: product_availablity.unavailable
+                            }, { transaction }
+                        );
                     }
-                }
-            },
-            order: [
-                ['createdAt', 'DESC']
-            ],
-            include: [
-                {
-                    model: VENDORS,
-                    attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'pro']
-                },
-                {
-                    model: MENUS,
-                    attributes: ['name', 'stripped', 'start_time', 'end_time']
-                },
-                {
-                    model: CATEGORIES,
-                    attributes: ['name', 'stripped']
-                }
-            ]
-        }).then(products => {
-            if (!products || products.length == 0) {
-                if (last_search_history) {
-                    const updated_search_history_timestamp = await db.sequelize.transaction((t) => {
-                        return SEARCH_HISTORY.update({
-                            status: product_availablity.unavailable,
-                        }, {
-                            where: {
-                                search: {
-                                    [Op.like]: `%${payload.search}`
+                    if (last_general_search_history) {
+                        const updated_general_search_history_timestamp = await SEARCH_HISTORY.update(
+                            {
+                                status: product_availablity.unavailable,
+                            }, {
+                                where: {
+                                    search: {
+                                        [Op.like]: `%${payload.search}`
+                                    },
+                                    user_unique_id: {
+                                        [Op.ne]: payload.user_unique_id
+                                    },
+                                    status: default_status
                                 },
-                                user_unique_id: payload.user_unique_id,
-                                status: default_status
+                                transaction
                             }
-                        }, { transaction: t });
-                    });
+                        );
+                    } else {
+                        const search_history = await SEARCH_HISTORY.create(
+                            {
+                                unique_id: uuidv4(),
+                                user_unique_id: payload.user_unique_id || null,
+                                search: payload.search,
+                                status: product_availablity.unavailable
+                            }, { transaction }
+                        );
+                    }
+                    SuccessResponse(res, { unique_id: payload.user_unique_id || anonymous, text: "Products Not found" }, []);
                 } else {
-                    const search_history = await db.sequelize.transaction((t) => {
-                        return SEARCH_HISTORY.create({
-                            unique_id: uuidv4(),
-                            user_unique_id: payload.user_unique_id || null,
-                            search: payload.search,
-                            status: product_availablity.unavailable
-                        }, { transaction: t });
-                    });
-                }
-                if (last_general_search_history) {
-                    const updated_general_search_history_timestamp = await db.sequelize.transaction((t) => {
-                        return SEARCH_HISTORY.update({
-                            status: product_availablity.unavailable,
-                        }, {
-                            where: {
-                                search: {
-                                    [Op.like]: `%${payload.search}`
+                    if (last_search_history) {
+                        const updated_search_history_timestamp = SEARCH_HISTORY.update(
+                            {
+                                status: product_availablity.available,
+                            }, {
+                                where: {
+                                    search: {
+                                        [Op.like]: `%${payload.search}`
+                                    },
+                                    user_unique_id: payload.user_unique_id,
+                                    status: default_status
                                 },
-                                user_unique_id: {
-                                    [Op.ne]: payload.user_unique_id
-                                },
-                                status: default_status
+                                transaction
                             }
-                        }, { transaction: t });
-                    });
-                } else {
-                    const search_history = await db.sequelize.transaction((t) => {
-                        return SEARCH_HISTORY.create({
-                            unique_id: uuidv4(),
-                            user_unique_id: payload.user_unique_id || null,
-                            search: payload.search,
-                            status: product_availablity.unavailable
-                        }, { transaction: t });
-                    });
-                }
-                SuccessResponse(res, { unique_id: payload.user_unique_id || anonymous, text: "Products Not found" }, []);
-            } else {
-                if (last_search_history) {
-                    const updated_search_history_timestamp = await db.sequelize.transaction((t) => {
-                        return SEARCH_HISTORY.update({
-                            status: product_availablity.available,
-                        }, {
-                            where: {
-                                search: {
-                                    [Op.like]: `%${payload.search}`
-                                },
-                                user_unique_id: payload.user_unique_id,
-                                status: default_status
+                        );
+                    } else {
+                        const search_history = SEARCH_HISTORY.create(
+                            {
+                                unique_id: uuidv4(),
+                                user_unique_id: payload.user_unique_id || null,
+                                search: payload.search,
+                                status: product_availablity.available
+                            }, { transaction }
+                        );
+                    }
+                    if (last_general_search_history) {
+                        const updated_general_search_history_timestamp = SEARCH_HISTORY.update(
+                            {
+                                status: product_availablity.available,
+                            }, {
+                                where: {
+                                    search: {
+                                        [Op.like]: `%${payload.search}`
+                                    },
+                                    user_unique_id: {
+                                        [Op.ne]: payload.user_unique_id
+                                    },
+                                    status: default_status
+                                }, 
+                                transaction
                             }
-                        }, { transaction: t });
-                    });
-                } else {
-                    const search_history = await db.sequelize.transaction((t) => {
-                        return SEARCH_HISTORY.create({
-                            unique_id: uuidv4(),
-                            user_unique_id: payload.user_unique_id || null,
-                            search: payload.search,
-                            status: product_availablity.available
-                        }, { transaction: t });
-                    });
+                        );
+                    } else {
+                        const search_history = SEARCH_HISTORY.create(
+                            {
+                                unique_id: uuidv4(),
+                                user_unique_id: payload.user_unique_id || null,
+                                search: payload.search,
+                                status: product_availablity.available
+                            }, { transaction }
+                        );
+                    }
+                    SuccessResponse(res, { unique_id: payload.user_unique_id || anonymous, text: "Products loaded" }, products);
                 }
-                if (last_general_search_history) {
-                    const updated_general_search_history_timestamp = await db.sequelize.transaction((t) => {
-                        return SEARCH_HISTORY.update({
-                            status: product_availablity.available,
-                        }, {
-                            where: {
-                                search: {
-                                    [Op.like]: `%${payload.search}`
-                                },
-                                user_unique_id: {
-                                    [Op.ne]: payload.user_unique_id
-                                },
-                                status: default_status
-                            }
-                        }, { transaction: t });
-                    });
-                } else {
-                    const search_history = await db.sequelize.transaction((t) => {
-                        return SEARCH_HISTORY.create({
-                            unique_id: uuidv4(),
-                            user_unique_id: payload.user_unique_id || null,
-                            search: payload.search,
-                            status: product_availablity.available
-                        }, { transaction: t });
-                    });
-                }
-                SuccessResponse(res, { unique_id: payload.user_unique_id || anonymous, text: "Products loaded" }, products);
-            }
-        }).catch(err => {
+
+            });
+        } catch (err) {
             ServerError(res, { unique_id: payload.user_unique_id || anonymous, text: err.message }, null);
-        });
+        }
     }
 };
 
@@ -266,22 +279,25 @@ export async function deleteSearchHistory(req, res) {
         ValidationError(res, { unique_id: user_unique_id, text: "Validation Error Occured" }, errors.array())
     } else {
         try {
-            const search_history = await db.sequelize.transaction((t) => {
-                return SEARCH_HISTORY.destroy({
-                    where: {
-                        unique_id: payload.unique_id,
-                        user_unique_id,
-                        status: default_status
+            await db.sequelize.transaction(async (transaction) => {
+                
+                const search_history = await SEARCH_HISTORY.destroy(
+                    {
+                        where: {
+                            unique_id: payload.unique_id,
+                            user_unique_id,
+                            status: default_status
+                        },
+                        transaction
                     }
-                }, { transaction: t });
+                );
+    
+                if (search_history > 0) {
+                    OtherSuccessResponse(res, { unique_id: user_unique_id, text: "Search History was deleted successfully!" });
+                } else {
+                    throw new Error("Error deleting search history");
+                }
             });
-
-            if (search_history > 0) {
-                OtherSuccessResponse(res, { unique_id: user_unique_id, text: "Search History was deleted successfully!" });
-            } else {
-                BadRequestError(res, { unique_id: user_unique_id, text: "Error deleting search history!" }, null);
-            }
-
         } catch (err) {
             ServerError(res, { unique_id: user_unique_id, text: err.message }, null);
         }

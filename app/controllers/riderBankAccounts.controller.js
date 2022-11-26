@@ -94,7 +94,7 @@ export function rootGetDefaultRiderBankAccounts(req, res) {
     }
 };
 
-export async function getRiderBankAccounts(req, res) {
+export function getRiderBankAccounts(req, res) {
     const rider_unique_id = req.RIDER_UNIQUE_ID;
 
     RIDER_BANK_ACCOUNTS.findAndCountAll({
@@ -116,7 +116,7 @@ export async function getRiderBankAccounts(req, res) {
     });
 };
 
-export async function getRiderDefaultBankAccount(req, res) {
+export function getRiderDefaultBankAccount(req, res) {
     const rider_unique_id = req.RIDER_UNIQUE_ID;
 
     RIDER_BANK_ACCOUNTS.findOne({
@@ -138,7 +138,7 @@ export async function getRiderDefaultBankAccount(req, res) {
     });
 };
 
-export async function getRiderBankAccount(req, res) {
+export function getRiderBankAccount(req, res) {
     const rider_unique_id = req.RIDER_UNIQUE_ID;
 
     const errors = validationResult(req);
@@ -176,23 +176,26 @@ export async function addRiderBankAccount(req, res) {
         ValidationError(res, { unique_id: rider_unique_id, text: "Validation Error Occured" }, errors.array())
     } else {
         try {
-            const rider_bank_account_count = await RIDER_BANK_ACCOUNTS.count({ where: { rider_unique_id } });
+            await db.sequelize.transaction(async (transaction) => {
 
-            const rider_bank_account = await db.sequelize.transaction((t) => {
-                return RIDER_BANK_ACCOUNTS.create({
-                    unique_id: uuidv4(),
-                    rider_unique_id,
-                    ...payload,
-                    default_bank: rider_bank_account_count === 0 ? true_status : false_status,
-                    status: default_status
-                }, { transaction: t });
+                const rider_bank_account_count = await RIDER_BANK_ACCOUNTS.count({ where: { rider_unique_id }, transaction });
+    
+                const rider_bank_account = await RIDER_BANK_ACCOUNTS.create(
+                    {
+                        unique_id: uuidv4(),
+                        rider_unique_id,
+                        ...payload,
+                        default_bank: rider_bank_account_count === 0 ? true_status : false_status,
+                        status: default_status
+                    }, { transaction }
+                );
+    
+                if (rider_bank_account) {
+                    CreationSuccessResponse(res, { unique_id: rider_unique_id, text: "Rider Bank Account created successfully!" });
+                } else {
+                    throw new Error("Error adding rider bank account");
+                }
             });
-
-            if (rider_bank_account) {
-                CreationSuccessResponse(res, { unique_id: rider_unique_id, text: "Rider Bank Account created successfully!" });
-            } else {
-                BadRequestError(res, { unique_id: rider_unique_id, text: "Error adding rider bank account!" }, null);
-            }
         } catch (err) {
             ServerError(res, { unique_id: rider_unique_id, text: err.message }, null);
         }
@@ -209,23 +212,27 @@ export async function updateRiderBankAccount(req, res) {
         ValidationError(res, { unique_id: rider_unique_id, text: "Validation Error Occured" }, errors.array())
     } else {
         try {
-            const rider_bank_account = await db.sequelize.transaction((t) => {
-                return RIDER_BANK_ACCOUNTS.update({
-                    ...payload
-                }, {
-                    where: {
-                        unique_id: payload.unique_id,
-                        rider_unique_id,
-                        status: default_status
-                    }
-                }, { transaction: t });
-            });
+            await db.sequelize.transaction(async (transaction) => {
 
-            if (rider_bank_account > 0) {
-                OtherSuccessResponse(res, { unique_id: rider_unique_id, text: "Rider Bank Account was updated successfully!" });
-            } else {
-                BadRequestError(res, { unique_id: rider_unique_id, text: "Error updating rider bank account details!" }, null);
-            }
+                const rider_bank_account = await RIDER_BANK_ACCOUNTS.update(
+                    {
+                        ...payload
+                    }, {
+                        where: {
+                            unique_id: payload.unique_id,
+                            rider_unique_id,
+                            status: default_status
+                        }, 
+                        transaction
+                    }
+                );
+    
+                if (rider_bank_account > 0) {
+                    OtherSuccessResponse(res, { unique_id: rider_unique_id, text: "Rider Bank Account was updated successfully!" });
+                } else {
+                    throw new Error("Error updating rider bank account details");
+                }
+            });
         } catch (err) {
             ServerError(res, { unique_id: rider_unique_id, text: err.message }, null);
         }
@@ -242,37 +249,42 @@ export async function changeRiderDefaultBankAccount(req, res) {
         ValidationError(res, { unique_id: rider_unique_id, text: "Validation Error Occured" }, errors.array())
     } else {
         try {
-            const not_default_rider_bank_account = await db.sequelize.transaction((t) => {
-                return RIDER_BANK_ACCOUNTS.update({
-                    default_bank: false_status
-                }, {
-                    where: {
-                        unique_id: {
-                            [Op.ne]: payload.unique_id,
-                        },
-                        rider_unique_id,
-                        status: default_status
-                    }
-                }, { transaction: t });
-            });
+            await db.sequelize.transaction(async (transaction) => {
 
-            const rider_bank_account = await db.sequelize.transaction((t) => {
-                return RIDER_BANK_ACCOUNTS.update({
-                    default_bank: true_status
-                }, {
-                    where: {
-                        unique_id: payload.unique_id,
-                        rider_unique_id,
-                        status: default_status
+                const not_default_rider_bank_account = await RIDER_BANK_ACCOUNTS.update(
+                    {
+                        default_bank: false_status
+                    }, {
+                        where: {
+                            unique_id: {
+                                [Op.ne]: payload.unique_id,
+                            },
+                            rider_unique_id,
+                            status: default_status
+                        }, 
+                        transaction
                     }
-                }, { transaction: t });
+                );
+    
+                const rider_bank_account = await RIDER_BANK_ACCOUNTS.update(
+                    {
+                        default_bank: true_status
+                    }, {
+                        where: {
+                            unique_id: payload.unique_id,
+                            rider_unique_id,
+                            status: default_status
+                        }, 
+                        transaction
+                    }
+                );
+    
+                if (rider_bank_account > 0) {
+                    OtherSuccessResponse(res, { unique_id: rider_unique_id, text: "Rider default bank account was updated successfully!" });
+                } else {
+                    throw new Error("Error updating rider default bank account!");
+                }
             });
-
-            if (rider_bank_account > 0) {
-                OtherSuccessResponse(res, { unique_id: rider_unique_id, text: "Rider default bank account was updated successfully!" });
-            } else {
-                BadRequestError(res, { unique_id: rider_unique_id, text: "Error updating rider default bank account!" }, null);
-            }
         } catch (err) {
             ServerError(res, { unique_id: rider_unique_id, text: err.message }, null);
         }
@@ -289,33 +301,38 @@ export async function deleteRiderBankAccount(req, res) {
         ValidationError(res, { unique_id: rider_unique_id, text: "Validation Error Occured" }, errors.array())
     } else {
         try {
-            const rider_bank_accounts = await RIDER_BANK_ACCOUNTS.findOne({
-                where: {
-                    rider_unique_id,
-                    default_bank: true_status,
-                    status: default_status
-                },
-            });
+            await db.sequelize.transaction(async (transaction) => {
 
-            if (rider_bank_accounts.unique_id === payload.unique_id) {
-                BadRequestError(res, { unique_id: rider_unique_id, text: "Error deleting rider default bank account!" }, null);
-            } else {
-                const rider_bank_account = await db.sequelize.transaction((t) => {
-                    return RIDER_BANK_ACCOUNTS.destroy({
-                        where: {
-                            unique_id: payload.unique_id,
-                            rider_unique_id,
-                            status: default_status
-                        }
-                    }, { transaction: t });
+                const rider_bank_accounts = await RIDER_BANK_ACCOUNTS.findOne({
+                    where: {
+                        rider_unique_id,
+                        default_bank: true_status,
+                        status: default_status
+                    },
+                    transaction
                 });
-
-                if (rider_bank_account > 0) {
-                    OtherSuccessResponse(res, { unique_id: rider_unique_id, text: "Rider Bank Account was deleted successfully!" });
+    
+                if (rider_bank_accounts.unique_id === payload.unique_id) {
+                    BadRequestError(res, { unique_id: rider_unique_id, text: "Error deleting rider default bank account!" }, null);
                 } else {
-                    BadRequestError(res, { unique_id: rider_unique_id, text: "Error deleting rider bank account!" }, null);
+                    const rider_bank_account = await RIDER_BANK_ACCOUNTS.destroy(
+                        {
+                            where: {
+                                unique_id: payload.unique_id,
+                                rider_unique_id,
+                                status: default_status
+                            },
+                            transaction
+                        }
+                    );
+    
+                    if (rider_bank_account > 0) {
+                        OtherSuccessResponse(res, { unique_id: rider_unique_id, text: "Rider Bank Account was deleted successfully!" });
+                    } else {
+                        throw new Error("Error deleting rider bank account");
+                    }
                 }
-            }
+            });
 
         } catch (err) {
             ServerError(res, { unique_id: rider_unique_id, text: err.message }, null);

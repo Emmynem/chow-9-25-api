@@ -62,7 +62,7 @@ export function rootGetRiderShipping(req, res) {
     }
 };
 
-export async function getRiderShippings(req, res) {
+export function getRiderShippings(req, res) {
     const rider_unique_id = req.RIDER_UNIQUE_ID;
 
     RIDER_SHIPPING.findAndCountAll({
@@ -84,7 +84,7 @@ export async function getRiderShippings(req, res) {
     });
 };
 
-export async function getRiderShipping(req, res) {
+export function getRiderShipping(req, res) {
     const rider_unique_id = req.RIDER_UNIQUE_ID;
 
     const errors = validationResult(req);
@@ -122,37 +122,40 @@ export async function addRiderShipping(req, res) {
         ValidationError(res, { unique_id: rider_unique_id, text: "Validation Error Occured" }, errors.array())
     } else {
         try {
-            
-            const existing_rider_shipping = await RIDER_SHIPPING.findOne({
-                where: {
-                    rider_unique_id: rider_unique_id,
-                    min_weight: payload.min_weight,
-                    max_weight: payload.max_weight,
-                    city: payload.city,
-                    state: payload.state,
-                    country: payload.country,
-                    status: default_status
-                }
-            });
+            await db.sequelize.transaction(async (transaction) => {
 
-            if (existing_rider_shipping) {
-                BadRequestError(res, { unique_id: rider_unique_id, text: "Exact shipping already exists!" }, null);
-            } else {
-                const rider_shipping = await db.sequelize.transaction((t) => {
-                    return RIDER_SHIPPING.create({
-                        unique_id: uuidv4(),
-                        rider_unique_id,
-                        ...payload,
+                const existing_rider_shipping = await RIDER_SHIPPING.findOne({
+                    where: {
+                        rider_unique_id: rider_unique_id,
+                        min_weight: payload.min_weight,
+                        max_weight: payload.max_weight,
+                        city: payload.city,
+                        state: payload.state,
+                        country: payload.country,
                         status: default_status
-                    }, { transaction: t });
+                    },
+                    transaction
                 });
     
-                if (rider_shipping) {
-                    CreationSuccessResponse(res, { unique_id: rider_unique_id, text: "Shipping created successfully!" });
+                if (existing_rider_shipping) {
+                    BadRequestError(res, { unique_id: rider_unique_id, text: "Exact shipping already exists!" }, null);
                 } else {
-                    BadRequestError(res, { unique_id: rider_unique_id, text: "Error adding shipping!" }, null);
+                    const rider_shipping = await RIDER_SHIPPING.create(
+                        {
+                            unique_id: uuidv4(),
+                            rider_unique_id,
+                            ...payload,
+                            status: default_status
+                        }, { transaction }
+                    );
+        
+                    if (rider_shipping) {
+                        CreationSuccessResponse(res, { unique_id: rider_unique_id, text: "Shipping created successfully!" });
+                    } else {
+                        throw new Error("Error adding shipping");
+                    }
                 }
-            }
+            });
         } catch (err) {
             ServerError(res, { unique_id: rider_unique_id, text: err.message }, null);
         }
@@ -169,23 +172,27 @@ export async function updateRiderShipping(req, res) {
         ValidationError(res, { unique_id: rider_unique_id, text: "Validation Error Occured" }, errors.array())
     } else {
         try {
-            const rider_shipping = await db.sequelize.transaction((t) => {
-                return RIDER_SHIPPING.update({
-                    ...payload
-                }, {
-                    where: {
-                        unique_id: payload.unique_id,
-                        rider_unique_id,
-                        status: default_status
-                    }
-                }, { transaction: t });
-            });
+            await db.sequelize.transaction(async (transaction) => {
 
-            if (rider_shipping > 0) {
-                OtherSuccessResponse(res, { unique_id: rider_unique_id, text: "Shipping was updated successfully!" });
-            } else {
-                BadRequestError(res, { unique_id: rider_unique_id, text: "Error updating shipping!" }, null);
-            }
+                const rider_shipping = await RIDER_SHIPPING.update(
+                    {
+                        ...payload
+                    }, {
+                        where: {
+                            unique_id: payload.unique_id,
+                            rider_unique_id,
+                            status: default_status
+                        }, 
+                        transaction
+                    }
+                );
+
+                if (rider_shipping > 0) {
+                    OtherSuccessResponse(res, { unique_id: rider_unique_id, text: "Shipping was updated successfully!" });
+                } else {
+                    throw new Error("Error updating shipping");
+                }
+            });
         } catch (err) {
             ServerError(res, { unique_id: rider_unique_id, text: err.message }, null);
         }
@@ -202,21 +209,25 @@ export async function deleteRiderShipping(req, res) {
         ValidationError(res, { unique_id: rider_unique_id, text: "Validation Error Occured" }, errors.array())
     } else {
         try {
-            const rider_shipping = await db.sequelize.transaction((t) => {
-                return RIDER_SHIPPING.destroy({
-                    where: {
-                        unique_id: payload.unique_id,
-                        rider_unique_id,
-                        status: default_status
+            await db.sequelize.transaction(async (transaction) => {
+                
+                const rider_shipping = await RIDER_SHIPPING.destroy(
+                    {
+                        where: {
+                            unique_id: payload.unique_id,
+                            rider_unique_id,
+                            status: default_status
+                        }, 
+                        transaction
                     }
-                }, { transaction: t });
+                );
+    
+                if (rider_shipping > 0) {
+                    OtherSuccessResponse(res, { unique_id: rider_unique_id, text: "Shipping was deleted successfully!" });
+                } else {
+                    throw new Error("Error deleting shipping");
+                }
             });
-
-            if (rider_shipping > 0) {
-                OtherSuccessResponse(res, { unique_id: rider_unique_id, text: "Shipping was deleted successfully!" });
-            } else {
-                BadRequestError(res, { unique_id: rider_unique_id, text: "Error deleting shipping!" }, null);
-            }
         } catch (err) {
             ServerError(res, { unique_id: rider_unique_id, text: err.message }, null);
         }
