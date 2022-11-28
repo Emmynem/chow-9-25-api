@@ -87,23 +87,28 @@ export async function updateVendor(req, res) {
 
     if (!errors.isEmpty()) {
         ValidationError(res, { unique_id: vendor_unique_id, text: "Validation Error Occured" }, errors.array())
-    }
-    else {
+    } else {
         try {
-            const vendor = await db.sequelize.transaction((t) => {
-                return VENDORS.update({ ...payload }, {
-                    where: {
-                        unique_id: vendor_unique_id,
-                        status: default_status
+            await db.sequelize.transaction(async (transaction) => {
+                
+                const vendor = await VENDORS.update(
+                    { 
+                        ...payload 
+                    }, {
+                        where: {
+                            unique_id: vendor_unique_id,
+                            status: default_status
+                        }, 
+                        transaction
                     }
-                }, { transaction: t });
+                );
+    
+                if (vendor > 0) {
+                    SuccessResponse(res, { unique_id: vendor_unique_id, text: "Vendor details updated successfully!" }, null);
+                } else {
+                    throw new Error("Vendor not found");
+                }
             });
-
-            if (vendor > 0) {
-                SuccessResponse(res, { unique_id: vendor_unique_id, text: "Vendor details updated successfully!" }, null);
-            } else {
-                BadRequestError(res, { unique_id: vendor_unique_id, text: "Vendor not found!" }, null);
-            }
         } catch (err) {
             ServerError(res, { unique_id: vendor_unique_id, text: err.message }, null);
         }
@@ -116,42 +121,46 @@ export async function updateVendorAccessGranted(req, res) {
 
     if (!errors.isEmpty()) {
         ValidationError(res, `${tag_admin} | updateVendorAccessGranted | Validation Error Occured`, errors.array())
-    }
-    else {
+    } else {
         try {
-            const vendor = await db.sequelize.transaction((t) => {
-                return VENDORS.update({
-                    access: access_granted
-                }, {
-                    where: {
-                        ...payload,
-                        access: {
-                            [Op.ne]: access_granted
-                        },
-                        status: default_status
-                    }
-                }, { transaction: t });
-            });
+            await db.sequelize.transaction(async (transaction) => {
 
-            if (vendor > 0) {
-                const vendor_users = await db.sequelize.transaction((t) => {
-                    return VENDOR_USERS.update({
+                const vendor = await VENDORS.update(
+                    {
                         access: access_granted
                     }, {
                         where: {
-                            vendor_unique_id: payload.unique_id,
+                            ...payload,
                             access: {
                                 [Op.ne]: access_granted
                             },
                             status: default_status
+                        }, 
+                        transaction
+                    }
+                );
+    
+                if (vendor > 0) {
+                    const vendor_users = await VENDOR_USERS.update(
+                        {
+                            access: access_granted
+                        }, {
+                            where: {
+                                vendor_unique_id: payload.unique_id,
+                                access: {
+                                    [Op.ne]: access_granted
+                                },
+                                status: default_status
+                            }, 
+                            transaction
                         }
-                    }, { transaction: t });
-                });
-
-                SuccessResponse(res, { unique_id: tag_admin + " | " + payload.unique_id, text: "Vendor's access was granted successfully!" });
-            } else {
-                BadRequestError(res, { unique_id: tag_admin + " | " + payload.unique_id, text: "Vendor access already granted!" }, null);
-            }
+                    );
+    
+                    SuccessResponse(res, { unique_id: tag_admin + " | " + payload.unique_id, text: "Vendor's access was granted successfully!" });
+                } else {
+                    throw new Error("Vendor access already granted");
+                }
+            });
         } catch (err) {
             ServerError(res, { unique_id: tag_admin + " | " + payload.unique_id, text: err.message }, null);
         }
@@ -164,42 +173,46 @@ export async function updateVendorAccessSuspended(req, res) {
 
     if (!errors.isEmpty()) {
         ValidationError(res, `${tag_admin} | updateVendorAccessSuspended | Validation Error Occured`, errors.array())
-    }
-    else {
+    } else {
         try {
-            const vendor = await db.sequelize.transaction((t) => {
-                return VENDORS.update({
-                    access: access_suspended
-                }, {
-                    where: {
-                        ...payload,
-                        access: {
-                            [Op.ne]: access_suspended
-                        },
-                        status: default_status
-                    }
-                }, { transaction: t });
-            });
+            await db.sequelize.transaction(async (transaction) => {
 
-            if (vendor > 0) {
-                const vendor_users = await db.sequelize.transaction((t) => {
-                    return VENDOR_USERS.update({
+                const vendor = await VENDORS.update(
+                    {
                         access: access_suspended
                     }, {
                         where: {
-                            vendor_unique_id: payload.unique_id,
+                            ...payload,
                             access: {
                                 [Op.ne]: access_suspended
                             },
                             status: default_status
+                        }, 
+                        transaction
+                    }
+                );
+    
+                if (vendor > 0) {
+                    const vendor_users = await VENDOR_USERS.update(
+                        {
+                            access: access_suspended
+                        }, {
+                            where: {
+                                vendor_unique_id: payload.unique_id,
+                                access: {
+                                    [Op.ne]: access_suspended
+                                },
+                                status: default_status
+                            }, 
+                            transaction
                         }
-                    }, { transaction: t });
-                });
-
-                SuccessResponse(res, { unique_id: tag_admin + " | " + payload.unique_id, text: "Vendor's access was suspended successfully!" });
-            } else {
-                BadRequestError(res, { unique_id: tag_admin + " | " + payload.unique_id, text: "Vendor access already suspended!" }, null);
-            }
+                    );
+    
+                    SuccessResponse(res, { unique_id: tag_admin + " | " + payload.unique_id, text: "Vendor's access was suspended successfully!" });
+                } else {
+                    throw new Error("Vendor access already suspended");
+                }
+            });
         } catch (err) {
             ServerError(res, { unique_id: tag_admin + " | " + payload.unique_id, text: err.message }, null);
         }
@@ -212,42 +225,46 @@ export async function updateVendorAccessRevoked(req, res) {
 
     if (!errors.isEmpty()) {
         ValidationError(res, `${tag_admin} | updateVendorAccessRevoked | Validation Error Occured`, errors.array())
-    }
-    else {
+    } else {
         try {
-            const vendor = await db.sequelize.transaction((t) => {
-                return VENDORS.update({
-                    access: access_revoked
-                }, {
-                    where: {
-                        ...payload,
-                        access: {
-                            [Op.ne]: access_revoked
-                        },
-                        status: default_status
-                    }
-                }, { transaction: t });
-            });
+            await db.sequelize.transaction(async (transaction) => {
 
-            if (vendor > 0) {
-                const vendor_users = await db.sequelize.transaction((t) => {
-                    return VENDOR_USERS.update({
+                const vendor = await VENDORS.update(
+                    {
                         access: access_revoked
                     }, {
                         where: {
-                            vendor_unique_id: payload.unique_id,
+                            ...payload,
                             access: {
                                 [Op.ne]: access_revoked
                             },
                             status: default_status
+                        }, 
+                        transaction
+                    }
+                );
+    
+                if (vendor > 0) {
+                    const vendor_users = await VENDOR_USERS.update(
+                        {
+                            access: access_revoked
+                        }, {
+                            where: {
+                                vendor_unique_id: payload.unique_id,
+                                access: {
+                                    [Op.ne]: access_revoked
+                                },
+                                status: default_status
+                            }, 
+                            transaction
                         }
-                    }, { transaction: t });
-                });
-
-                SuccessResponse(res, { unique_id: tag_admin + " | " + payload.unique_id, text: "Vendor's access was revoked successfully!" });
-            } else {
-                BadRequestError(res, { unique_id: tag_admin + " | " + payload.unique_id, text: "Vendor access already revoked!" }, null);
-            }
+                    );
+    
+                    SuccessResponse(res, { unique_id: tag_admin + " | " + payload.unique_id, text: "Vendor's access was revoked successfully!" });
+                } else {
+                    throw new Error("Vendor access already revoked");
+                }
+            });
         } catch (err) {
             ServerError(res, { unique_id: tag_admin + " | " + payload.unique_id, text: err.message }, null);
         }
@@ -260,25 +277,28 @@ export async function verifyVendor(req, res) {
 
     if (!errors.isEmpty()) {
         ValidationError(res, "verifyVendor | Validation Error Occured", errors.array())
-    }
-    else {
+    } else {
         try {
-            const vendor = await db.sequelize.transaction((t) => {
-                return VENDORS.update({
-                    verification: true_status
-                }, {
-                    where: {
-                        ...payload,
-                        status: default_status
-                    }
-                }, { transaction: t });
-            });
+            await db.sequelize.transaction(async (transaction) => {
 
-            if (vendor > 0) {
-                SuccessResponse(res, { unique_id: payload.unique_id, text: "Vendor verified successfully!" });
-            } else {
-                BadRequestError(res, { unique_id: payload.unique_id, text: "Vendor account is actively verified!" }, null);
-            }
+                const vendor = await VENDORS.update(
+                    {
+                        verification: true_status
+                    }, {
+                        where: {
+                            ...payload,
+                            status: default_status
+                        }, 
+                        transaction
+                    }
+                );
+    
+                if (vendor > 0) {
+                    SuccessResponse(res, { unique_id: payload.unique_id, text: "Vendor verified successfully!" });
+                } else {
+                    throw new Error("Vendor account is actively verified");
+                }
+            });
         } catch (err) {
             ServerError(res, { unique_id: payload.unique_id, text: err.message }, null);
         }
@@ -291,25 +311,28 @@ export async function unverifyVendor(req, res) {
 
     if (!errors.isEmpty()) {
         ValidationError(res, "unverifyVendor | Validation Error Occured", errors.array())
-    }
-    else {
+    } else {
         try {
-            const vendor = await db.sequelize.transaction((t) => {
-                return VENDORS.update({
-                    verification: false_status
-                }, {
-                    where: {
-                        ...payload,
-                        status: default_status
-                    }
-                }, { transaction: t });
-            });
+            await db.sequelize.transaction(async (transaction) => {
 
-            if (vendor > 0) {
-                SuccessResponse(res, { unique_id: payload.unique_id, text: "Vendor unverified successfully!" });
-            } else {
-                BadRequestError(res, { unique_id: payload.unique_id, text: "Vendor account is actively unverified!" }, null);
-            }
+                const vendor = await VENDORS.update(
+                    {
+                        verification: false_status
+                    }, {
+                        where: {
+                            ...payload,
+                            status: default_status
+                        }, 
+                        transaction
+                    }
+                );
+    
+                if (vendor > 0) {
+                    SuccessResponse(res, { unique_id: payload.unique_id, text: "Vendor unverified successfully!" });
+                } else {
+                    throw new Error("Vendor account is actively unverified");
+                }
+            });
         } catch (err) {
             ServerError(res, { unique_id: payload.unique_id, text: err.message }, null);
         }
@@ -322,26 +345,29 @@ export async function proVendorUpgrade(req, res) {
 
     if (!errors.isEmpty()) {
         ValidationError(res, "proVendorUpgrade | Validation Error Occured", errors.array())
-    }
-    else {
+    } else {
         try {
-            const vendor = await db.sequelize.transaction((t) => {
-                return VENDORS.update({
-                    pro: true_status,
-                    pro_expiring: moment().day(30).toDate()
-                }, {
-                    where: {
-                        ...payload,
-                        status: default_status
-                    }
-                }, { transaction: t });
-            });
+            await db.sequelize.transaction(async (transaction) => {
 
-            if (vendor > 0) {
-                SuccessResponse(res, { unique_id: payload.unique_id, text: "Vendor upgraded to pro successfully!" });
-            } else {
-                BadRequestError(res, { unique_id: payload.unique_id, text: "Vendor account is actively upgraded!" }, null);
-            }
+                const vendor = await VENDORS.update(
+                    {
+                        pro: true_status,
+                        pro_expiring: moment().day(30).toDate()
+                    }, {
+                        where: {
+                            ...payload,
+                            status: default_status
+                        }, 
+                        transaction
+                    }
+                );
+    
+                if (vendor > 0) {
+                    SuccessResponse(res, { unique_id: payload.unique_id, text: "Vendor upgraded to pro successfully!" });
+                } else {
+                    throw new Error("Vendor account is actively upgraded");
+                }
+            });
         } catch (err) {
             ServerError(res, { unique_id: payload.unique_id, text: err.message }, null);
         }
@@ -354,26 +380,29 @@ export async function proVendorDowngrade(req, res) {
 
     if (!errors.isEmpty()) {
         ValidationError(res, "proVendorDowngrade | Validation Error Occured", errors.array())
-    }
-    else {
+    } else {
         try {
-            const vendor = await db.sequelize.transaction((t) => {
-                return VENDORS.update({
-                    pro: false_status,
-                    pro_expiring: null
-                }, {
-                    where: {
-                        ...payload,
-                        status: default_status
-                    }
-                }, { transaction: t });
-            })
+            await db.sequelize.transaction(async (transaction) => {
 
-            if (vendor > 0) {
-                SuccessResponse(res, { unique_id: payload.unique_id, text: "Vendor downgraded from pro successfully!" });
-            } else {
-                BadRequestError(res, { unique_id: payload.unique_id, text: "Vendor account is actively downgraded!" }, null);
-            }
+                const vendor = await VENDORS.update(
+                    {
+                        pro: false_status,
+                        pro_expiring: null
+                    }, {
+                        where: {
+                            ...payload,
+                            status: default_status
+                        }, 
+                        transaction
+                    }
+                );
+    
+                if (vendor > 0) {
+                    SuccessResponse(res, { unique_id: payload.unique_id, text: "Vendor downgraded from pro successfully!" });
+                } else {
+                    throw new Error("Vendor account is actively downgraded");
+                }
+            });
         } catch (err) {
             ServerError(res, { unique_id: payload.unique_id, text: err.message }, null);
         }
@@ -386,102 +415,117 @@ export async function removeVendor(req, res) {
 
     if (!errors.isEmpty()) {
         ValidationError(res, `${tag_admin} | removeVendor | Validation Error Occured`, errors.array())
-    }
-    else {
+    } else {
         try {
-            const vendor = await db.sequelize.transaction((t) => {
-                return VENDORS.update({
-                    status: default_delete_status
-                }, {
-                    where: {
-                        ...payload,
-                        status: default_status
+            await db.sequelize.transaction(async (transaction) => {
+
+                const vendor = await VENDORS.update(
+                    {
+                        status: default_delete_status
+                    }, {
+                        where: {
+                            ...payload,
+                            status: default_status
+                        }, 
+                        transaction
                     }
-                }, { transaction: t });
+                );
+    
+                if (vendor > 0) {
+                    const vendor_users = await VENDOR_USERS.update(
+                        {
+                            status: default_delete_status
+                        }, {
+                            where: {
+                                vendor_unique_id: payload.unique_id,
+                                status: default_status
+                            }, 
+                            transaction
+                        }
+                    );
+    
+                    const vendor_account = await VENDOR_ACCOUNT.update(
+                        {
+                            status: default_delete_status
+                        }, {
+                            where: {
+                                vendor_unique_id: payload.unique_id,
+                                status: default_status
+                            }, 
+                            transaction
+                        }
+                    );
+    
+                    const vendor_address = await VENDOR_ADDRESS.update(
+                        {
+                            status: default_delete_status
+                        }, {
+                            where: {
+                                vendor_unique_id: payload.unique_id,
+                                status: default_status
+                            }, 
+                            transaction
+                        }
+                    );
+    
+                    const vendor_bank_accounts = await VENDOR_BANK_ACCOUNTS.update(
+                        {
+                            status: default_delete_status
+                        }, {
+                            where: {
+                                vendor_unique_id: payload.unique_id,
+                                status: default_status
+                            }, 
+                            transaction
+                        }
+                    );
+    
+                    const menus = await MENUS.update(
+                        {
+                            status: default_delete_status
+                        }, {
+                            where: {
+                                vendor_unique_id: payload.unique_id,
+                                status: default_status
+                            }, 
+                            transaction
+                        }
+                    );
+    
+                    const products = await PRODUCTS.update(
+                        {
+                            status: default_delete_status
+                        }, {
+                            where: {
+                                vendor_unique_id: payload.unique_id,
+                                status: default_status
+                            }, 
+                            transaction
+                        }
+                    );
+    
+                    const transactions = await TRANSACTIONS.update(
+                        {
+                            status: default_delete_status
+                        }, {
+                            where: {
+                                vendor_unique_id: payload.unique_id,
+                                status: default_status
+                            }, 
+                            transaction
+                        }
+                    );
+
+                    if (vendor_users > 0 && vendor_account > 0) {
+                        SuccessResponse(res, { unique_id: tag_admin + " | " + payload.unique_id, text: "Vendor removed successfully!" });
+                    } else {
+                        throw new Error("Error removing other vendor properties");
+                    }
+    
+                } else {
+                    throw new Error("Vendor not found");
+                }
             });
-
-            if (vendor > 0) {
-                const vendor_users = await db.sequelize.transaction((t) => {
-                    return VENDOR_USERS.update({
-                        status: default_delete_status
-                    }, {
-                        where: {
-                            vendor_unique_id: payload.unique_id,
-                            status: default_status
-                        }
-                    }, { transaction: t });
-                });
-
-                const vendor_account = await db.sequelize.transaction((t) => {
-                    return VENDOR_ACCOUNT.update({
-                        status: default_delete_status
-                    }, {
-                        where: {
-                            vendor_unique_id: payload.unique_id,
-                            status: default_status
-                        }
-                    }, { transaction: t });
-                });
-
-                const vendor_address = await db.sequelize.transaction((t) => {
-                    return VENDOR_ADDRESS.update({
-                        status: default_delete_status
-                    }, {
-                        where: {
-                            vendor_unique_id: payload.unique_id,
-                            status: default_status
-                        }
-                    }, { transaction: t });
-                });
-
-                const vendor_bank_accounts = await db.sequelize.transaction((t) => {
-                    return VENDOR_BANK_ACCOUNTS.update({
-                        status: default_delete_status
-                    }, {
-                        where: {
-                            vendor_unique_id: payload.unique_id,
-                            status: default_status
-                        }
-                    }, { transaction: t });
-                });
-
-                const menus = await db.sequelize.transaction((t) => {
-                    return MENUS.update({
-                        status: default_delete_status
-                    }, {
-                        where: {
-                            vendor_unique_id: payload.unique_id,
-                            status: default_status
-                        }
-                    }, { transaction: t });
-                });
-
-                const products = await db.sequelize.transaction((t) => {
-                    return PRODUCTS.update({
-                        status: default_delete_status
-                    }, {
-                        where: {
-                            vendor_unique_id: payload.unique_id,
-                            status: default_status
-                        }
-                    }, { transaction: t });
-                });
-
-                const transactions = await db.sequelize.transaction((t) => {
-                    return TRANSACTIONS.update({
-                        status: default_delete_status
-                    }, {
-                        where: {
-                            vendor_unique_id: payload.unique_id,
-                            status: default_status
-                        }
-                    }, { transaction: t });
-                });
-
-                SuccessResponse(res, { unique_id: tag_admin + " | " + payload.unique_id, text: "Vendor removed successfully!" });
-            } else {
-                BadRequestError(res, { unique_id: tag_admin + " | " + payload.unique_id, text: "Vendor not found!" }, null);
-            }
         } catch (err) {
             ServerError(res, { unique_id: tag_admin + " | " + payload.unique_id, text: err.message }, null);
         }
@@ -494,102 +538,116 @@ export async function restoreVendor(req, res) {
 
     if (!errors.isEmpty()) {
         ValidationError(res, `${tag_admin} | restoreVendor | Validation Error Occured`, errors.array())
-    }
-    else {
+    } else {
         try {
-            const vendor = await db.sequelize.transaction((t) => {
-                return VENDORS.update({
-                    status: default_status
-                }, {
-                    where: {
-                        ...payload,
-                        status: default_delete_status
+            await db.sequelize.transaction(async (transaction) => {
+
+                const vendor = await VENDORS.update(
+                    {
+                        status: default_status
+                    }, {
+                        where: {
+                            ...payload,
+                            status: default_delete_status
+                        }, 
+                        transaction
                     }
-                }, { transaction: t });
-            })
+                );    
 
-            if (vendor > 0) {
-                const vendor_users = await db.sequelize.transaction((t) => {
-                    return VENDOR_USERS.update({
-                        status: default_status
-                    }, {
-                        where: {
-                            vendor_unique_id: payload.unique_id,
-                            status: default_delete_status
+                if (vendor > 0) {
+                    const vendor_users = await VENDOR_USERS.update(
+                        {
+                            status: default_status
+                        }, {
+                            where: {
+                                vendor_unique_id: payload.unique_id,
+                                status: default_delete_status
+                            }, 
+                            transaction
                         }
-                    }, { transaction: t });
-                });
-
-                const vendor_account = await db.sequelize.transaction((t) => {
-                    return VENDOR_ACCOUNT.update({
-                        status: default_status
-                    }, {
-                        where: {
-                            vendor_unique_id: payload.unique_id,
-                            status: default_delete_status
+                    );
+    
+                    const vendor_account = await VENDOR_ACCOUNT.update(
+                        {
+                            status: default_status
+                        }, {
+                            where: {
+                                vendor_unique_id: payload.unique_id,
+                                status: default_delete_status
+                            }, 
+                            transaction
                         }
-                    }, { transaction: t });
-                });
-
-                const vendor_address = await db.sequelize.transaction((t) => {
-                    return VENDOR_ADDRESS.update({
-                        status: default_status
-                    }, {
-                        where: {
-                            vendor_unique_id: payload.unique_id,
-                            status: default_delete_status
+                    );
+    
+                    const vendor_address = await VENDOR_ADDRESS.update(
+                        {
+                            status: default_status
+                        }, {
+                            where: {
+                                vendor_unique_id: payload.unique_id,
+                                status: default_delete_status
+                            }, 
+                            transaction
                         }
-                    }, { transaction: t });
-                });
-
-                const vendor_bank_accounts = await db.sequelize.transaction((t) => {
-                    return VENDOR_BANK_ACCOUNTS.update({
-                        status: default_status
-                    }, {
-                        where: {
-                            vendor_unique_id: payload.unique_id,
-                            status: default_delete_status
+                    );
+    
+                    const vendor_bank_accounts = await VENDOR_BANK_ACCOUNTS.update(
+                        {
+                            status: default_status
+                        }, {
+                            where: {
+                                vendor_unique_id: payload.unique_id,
+                                status: default_delete_status
+                            }, 
+                            transaction
                         }
-                    }, { transaction: t });
-                });
-
-                const menus = await db.sequelize.transaction((t) => {
-                    return MENUS.update({
-                        status: default_status
-                    }, {
-                        where: {
-                            vendor_unique_id: payload.unique_id,
-                            status: default_delete_status
+                    );
+    
+                    const menus = await MENUS.update(
+                        {
+                            status: default_status
+                        }, {
+                            where: {
+                                vendor_unique_id: payload.unique_id,
+                                status: default_delete_status
+                            }, 
+                            transaction
                         }
-                    }, { transaction: t });
-                });
-
-                const products = await db.sequelize.transaction((t) => {
-                    return PRODUCTS.update({
-                        status: default_status
-                    }, {
-                        where: {
-                            vendor_unique_id: payload.unique_id,
-                            status: default_delete_status
+                    );
+    
+                    const products = await PRODUCTS.update(
+                        {
+                            status: default_status
+                        }, {
+                            where: {
+                                vendor_unique_id: payload.unique_id,
+                                status: default_delete_status
+                            }, 
+                            transaction
                         }
-                    }, { transaction: t });
-                });
-
-                const transactions = await db.sequelize.transaction((t) => {
-                    return TRANSACTIONS.update({
-                        status: default_status
-                    }, {
-                        where: {
-                            vendor_unique_id: payload.unique_id,
-                            status: default_delete_status
+                    );
+    
+                    const transactions = await TRANSACTIONS.update(
+                        {
+                            status: default_status
+                        }, {
+                            where: {
+                                vendor_unique_id: payload.unique_id,
+                                status: default_delete_status
+                            }, 
+                            transaction
                         }
-                    }, { transaction: t });
-                });
+                    );
 
-                SuccessResponse(res, { unique_id: tag_admin + " | " + payload.unique_id, text: "Vendor restored successfully!" });
-            } else {
-                BadRequestError(res, { unique_id: tag_admin + " | " + payload.unique_id, text: "Vendor not found!" }, null);
-            }
+                    if (vendor_users > 0 && vendor_account > 0) {
+                        SuccessResponse(res, { unique_id: tag_admin + " | " + payload.unique_id, text: "Vendor restored successfully!" });
+                    } else {
+                        throw new Error("Error restoring other vendor properties");
+                    }
+                } else {
+                    throw new Error("Vendor not found");
+                }
+            });
         } catch (err) {
             ServerError(res, { unique_id: tag_admin + " | " + payload.unique_id, text: err.message }, null);
         }
@@ -602,53 +660,49 @@ export async function removeVendorPermanently(req, res) {
 
     if (!errors.isEmpty()) {
         ValidationError(res, `${tag_admin} | removeVendorPermanently | Validation Error Occured`, errors.array())
-    }
-    else {
+    } else {
         try {
-            const transactions = await db.sequelize.transaction((t) => { return TRANSACTIONS.destroy({ where: { vendor_unique_id: payload.unique_id } }, { transaction: t }) });
-            const products = await db.sequelize.transaction((t) => { return PRODUCTS.destroy({ where: { vendor_unique_id: payload.unique_id } }, { transaction: t }) });
-            const menus = await db.sequelize.transaction((t) => { return MENUS.destroy({ where: { vendor_unique_id: payload.unique_id } }, { transaction: t }) });
-            const otps = await db.sequelize.transaction((t) => { return OTPS.destroy({ where: { vendor_unique_id: payload.unique_id } }, { transaction: t }) });
-            const vendor_account = await db.sequelize.transaction((t) => { return VENDOR_ACCOUNT.destroy({ where: { vendor_unique_id: payload.unique_id } }, { transaction: t }) });
-            const vendor_address = await db.sequelize.transaction((t) => { return VENDOR_ADDRESS.destroy({ where: { vendor_unique_id: payload.unique_id } }, { transaction: t }) });
-            const vendor_bank_accounts = await db.sequelize.transaction((t) => { return VENDOR_BANK_ACCOUNTS.destroy({ where: { vendor_unique_id: payload.unique_id } }, { transaction: t }) });
-            const vendor_users = await db.sequelize.transaction((t) => { return VENDOR_USERS.destroy({ where: { vendor_unique_id: payload.unique_id } }, { transaction: t }) });
+            await db.sequelize.transaction(async (transaction) => {
 
-            const affected_rows = transactions + products + menus + otps + vendor_address + vendor_bank_accounts + vendor_account + vendor_users;
-
-            if (affected_rows > 0) {
-                const action_2 = await db.sequelize.transaction((t) => {
-                    const vendors = VENDORS.destroy({ where: { ...payload } }, { transaction: t })
-                    return vendors;
-                });
-
-                if (action_2 > 0) {
-                    const folder_name = platform_documents_path + payload.unique_id;
-                    if (existsSync(folder_name)) rmdirSync(folder_name);
-                    if (!existsSync(folder_name)) {
-                        logger.info(`Vendor directory deleted successfully [${folder_name}]`)
-                        OtherSuccessResponse(res, { unique_id: tag_admin + " | " + payload.unique_id, text: `Vendor deleted permanently! ${affected_rows + action_2} rows affected.` })
-                    };
+                const transactions = await TRANSACTIONS.destroy({ where: { vendor_unique_id: payload.unique_id }, transaction });
+                const products = await PRODUCTS.destroy({ where: { vendor_unique_id: payload.unique_id }, transaction });
+                const menus = await MENUS.destroy({ where: { vendor_unique_id: payload.unique_id }, transaction });
+                const otps = await OTPS.destroy({ where: { vendor_unique_id: payload.unique_id }, transaction });
+                const vendor_account = await VENDOR_ACCOUNT.destroy({ where: { vendor_unique_id: payload.unique_id }, transaction });
+                const vendor_address = await VENDOR_ADDRESS.destroy({ where: { vendor_unique_id: payload.unique_id }, transaction });
+                const vendor_bank_accounts = await VENDOR_BANK_ACCOUNTS.destroy({ where: { vendor_unique_id: payload.unique_id }, transaction });
+                const vendor_users = await VENDOR_USERS.destroy({ where: { vendor_unique_id: payload.unique_id }, transaction });
+    
+                const affected_rows = transactions + products + menus + otps + vendor_address + vendor_bank_accounts + vendor_account + vendor_users;
+    
+                if (affected_rows > 0) {
+                    const action_2 = await VENDORS.destroy({ where: { ...payload }, transaction });
+    
+                    if (action_2 > 0) {
+                        const folder_name = platform_documents_path + payload.unique_id;
+                        if (existsSync(folder_name)) rmdirSync(folder_name);
+                        if (!existsSync(folder_name)) {
+                            logger.info(`Vendor directory deleted successfully [${folder_name}]`)
+                            OtherSuccessResponse(res, { unique_id: tag_admin + " | " + payload.unique_id, text: `Vendor deleted permanently! ${affected_rows + action_2} rows affected.` })
+                        };
+                    } else {
+                        throw new Error("Vendor not found");
+                    }
                 } else {
-                    BadRequestError(res, { unique_id: tag_admin + " | " + payload.unique_id, text: "Vendor not found!" }, null);
+                    const action_2 = await VENDORS.destroy({ where: { ...payload }, transaction });
+    
+                    if (action_2 > 0) {
+                        const folder_name = platform_documents_path + payload.unique_id;
+                        if (existsSync(folder_name)) rmdirSync(folder_name);
+                        if (!existsSync(folder_name)) {
+                            logger.info(`Vendor directory deleted successfully [${folder_name}]`)
+                            OtherSuccessResponse(res, { unique_id: tag_admin + " | " + payload.unique_id, text: `Vendor deleted permanently! ${action_2} rows affected.` })
+                        };
+                    } else {
+                        throw new Error("Vendor not found");
+                    }
                 }
-            } else {
-                const action_2 = await db.sequelize.transaction((t) => {
-                    const vendors = VENDORS.destroy({ where: { ...payload } }, { transaction: t })
-                    return vendors;
-                });
-
-                if (action_2 > 0) {
-                    const folder_name = platform_documents_path + payload.unique_id;
-                    if (existsSync(folder_name)) rmdirSync(folder_name);
-                    if (!existsSync(folder_name)) {
-                        logger.info(`Vendor directory deleted successfully [${folder_name}]`)
-                        OtherSuccessResponse(res, { unique_id: tag_admin + " | " + payload.unique_id, text: `Vendor deleted permanently! ${action_2} rows affected.` })
-                    };
-                } else {
-                    BadRequestError(res, { unique_id: tag_admin + " | " + payload.unique_id, text: "Vendor not found!" }, null);
-                }
-            }
+            });
         } catch (err) {
             ServerError(res, { unique_id: tag_admin + " | " + payload.unique_id, text: err.message }, null);
         }

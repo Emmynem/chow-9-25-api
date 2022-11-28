@@ -117,18 +117,23 @@ export async function addVendorAddress(req, res) {
             ValidationError(res, { unique_id: vendor_unique_id, text: "Validation Error Occured" }, errors.array())
         } else {
             try {
-                const vendor_address = await db.sequelize.transaction((t) => {
-                    return VENDOR_ADDRESS.create({
-                        unique_id: uuidv4(),
-                        vendor_unique_id,
-                        ...payload,
-                        status: default_status
-                    }, { transaction: t });
+                await db.sequelize.transaction(async (transaction) => {
+                    
+                    const vendor_address = await VENDOR_ADDRESS.create(
+                        {
+                            unique_id: uuidv4(),
+                            vendor_unique_id,
+                            ...payload,
+                            status: default_status
+                        }, { transaction }
+                    );
+        
+                    if (vendor_address) {
+                        CreationSuccessResponse(res, { unique_id: vendor_unique_id, text: "Address created successfully!" });
+                    } else {
+                        throw new Error("Error creating address");
+                    }
                 });
-    
-                if (vendor_address) {
-                    CreationSuccessResponse(res, { unique_id: vendor_unique_id, text: "Address created successfully!" });
-                }
             } catch (err) {
                 ServerError(res, { unique_id: vendor_unique_id, text: err.message }, null);
             }
@@ -158,23 +163,27 @@ export async function updateVendorAddress(req, res) {
             ValidationError(res, { unique_id: vendor_unique_id, text: "Validation Error Occured" }, errors.array())
         } else {
             try {
-                const vendor_address = await db.sequelize.transaction((t) => {
-                    return VENDOR_ADDRESS.update({
-                        ...payload
-                    }, {
-                        where: {
-                            unique_id: payload.unique_id,
-                            vendor_unique_id,
-                            status: default_status
+                await db.sequelize.transaction(async (transaction) => {
+
+                    const vendor_address = await VENDOR_ADDRESS.update(
+                        {
+                            ...payload
+                        }, {
+                            where: {
+                                unique_id: payload.unique_id,
+                                vendor_unique_id,
+                                status: default_status
+                            }, 
+                            transaction
                         }
-                    }, { transaction: t });
+                    );
+        
+                    if (vendor_address > 0) {
+                        OtherSuccessResponse(res, { unique_id: vendor_unique_id, text: "Address was updated successfully!" });
+                    } else {
+                        throw new Error("Error updating address details");
+                    }
                 });
-    
-                if (vendor_address > 0) {
-                    OtherSuccessResponse(res, { unique_id: vendor_unique_id, text: "Address was updated successfully!" });
-                } else {
-                    BadRequestError(res, { unique_id: vendor_unique_id, text: "Error updating address details!" }, null);
-                }
             } catch (err) {
                 ServerError(res, { unique_id: vendor_unique_id, text: err.message }, null);
             }

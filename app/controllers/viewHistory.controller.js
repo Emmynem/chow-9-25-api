@@ -118,7 +118,7 @@ export function getViewHistories(req, res) {
     });
 };
 
-export async function addViewHistory(req, res, data) {
+export async function addViewHistory(req, res, data, transaction) {
 
     let msg;
     let param;
@@ -137,33 +137,49 @@ export async function addViewHistory(req, res, data) {
                     product_unique_id: data.product_unique_id,
                     status: default_status
                 },
+                transaction
             });
 
             if (last_view_history) {
-                await db.sequelize.transaction((t) => {
-                    return VIEW_HISTORY.update({
+                const updated_view_history = await VIEW_HISTORY.update(
+                    {
                         status: default_status,
                     }, {
                         where: {
                             user_unique_id: data.user_unique_id,
                             product_unique_id: data.product_unique_id,
                             status: default_status
-                        }
-                    }, { transaction: t });
-                });
+                        }, 
+                        transaction
+                    }
+                );
+
+                if (updated_view_history > 0) {
+                    return_data.status = 1;
+                    logger.info({ unique_id: data.user_unique_id || anonymous, text: `View History - ${data.product_unique_id}, updated view history` });
+                    return { ...return_data, err: null };
+                } else {
+                    logger.error({ unique_id: data.user_unique_id || anonymous, text: "Error updating view history" });
+                    return { ...return_data, err: "Error updating view history" };
+                }
             } else {
-                await db.sequelize.transaction((t) => {
-                    const view_history = VIEW_HISTORY.create({
+                const view_history = VIEW_HISTORY.create(
+                    {
                         ...data,
                         unique_id: uuidv4(),
                         status: default_status
-                    }, { transaction: t });
-                    return view_history;
-                });
-                logger.info({ unique_id: data.user_unique_id || anonymous, text: `View History - ${data.type}` });
+                    }, { transaction }
+                );
+
+                if (view_history) {
+                    return_data.status = 1;
+                    logger.info({ unique_id: data.user_unique_id || anonymous, text: `View History - ${data.product_unique_id}, added view history` });
+                    return { ...return_data, err: null };
+                } else {
+                    logger.error({ unique_id: data.user_unique_id || anonymous, text: "Error adding view history" });
+                    return { ...return_data, err: "Error adding view history" };
+                }
             }
-            return_data.status = 1;
-            return { ...return_data, err: null };
         } catch (err) {
             logger.error({ unique_id: data.user_unique_id || anonymous, text: err.message });
             return { ...return_data, err: err.message };
@@ -181,22 +197,25 @@ export async function deleteViewHistory(req, res) {
         ValidationError(res, { unique_id: user_unique_id, text: "Validation Error Occured" }, errors.array())
     } else {
         try {
-            const view_history = await db.sequelize.transaction((t) => {
-                return VIEW_HISTORY.destroy({
-                    where: {
-                        unique_id: payload.unique_id,
-                        user_unique_id,
-                        status: default_status
+            await db.sequelize.transaction(async (transaction) => {
+
+                const view_history = await VIEW_HISTORY.destroy(
+                    {
+                        where: {
+                            unique_id: payload.unique_id,
+                            user_unique_id,
+                            status: default_status
+                        }, 
+                        transaction
                     }
-                }, { transaction: t });
+                );
+    
+                if (view_history > 0) {
+                    OtherSuccessResponse(res, { unique_id: user_unique_id, text: "View History was deleted successfully!" });
+                } else {
+                    throw new Error("Error deleting view history!");
+                }
             });
-
-            if (view_history > 0) {
-                OtherSuccessResponse(res, { unique_id: user_unique_id, text: "View History was deleted successfully!" });
-            } else {
-                BadRequestError(res, { unique_id: user_unique_id, text: "Error deleting view history!" }, null);
-            }
-
         } catch (err) {
             ServerError(res, { unique_id: user_unique_id, text: err.message }, null);
         }

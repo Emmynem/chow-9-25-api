@@ -228,21 +228,26 @@ export async function addVendorBankAccount(req, res) {
             ValidationError(res, { unique_id: vendor_unique_id, text: "Validation Error Occured" }, errors.array())
         } else {
             try {
-                const vendor_bank_account_count = await VENDOR_BANK_ACCOUNTS.count({ where: { vendor_unique_id } });
+                await db.sequelize.transaction(async (transaction) => {
 
-                const vendor_bank_account = await db.sequelize.transaction((t) => {
-                    return VENDOR_BANK_ACCOUNTS.create({
-                        unique_id: uuidv4(),
-                        vendor_unique_id,
-                        ...payload,
-                        default_bank: vendor_bank_account_count === 0 ? true_status : false_status,
-                        status: default_status
-                    }, { transaction: t });
+                    const vendor_bank_account_count = await VENDOR_BANK_ACCOUNTS.count({ where: { vendor_unique_id }, transaction });
+    
+                    const vendor_bank_account = await VENDOR_BANK_ACCOUNTS.create(
+                        {
+                            unique_id: uuidv4(),
+                            vendor_unique_id,
+                            ...payload,
+                            default_bank: vendor_bank_account_count === 0 ? true_status : false_status,
+                            status: default_status
+                        }, { transaction }
+                    );
+    
+                    if (vendor_bank_account) {
+                        CreationSuccessResponse(res, { unique_id: vendor_unique_id, text: "Vendor Bank Account added successfully!" });
+                    } else {
+                        throw new Error("Error adding vendor bank account");
+                    }
                 });
-
-                if (vendor_bank_account) {
-                    CreationSuccessResponse(res, { unique_id: vendor_unique_id, text: "Vendor Bank Account created successfully!" });
-                }
             } catch (err) {
                 ServerError(res, { unique_id: vendor_unique_id, text: err.message }, null);
             }
@@ -272,23 +277,27 @@ export async function updateVendorBankAccount(req, res) {
             ValidationError(res, { unique_id: vendor_unique_id, text: "Validation Error Occured" }, errors.array())
         } else {
             try {
-                const vendor_bank_account = await db.sequelize.transaction((t) => {
-                    return VENDOR_BANK_ACCOUNTS.update({
-                        ...payload
-                    }, {
-                        where: {
-                            unique_id: payload.unique_id,
-                            vendor_unique_id,
-                            status: default_status
+                await db.sequelize.transaction(async (transaction) => {
+                    
+                    const vendor_bank_account = await VENDOR_BANK_ACCOUNTS.update(
+                        {
+                            ...payload
+                        }, {
+                            where: {
+                                unique_id: payload.unique_id,
+                                vendor_unique_id,
+                                status: default_status
+                            }, 
+                            transaction
                         }
-                    }, { transaction: t });
-                });
+                    );
 
-                if (vendor_bank_account > 0) {
-                    OtherSuccessResponse(res, { unique_id: vendor_unique_id, text: "Vendor Bank Account was updated successfully!" });
-                } else {
-                    BadRequestError(res, { unique_id: vendor_unique_id, text: "Error updating vendor bank account details!" }, null);
-                }
+                    if (vendor_bank_account > 0) {
+                        OtherSuccessResponse(res, { unique_id: vendor_unique_id, text: "Vendor Bank Account was updated successfully!" });
+                    } else {
+                        throw new Error("Error updating vendor bank account details");
+                    }
+                });
             } catch (err) {
                 ServerError(res, { unique_id: vendor_unique_id, text: err.message }, null);
             }
@@ -318,37 +327,42 @@ export async function changeVendorDefaultBankAccount(req, res) {
             ValidationError(res, { unique_id: vendor_unique_id, text: "Validation Error Occured" }, errors.array())
         } else {
             try {
-                const not_default_vendor_bank_account = await db.sequelize.transaction((t) => {
-                    return VENDOR_BANK_ACCOUNTS.update({
-                        default_bank: false_status
-                    }, {
-                        where: {
-                            unique_id: {
-                                [Op.ne]: payload.unique_id,
-                            },
-                            vendor_unique_id,
-                            status: default_status
+                await db.sequelize.transaction(async (transaction) => {
+
+                    const not_default_vendor_bank_account = await VENDOR_BANK_ACCOUNTS.update(
+                        {
+                            default_bank: false_status
+                        }, {
+                            where: {
+                                unique_id: {
+                                    [Op.ne]: payload.unique_id,
+                                },
+                                vendor_unique_id,
+                                status: default_status
+                            }, 
+                            transaction
                         }
-                    }, { transaction: t });
-                });
-    
-                const vendor_bank_account = await db.sequelize.transaction((t) => {
-                    return VENDOR_BANK_ACCOUNTS.update({
-                        default_bank: true_status
-                    }, {
-                        where: {
-                            unique_id: payload.unique_id,
-                            vendor_unique_id,
-                            status: default_status
+                    );
+        
+                    const vendor_bank_account = await VENDOR_BANK_ACCOUNTS.update(
+                        {
+                            default_bank: true_status
+                        }, {
+                            where: {
+                                unique_id: payload.unique_id,
+                                vendor_unique_id,
+                                status: default_status
+                            }, 
+                            transaction
                         }
-                    }, { transaction: t });
+                    );
+        
+                    if (vendor_bank_account > 0) {
+                        OtherSuccessResponse(res, { unique_id: vendor_unique_id, text: "Vendor default bank account was updated successfully!" });
+                    } else {
+                        throw new Error("Error updating vendor default bank account");
+                    }
                 });
-    
-                if (vendor_bank_account > 0) {
-                    OtherSuccessResponse(res, { unique_id: vendor_unique_id, text: "Vendor default bank account was updated successfully!" });
-                } else {
-                    BadRequestError(res, { unique_id: vendor_unique_id, text: "Error updating vendor default bank account!" }, null);
-                }
             } catch (err) {
                 ServerError(res, { unique_id: vendor_unique_id, text: err.message }, null);
             }
@@ -378,34 +392,39 @@ export async function deleteVendorBankAccount(req, res) {
             ValidationError(res, { unique_id: vendor_unique_id, text: "Validation Error Occured" }, errors.array())
         } else {
             try {
-                const vendor_bank_accounts = await VENDOR_BANK_ACCOUNTS.findOne({
-                    where: {
-                        vendor_unique_id,
-                        default_bank: true_status,
-                        status: default_status
-                    },
-                });
-    
-                if (vendor_bank_accounts.unique_id === payload.unique_id) {
-                    BadRequestError(res, { unique_id: vendor_unique_id, text: "Error deleting vendor default bank account!" }, null);
-                } else {
-                    const vendor_bank_account = await db.sequelize.transaction((t) => {
-                        return VENDOR_BANK_ACCOUNTS.destroy({
-                            where: {
-                                unique_id: payload.unique_id,
-                                vendor_unique_id,
-                                status: default_status
-                            }
-                        }, { transaction: t });
+                await db.sequelize.transaction(async (transaction) => {
+
+                    const vendor_bank_accounts = await VENDOR_BANK_ACCOUNTS.findOne({
+                        where: {
+                            vendor_unique_id,
+                            default_bank: true_status,
+                            status: default_status
+                        },
+                        transaction
                     });
-    
-                    if (vendor_bank_account > 0) {
-                        OtherSuccessResponse(res, { unique_id: vendor_unique_id, text: "Vendor Bank Account was deleted successfully!" });
+        
+                    if (vendor_bank_accounts.unique_id === payload.unique_id) {
+                        BadRequestError(res, { unique_id: vendor_unique_id, text: "Error deleting vendor default bank account!" }, null);
                     } else {
-                        BadRequestError(res, { unique_id: vendor_unique_id, text: "Error deleting vendor bank account!" }, null);
+                        const vendor_bank_account = await VENDOR_BANK_ACCOUNTS.destroy(
+                            {
+                                where: {
+                                    unique_id: payload.unique_id,
+                                    vendor_unique_id,
+                                    status: default_status
+                                }, 
+                                transaction
+                            }
+                        );
+        
+                        if (vendor_bank_account > 0) {
+                            OtherSuccessResponse(res, { unique_id: vendor_unique_id, text: "Vendor Bank Account was deleted successfully!" });
+                        } else {
+                            throw new Error("Error deleting vendor bank account");
+                        }
                     }
-                }
-    
+                });
+
             } catch (err) {
                 ServerError(res, { unique_id: vendor_unique_id, text: err.message }, null);
             }

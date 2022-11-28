@@ -197,20 +197,25 @@ export async function addVendorUser(req, res) {
             ValidationError(res, { unique_id: vendor_unique_id, text: "Validation Error Occured" }, errors.array())
         } else {
             try {
-                const vendor_users = await db.sequelize.transaction((t) => {
-                    return VENDOR_USERS.create({
-                        unique_id: uuidv4(),
-                        vendor_unique_id,
-                        ...payload,
-                        routes: JSON.stringify(payload.routes),
-                        access: access_granted,
-                        status: default_status
-                    }, { transaction: t });
+                await db.sequelize.transaction(async (transaction) => {
+
+                    const vendor_users = await VENDOR_USERS.create(
+                        {
+                            unique_id: uuidv4(),
+                            vendor_unique_id,
+                            ...payload,
+                            routes: JSON.stringify(payload.routes),
+                            access: access_granted,
+                            status: default_status
+                        }, { transaction }
+                    );
+        
+                    if (vendor_users) {
+                        CreationSuccessResponse(res, { unique_id: vendor_unique_id, text: "Vendor User created successfully!" });
+                    } else {
+                        throw new Error("Error creating vendor user");
+                    }
                 });
-    
-                if (vendor_users) {
-                    CreationSuccessResponse(res, { unique_id: vendor_unique_id, text: "Vendor User created successfully!" });
-                }
             } catch (err) {
                 ServerError(res, { unique_id: vendor_unique_id, text: err.message }, null);
             }
@@ -221,31 +226,37 @@ export async function addVendorUser(req, res) {
 export async function updateVendorUserProfileDetails(req, res) {
     const vendor_unique_id = req.VENDOR_UNIQUE_ID;
     const vendor_user_unique_id = req.VENDOR_USER_UNIQUE_ID;
+    const errors = validationResult(req);
+    const payload = matchedData(req);
 
-    try {
-        const vendor_user = await db.sequelize.transaction((t) => {
-            return VENDOR_USERS.update({ ...payload }, {
-                where: {
-                    vendor_unique_id,
-                    unique_id: vendor_user_unique_id,
-                    status: default_status
+    if (!errors.isEmpty()) {
+        ValidationError(res, { unique_id: vendor_unique_id, text: "Validation Error Occured" }, errors.array())
+    } else {
+        try {
+            await db.sequelize.transaction(async (transaction) => {
+    
+                const vendor_user = await VENDOR_USERS.update(
+                    { 
+                        ...payload 
+                    }, {
+                        where: {
+                            vendor_unique_id,
+                            unique_id: vendor_user_unique_id,
+                            status: default_status
+                        }, 
+                        transaction
+                    }
+                );
+        
+                if (vendor_user > 0) {
+                    SuccessResponse(res, { unique_id: vendor_unique_id, text: "Vendor User profile details updated successfully!" });
+                } else {
+                    throw new Error("Vendor User not found");
                 }
-            }, { transaction: t });
-        });
-
-        if (vendor_user > 0) {
-            const notification_data = {
-                vendor_unique_id,
-                type: "User",
-                action: "Updated vendor user profile details!"
-            };
-            addVendorNotification(req, res, notification_data);
-            SuccessResponse(res, { unique_id: vendor_unique_id, text: "Vendor User profile details updated successfully!" });
-        } else {
-            BadRequestError(res, { unique_id: vendor_unique_id, text: "Vendor User not found!" }, null);
+            });
+        } catch (err) {
+            ServerError(res, { unique_id: vendor_unique_id, text: err.message }, null);
         }
-    } catch (err) {
-        ServerError(res, { unique_id: vendor_unique_id, text: err.message }, null);
     }
 };
 
@@ -274,21 +285,26 @@ export async function updateVendorUserDetails(req, res) {
                 BadRequestError(res, { unique_id: vendor_unique_id, text: "Can't perform action!" }, null);
             } else {
                 try {
-                    const vendor_user = await db.sequelize.transaction((t) => {
-                        return VENDOR_USERS.update({ ...payload }, {
-                            where: {
-                                vendor_unique_id,
-                                unique_id: payload.unique_id,
-                                status: default_status
+                    await db.sequelize.transaction(async (transaction) => {
+                        const vendor_user = await VENDOR_USERS.update(
+                            { 
+                                ...payload 
+                            }, {
+                                where: {
+                                    vendor_unique_id,
+                                    unique_id: payload.unique_id,
+                                    status: default_status
+                                }, 
+                                transaction
                             }
-                        }, { transaction: t });
+                        );
+        
+                        if (vendor_user > 0) {
+                            SuccessResponse(res, { unique_id: vendor_unique_id, text: "Vendor User details updated successfully!" });
+                        } else {
+                            throw new Error("Vendor User not found");
+                        }
                     });
-    
-                    if (vendor_user > 0) {
-                        SuccessResponse(res, { unique_id: vendor_unique_id, text: "Vendor User details updated successfully!" });
-                    } else {
-                        BadRequestError(res, { unique_id: vendor_unique_id, text: "Vendor User not found!" }, null);
-                    }
                 } catch (err) {
                     ServerError(res, { unique_id: vendor_unique_id, text: err.message }, null);
                 }
@@ -322,24 +338,29 @@ export async function updateVendorUserRoutes(req, res) {
                 BadRequestError(res, { unique_id: vendor_unique_id, text: "Can't perform action!" }, null);
             } else {
                 try {
-                    const vendor_user = await db.sequelize.transaction((t) => {
-                        return VENDOR_USERS.update({ routes: JSON.stringify(payload.routes) }, {
-                            where: {
-                                vendor_unique_id,
-                                unique_id: payload.unique_id,
-                                routes: {
-                                    [Op.ne]: super_admin_routes
-                                },
-                                status: default_status
+                    await db.sequelize.transaction(async (transaction) => {
+                        const vendor_user = await VENDOR_USERS.update(
+                            { 
+                                routes: JSON.stringify(payload.routes) 
+                            }, {
+                                where: {
+                                    vendor_unique_id,
+                                    unique_id: payload.unique_id,
+                                    routes: {
+                                        [Op.ne]: super_admin_routes
+                                    },
+                                    status: default_status
+                                }, 
+                                transaction
                             }
-                        }, { transaction: t });
+                        );
+        
+                        if (vendor_user > 0) {
+                            SuccessResponse(res, { unique_id: vendor_unique_id, text: "Vendor User routes updated successfully!" });
+                        } else {
+                            throw new Error("Vendor User not found");
+                        }
                     });
-    
-                    if (vendor_user > 0) {
-                        SuccessResponse(res, { unique_id: vendor_unique_id, text: "Vendor User routes updated successfully!" });
-                    } else {
-                        BadRequestError(res, { unique_id: vendor_unique_id, text: "Vendor User not found!" }, null);
-                    }
                 } catch (err) {
                     ServerError(res, { unique_id: vendor_unique_id, text: err.message }, null);
                 }
@@ -373,29 +394,32 @@ export async function updateVendorUserAccessGranted(req, res) {
                 BadRequestError(res, { unique_id: vendor_unique_id, text: "Can't perform action!" }, null);
             } else {
                 try {
-                    const vendor_user = await db.sequelize.transaction((t) => {
-                        return VENDOR_USERS.update({
-                            access: access_granted
-                        }, {
-                            where: {
-                                vendor_unique_id,
-                                unique_id: payload.unique_id,
-                                access: {
-                                    [Op.ne]: access_granted
-                                },
-                                routes: {
-                                    [Op.ne]: super_admin_routes
-                                },
-                                status: default_status
+                    await db.sequelize.transaction(async (transaction) => {
+                        const vendor_user = await VENDOR_USERS.update(
+                            {
+                                access: access_granted
+                            }, {
+                                where: {
+                                    vendor_unique_id,
+                                    unique_id: payload.unique_id,
+                                    access: {
+                                        [Op.ne]: access_granted
+                                    },
+                                    routes: {
+                                        [Op.ne]: super_admin_routes
+                                    },
+                                    status: default_status
+                                }, 
+                                transaction
                             }
-                        }, { transaction: t });
+                        );
+        
+                        if (vendor_user > 0) {
+                            SuccessResponse(res, { unique_id: vendor_unique_id, text: "Vendor User's access was granted successfully!" });
+                        } else {
+                            throw new Error("Vendor User access already granted");
+                        }
                     });
-    
-                    if (vendor_user > 0) {
-                        SuccessResponse(res, { unique_id: vendor_unique_id, text: "Vendor User's access was granted successfully!" });
-                    } else {
-                        BadRequestError(res, { unique_id: vendor_unique_id, text: "Vendor User access already granted!" }, null);
-                    }
                 } catch (err) {
                     ServerError(res, { unique_id: vendor_unique_id, text: err.message }, null);
                 }
@@ -429,29 +453,32 @@ export async function updateVendorUserAccessSuspended(req, res) {
                 BadRequestError(res, { unique_id: vendor_unique_id, text: "Can't perform action!" }, null);
             } else {
                 try {
-                    const vendor_user = await db.sequelize.transaction((t) => {
-                        return VENDOR_USERS.update({
-                            access: access_suspended
-                        }, {
-                            where: {
-                                vendor_unique_id,
-                                unique_id: payload.unique_id,
-                                access: {
-                                    [Op.ne]: access_suspended
-                                },
-                                routes: {
-                                    [Op.ne]: super_admin_routes
-                                },
-                                status: default_status
+                    await db.sequelize.transaction(async (transaction) => {
+                        const vendor_user = await VENDOR_USERS.update(
+                            {
+                                access: access_suspended
+                            }, {
+                                where: {
+                                    vendor_unique_id,
+                                    unique_id: payload.unique_id,
+                                    access: {
+                                        [Op.ne]: access_suspended
+                                    },
+                                    routes: {
+                                        [Op.ne]: super_admin_routes
+                                    },
+                                    status: default_status
+                                }, 
+                                transaction
                             }
-                        }, { transaction: t });
+                        );
+        
+                        if (vendor_user > 0) {
+                            SuccessResponse(res, { unique_id: vendor_unique_id, text: "Vendor User's access was suspended successfully!" });
+                        } else {
+                            throw new Error("Vendor User access already suspended");
+                        }
                     });
-    
-                    if (vendor_user > 0) {
-                        SuccessResponse(res, { unique_id: vendor_unique_id, text: "Vendor User's access was suspended successfully!" });
-                    } else {
-                        BadRequestError(res, { unique_id: vendor_unique_id, text: "Vendor User access already suspended!" }, null);
-                    }
                 } catch (err) {
                     ServerError(res, { unique_id: vendor_unique_id, text: err.message }, null);
                 }
@@ -485,29 +512,32 @@ export async function updateVendorUserAccessRevoked(req, res) {
                 BadRequestError(res, { unique_id: vendor_unique_id, text: "Can't perform action!" }, null);
             } else {
                 try {
-                    const vendor_user = await db.sequelize.transaction((t) => {
-                        return VENDOR_USERS.update({
-                            access: access_revoked
-                        }, {
-                            where: {
-                                vendor_unique_id,
-                                unique_id: payload.unique_id,
-                                access: {
-                                    [Op.ne]: access_revoked
-                                },
-                                routes: {
-                                    [Op.ne]: super_admin_routes
-                                },
-                                status: default_status
+                    await db.sequelize.transaction(async (transaction) => {
+                        const vendor_user = await VENDOR_USERS.update(
+                            {
+                                access: access_revoked
+                            }, {
+                                where: {
+                                    vendor_unique_id,
+                                    unique_id: payload.unique_id,
+                                    access: {
+                                        [Op.ne]: access_revoked
+                                    },
+                                    routes: {
+                                        [Op.ne]: super_admin_routes
+                                    },
+                                    status: default_status
+                                }, 
+                                transaction
                             }
-                        }, { transaction: t });
+                        );
+        
+                        if (vendor_user > 0) {
+                            SuccessResponse(res, { unique_id: vendor_unique_id, text: "Vendor User's access was revoked successfully!" });
+                        } else {
+                            throw new Error("Vendor User access already revoked");
+                        }
                     });
-    
-                    if (vendor_user > 0) {
-                        SuccessResponse(res, { unique_id: vendor_unique_id, text: "Vendor User's access was revoked successfully!" });
-                    } else {
-                        BadRequestError(res, { unique_id: vendor_unique_id, text: "Vendor User access already revoked!" }, null);
-                    }
                 } catch (err) {
                     ServerError(res, { unique_id: vendor_unique_id, text: err.message }, null);
                 }
@@ -541,26 +571,29 @@ export async function removeVendorUser(req, res) {
                 BadRequestError(res, { unique_id: vendor_unique_id, text: "Can't perform action!" }, null);
             } else {
                 try {
-                    const vendor_user = await db.sequelize.transaction((t) => {
-                        return VENDOR_USERS.update({
-                            status: default_delete_status
-                        }, {
-                            where: {
-                                unique_id: payload.unique_id,
-                                vendor_unique_id,
-                                routes: {
-                                    [Op.ne]: super_admin_routes
-                                },
-                                status: default_status
+                    await db.sequelize.transaction(async (transaction) => {
+                        const vendor_user = await VENDOR_USERS.update(
+                            {
+                                status: default_delete_status
+                            }, {
+                                where: {
+                                    unique_id: payload.unique_id,
+                                    vendor_unique_id,
+                                    routes: {
+                                        [Op.ne]: super_admin_routes
+                                    },
+                                    status: default_status
+                                }, 
+                                transaction
                             }
-                        }, { transaction: t });
+                        );
+        
+                        if (vendor_user > 0) {
+                            OtherSuccessResponse(res, { unique_id: vendor_unique_id, text: "Vendor User was removed successfully!" });
+                        } else {
+                            throw new Error("Error removing vendor user");
+                        }
                     });
-    
-                    if (vendor_user > 0) {
-                        OtherSuccessResponse(res, { unique_id: vendor_unique_id, text: "Vendor User was removed successfully!" });
-                    } else {
-                        BadRequestError(res, { unique_id: vendor_unique_id, text: "Error removing vendor user!" }, null);
-                    }
                 } catch (err) {
                     ServerError(res, { unique_id: vendor_unique_id, text: err.message }, null);
                 }
@@ -594,26 +627,29 @@ export async function restoreVendorUser(req, res) {
                 BadRequestError(res, { unique_id: vendor_unique_id, text: "Can't perform action!" }, null);
             } else {
                 try {
-                    const vendor_user = await db.sequelize.transaction((t) => {
-                        return VENDOR_USERS.update({
-                            status: default_status
-                        }, {
-                            where: {
-                                unique_id: payload.unique_id,
-                                vendor_unique_id,
-                                routes: {
-                                    [Op.ne]: super_admin_routes
-                                },
-                                status: default_delete_status
+                    await db.sequelize.transaction(async (transaction) => {
+                        const vendor_user = await VENDOR_USERS.update(
+                            {
+                                status: default_status
+                            }, {
+                                where: {
+                                    unique_id: payload.unique_id,
+                                    vendor_unique_id,
+                                    routes: {
+                                        [Op.ne]: super_admin_routes
+                                    },
+                                    status: default_delete_status
+                                }, 
+                                transaction
                             }
-                        }, { transaction: t });
+                        );
+        
+                        if (vendor_user > 0) {
+                            OtherSuccessResponse(res, { unique_id: vendor_unique_id, text: "Vendor User was restored successfully!" });
+                        } else {
+                            throw new Error("Error restoring vendor user");
+                        }
                     });
-    
-                    if (vendor_user > 0) {
-                        OtherSuccessResponse(res, { unique_id: vendor_unique_id, text: "Vendor User was restored successfully!" });
-                    } else {
-                        BadRequestError(res, { unique_id: vendor_unique_id, text: "Error restoring vendor user!" }, null);
-                    }
                 } catch (err) {
                     ServerError(res, { unique_id: vendor_unique_id, text: err.message }, null);
                 }
@@ -647,24 +683,27 @@ export async function deleteVendorUser(req, res) {
                 BadRequestError(res, { unique_id: vendor_unique_id, text: "Can't perform action!" }, null);
             } else {
                 try {
-                    const vendor_user = await db.sequelize.transaction((t) => {
-                        return VENDOR_USERS.destroy({
-                            where: {
-                                unique_id: payload.unique_id,
-                                vendor_unique_id,
-                                routes: {
-                                    [Op.ne]: super_admin_routes
-                                },
-                                status: default_status
+                    await db.sequelize.transaction(async (transaction) => {
+                        const vendor_user = await VENDOR_USERS.destroy(
+                            {
+                                where: {
+                                    unique_id: payload.unique_id,
+                                    vendor_unique_id,
+                                    routes: {
+                                        [Op.ne]: super_admin_routes
+                                    },
+                                    status: default_status
+                                }, 
+                                transaction
                             }
-                        }, { transaction: t });
+                        );
+        
+                        if (vendor_user > 0) {
+                            OtherSuccessResponse(res, { unique_id: vendor_unique_id, text: "Vendor User was deleted successfully!" });
+                        } else {
+                            throw new Error("Error deleting vendor user");
+                        }
                     });
-    
-                    if (vendor_user > 0) {
-                        OtherSuccessResponse(res, { unique_id: vendor_unique_id, text: "Vendor User was deleted successfully!" });
-                    } else {
-                        BadRequestError(res, { unique_id: vendor_unique_id, text: "Error deleting vendor user!" }, null);
-                    }
                 } catch (err) {
                     ServerError(res, { unique_id: vendor_unique_id, text: err.message }, null);
                 }
