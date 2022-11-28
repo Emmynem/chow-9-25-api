@@ -191,7 +191,7 @@ export async function addRiderBankAccount(req, res) {
                 );
     
                 if (rider_bank_account) {
-                    CreationSuccessResponse(res, { unique_id: rider_unique_id, text: "Rider Bank Account created successfully!" });
+                    CreationSuccessResponse(res, { unique_id: rider_unique_id, text: "Rider Bank Account added successfully!" });
                 } else {
                     throw new Error("Error adding rider bank account");
                 }
