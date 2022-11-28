@@ -83,20 +83,25 @@ export async function updateRider(req, res) {
         ValidationError(res, { unique_id: rider_unique_id, text: "Validation Error Occured" }, errors.array())
     } else {
         try {
-            const rider = await db.sequelize.transaction((t) => {
-                return RIDERS.update({ ...payload }, {
-                    where: {
-                        unique_id: rider_unique_id,
-                        status: default_status
+            await db.sequelize.transaction(async (transaction) => {
+                const rider = await RIDERS.update(
+                    { 
+                        ...payload 
+                    }, {
+                        where: {
+                            unique_id: rider_unique_id,
+                            status: default_status
+                        }, 
+                        transaction
                     }
-                }, { transaction: t });
+                );
+    
+                if (rider > 0) {
+                    SuccessResponse(res, { unique_id: rider_unique_id, text: "Rider details updated successfully!" }, rider);
+                } else {
+                    throw new Error("Rider not found");
+                }
             });
-
-            if (rider > 0) {
-                SuccessResponse(res, { unique_id: rider_unique_id, text: "Rider details updated successfully!" }, rider);
-            } else {
-                BadRequestError(res, { unique_id: rider_unique_id, text: "Rider not found!" }, null);
-            }
         } catch (err) {
             ServerError(res, { unique_id: rider_unique_id, text: err.message }, null);
         }
@@ -112,29 +117,34 @@ export async function changeRiderAvailability(req, res) {
         ValidationError(res, { unique_id: rider_unique_id, text: "Validation Error Occured" }, errors.array())
     } else {
         try {
-            const rider_availability = await RIDERS.findOne({
-                where: {
-                    unique_id: rider_unique_id,
-                    status: default_status
-                }
-            });
+            await db.sequelize.transaction(async (transaction) => {
 
-            const rider = await db.sequelize.transaction((t) => {
-                return RIDERS.update({ 
-                    availability: rider_availability.availability ? false_status : true_status
-                 }, {
+                const rider_availability = await RIDERS.findOne({
                     where: {
                         unique_id: rider_unique_id,
                         status: default_status
+                    }, 
+                    transaction
+                });
+    
+                const rider = await RIDERS.update(
+                    { 
+                        availability: rider_availability.availability ? false_status : true_status
+                    }, {
+                        where: {
+                            unique_id: rider_unique_id,
+                            status: default_status
+                        }, 
+                        transaction
                     }
-                }, { transaction: t });
+                );
+    
+                if (rider > 0) {
+                    SuccessResponse(res, { unique_id: rider_unique_id, text: "Rider availability updated successfully!" }, rider);
+                } else {
+                    throw new Error("Rider not found");
+                }
             });
-
-            if (rider > 0) {
-                SuccessResponse(res, { unique_id: rider_unique_id, text: "Rider availability updated successfully!" }, rider);
-            } else {
-                BadRequestError(res, { unique_id: rider_unique_id, text: "Rider not found!" }, null);
-            }
         } catch (err) {
             ServerError(res, { unique_id: rider_unique_id, text: err.message }, null);
         }
@@ -147,28 +157,31 @@ export async function updateRiderEmailVerified(req, res) {
 
     if (!errors.isEmpty()) {
         ValidationError(res, "updateRiderEmailVerified | Validation Error Occured", errors.array())
-    }
-    else {
+    } else {
         try {
-            const rider = await db.sequelize.transaction((t) => {
-                return RIDERS.update({
-                    email_verification: true_status
-                }, {
-                    where: {
-                        ...payload,
-                        email_verification: {
-                            [Op.ne]: true_status
-                        },
-                        status: default_status
+            await db.sequelize.transaction(async (transaction) => {
+                
+                const rider = await RIDERS.update(
+                    {
+                        email_verification: true_status
+                    }, {
+                        where: {
+                            ...payload,
+                            email_verification: {
+                                [Op.ne]: true_status
+                            },
+                            status: default_status
+                        }, 
+                        transaction
                     }
-                }, { transaction: t });
+                );
+    
+                if (rider > 0) {
+                    OtherSuccessResponse(res, { unique_id: payload.unique_id, text: "Rider email verified successfully!" });
+                } else {
+                    throw new Error("Rider email verified already");
+                }
             });
-
-            if (rider > 0) {
-                OtherSuccessResponse(res, { unique_id: payload.unique_id, text: "Rider email verified successfully!" });
-            } else {
-                BadRequestError(res, { unique_id: payload.unique_id, text: "Rider email verified already!" }, null);
-            }
         } catch (err) {
             ServerError(res, { unique_id: payload.unique_id, text: err.message }, null);
         }
@@ -181,28 +194,31 @@ export async function updateRiderMobileNumberVerified(req, res) {
 
     if (!errors.isEmpty()) {
         ValidationError(res, "updateRiderMobileNumberVerified | Validation Error Occured", errors.array())
-    }
-    else {
+    } else {
         try {
-            const rider = await db.sequelize.transaction((t) => {
-                return RIDERS.update({
-                    mobile_number_verification: true_status
-                }, {
-                    where: {
-                        ...payload,
-                        mobile_number_verification: {
-                            [Op.ne]: true_status
-                        },
-                        status: default_status
+            await db.sequelize.transaction(async (transaction) => {
+                
+                const rider = await RIDERS.update(
+                    {
+                        mobile_number_verification: true_status
+                    }, {
+                        where: {
+                            ...payload,
+                            mobile_number_verification: {
+                                [Op.ne]: true_status
+                            },
+                            status: default_status
+                        }, 
+                        transaction
                     }
-                }, { transaction: t });
+                );
+    
+                if (rider > 0) {
+                    OtherSuccessResponse(res, { unique_id: payload.unique_id, text: "Rider mobile number verified successfully!" });
+                } else {
+                    throw new Error("Rider mobile number verified already");
+                }
             });
-
-            if (rider > 0) {
-                OtherSuccessResponse(res, { unique_id: payload.unique_id, text: "Rider mobile number verified successfully!" });
-            } else {
-                BadRequestError(res, { unique_id: payload.unique_id, text: "Rider mobile number verified already!" }, null);
-            }
         } catch (err) {
             ServerError(res, { unique_id: payload.unique_id, text: err.message }, null);
         }
@@ -215,38 +231,42 @@ export async function updateRiderAccessGranted(req, res) {
 
     if (!errors.isEmpty()) {
         ValidationError(res, `${tag_admin} | updateRiderAccessGranted | Validation Error Occured`, errors.array())
-    }
-    else {
+    } else {
         try {
-            const rider = await db.sequelize.transaction((t) => {
-                return RIDERS.update({
-                    access: access_granted
-                }, {
-                    where: {
-                        ...payload,
-                        access: {
-                            [Op.ne]: access_granted
-                        },
-                        status: default_status
-                    }
-                }, { transaction: t });
-            });
+            await db.sequelize.transaction(async (transaction) => {
 
-            if (rider > 0) {
-                const rider_shipping = await db.sequelize.transaction((t) => {
-                    return RIDER_SHIPPING.update({
-                        status: default_status
+                const rider = await RIDERS.update(
+                    {
+                        access: access_granted
                     }, {
                         where: {
-                            rider_unique_id: payload.unique_id
+                            ...payload,
+                            access: {
+                                [Op.ne]: access_granted
+                            },
+                            status: default_status
+                        }, 
+                        transaction
+                    }
+                );
+    
+                if (rider > 0) {
+                    const rider_shipping = await RIDER_SHIPPING.update(
+                        {
+                            status: default_status
+                        }, {
+                            where: {
+                                rider_unique_id: payload.unique_id
+                            }, 
+                            transaction
                         }
-                    }, { transaction: t });
-                });
-
-                SuccessResponse(res, { unique_id: tag_admin + " | " + payload.unique_id, text: "Rider's access was granted successfully!" });
-            } else {
-                BadRequestError(res, { unique_id: tag_admin + " | " + payload.unique_id, text: "Rider access already granted!" }, null);
-            }
+                    );
+    
+                    SuccessResponse(res, { unique_id: tag_admin + " | " + payload.unique_id, text: "Rider's access was granted successfully!" });
+                } else {
+                    throw new Error("Rider access already granted");
+                }
+            });
         } catch (err) {
             ServerError(res, { unique_id: tag_admin + " | " + payload.unique_id, text: err.message }, null);
         }
@@ -259,38 +279,42 @@ export async function updateRiderAccessSuspended(req, res) {
 
     if (!errors.isEmpty()) {
         ValidationError(res, `${tag_admin} | updateRiderAccessSuspended | Validation Error Occured`, errors.array())
-    }
-    else {
+    } else {
         try {
-            const rider = await db.sequelize.transaction((t) => {
-                return RIDERS.update({
-                    access: access_suspended
-                }, {
-                    where: {
-                        ...payload,
-                        access: {
-                            [Op.ne]: access_suspended
-                        },
-                        status: default_status
-                    }
-                }, { transaction: t });
-            });
+            await db.sequelize.transaction(async (transaction) => {
 
-            if (rider > 0) {
-                const rider_shipping = await db.sequelize.transaction((t) => {
-                    return RIDER_SHIPPING.update({
-                        status: default_delete_status
+                const rider = await RIDERS.update(
+                    {
+                        access: access_suspended
                     }, {
                         where: {
-                            rider_unique_id: payload.unique_id
+                            ...payload,
+                            access: {
+                                [Op.ne]: access_suspended
+                            },
+                            status: default_status
+                        }, 
+                        transaction
+                    }
+                );
+    
+                if (rider > 0) {
+                    const rider_shipping = await RIDER_SHIPPING.update(
+                        {
+                            status: default_delete_status
+                        }, {
+                            where: {
+                                rider_unique_id: payload.unique_id
+                            }, 
+                            transaction
                         }
-                    }, { transaction: t });
-                });
-
-                SuccessResponse(res, { unique_id: tag_admin + " | " + payload.unique_id, text: "Rider's access was suspended successfully!" });
-            } else {
-                BadRequestError(res, { unique_id: tag_admin + " | " + payload.unique_id, text: "Rider access already suspended!" }, null);
-            }
+                    );
+    
+                    SuccessResponse(res, { unique_id: tag_admin + " | " + payload.unique_id, text: "Rider's access was suspended successfully!" });
+                } else {
+                    throw new Error("Rider access already suspended");
+                }
+            });
         } catch (err) {
             ServerError(res, { unique_id: tag_admin + " | " + payload.unique_id, text: err.message }, null);
         }
@@ -303,38 +327,42 @@ export async function updateRiderAccessRevoked(req, res) {
 
     if (!errors.isEmpty()) {
         ValidationError(res, `${tag_admin} | updateRiderAccessRevoked | Validation Error Occured`, errors.array())
-    }
-    else {
+    } else {
         try {
-            const rider = await db.sequelize.transaction((t) => {
-                return RIDERS.update({
-                    access: access_revoked
-                }, {
-                    where: {
-                        ...payload,
-                        access: {
-                            [Op.ne]: access_revoked
-                        },
-                        status: default_status
-                    }
-                }, { transaction: t });
-            });
+            await db.sequelize.transaction(async (transaction) => {
 
-            if (rider > 0) {
-                const rider_shipping = await db.sequelize.transaction((t) => {
-                    return RIDER_SHIPPING.update({
-                        status: default_delete_status
+                const rider = await RIDERS.update(
+                    {
+                        access: access_revoked
                     }, {
                         where: {
-                            rider_unique_id: payload.unique_id
+                            ...payload,
+                            access: {
+                                [Op.ne]: access_revoked
+                            },
+                            status: default_status
+                        }, 
+                        transaction
+                    }
+                );
+    
+                if (rider > 0) {
+                    const rider_shipping = await RIDER_SHIPPING.update(
+                        {
+                            status: default_delete_status
+                        }, {
+                            where: {
+                                rider_unique_id: payload.unique_id
+                            }, 
+                            transaction
                         }
-                    }, { transaction: t });
-                });
-
-                SuccessResponse(res, { unique_id: tag_admin + " | " + payload.unique_id, text: "Rider's access was revoked successfully!" });
-            } else {
-                BadRequestError(res, { unique_id: tag_admin + " | " + payload.unique_id, text: "Rider access already revoked!" }, null);
-            }
+                    );
+    
+                    SuccessResponse(res, { unique_id: tag_admin + " | " + payload.unique_id, text: "Rider's access was revoked successfully!" });
+                } else {
+                    throw new Error("Rider access already revoked");
+                }
+            });
         } catch (err) {
             ServerError(res, { unique_id: tag_admin + " | " + payload.unique_id, text: err.message }, null);
         }
@@ -347,25 +375,28 @@ export async function verifyRider(req, res) {
 
     if (!errors.isEmpty()) {
         ValidationError(res, "verifyRider | Validation Error Occured", errors.array())
-    }
-    else {
+    } else {
         try {
-            const rider = await db.sequelize.transaction((t) => {
-                return RIDERS.update({
-                    verification: true_status
-                }, {
-                    where: {
-                        ...payload,
-                        status: default_status
-                    }
-                }, { transaction: t });
-            });
+            await db.sequelize.transaction(async (transaction) => {
 
-            if (rider > 0) {
-                SuccessResponse(res, { unique_id: payload.unique_id, text: "Rider verified successfully!" });
-            } else {
-                BadRequestError(res, { unique_id: payload.unique_id, text: "Rider account is actively verified!" }, null);
-            }
+                const rider = await RIDERS.update(
+                    {
+                        verification: true_status
+                    }, {
+                        where: {
+                            ...payload,
+                            status: default_status
+                        }, 
+                        transaction
+                    }
+                );
+    
+                if (rider > 0) {
+                    SuccessResponse(res, { unique_id: payload.unique_id, text: "Rider verified successfully!" });
+                } else {
+                    throw new Error("Rider account is actively verified");
+                }
+            });
         } catch (err) {
             ServerError(res, { unique_id: payload.unique_id, text: err.message }, null);
         }
@@ -378,25 +409,28 @@ export async function unverifyRider(req, res) {
 
     if (!errors.isEmpty()) {
         ValidationError(res, "unverifyRider | Validation Error Occured", errors.array())
-    }
-    else {
+    } else {
         try {
-            const rider = await db.sequelize.transaction((t) => {
-                return RIDERS.update({
-                    verification: false_status
-                }, {
-                    where: {
-                        ...payload,
-                        status: default_status
-                    }
-                }, { transaction: t });
-            });
+            await db.sequelize.transaction(async (transaction) => {
 
-            if (rider > 0) {
-                SuccessResponse(res, { unique_id: payload.unique_id, text: "Rider unverified successfully!" });
-            } else {
-                BadRequestError(res, { unique_id: payload.unique_id, text: "Rider account is actively unverified!" }, null);
-            }
+                const rider = await RIDERS.update(
+                    {
+                        verification: false_status
+                    }, {
+                        where: {
+                            ...payload,
+                            status: default_status
+                        }, 
+                        transaction
+                    }
+                );
+    
+                if (rider > 0) {
+                    SuccessResponse(res, { unique_id: payload.unique_id, text: "Rider unverified successfully!" });
+                } else {
+                    throw new Error("Rider account is actively unverified");
+                }
+            });
         } catch (err) {
             ServerError(res, { unique_id: payload.unique_id, text: err.message }, null);
         }
@@ -409,58 +443,63 @@ export async function removeRider(req, res) {
 
     if (!errors.isEmpty()) {
         ValidationError(res, `${tag_admin} | removeRider | Validation Error Occured`, errors.array())
-    }
-    else {
+    } else {
         try {
+            await db.sequelize.transaction(async (transaction) => {
 
-            const rider = await db.sequelize.transaction((t) => {
-                return RIDERS.update({
-                    status: default_delete_status
-                }, {
-                    where: {
-                        ...payload,
-                        status: default_status
+                const rider = await RIDERS.update(
+                    {
+                        status: default_delete_status
+                    }, {
+                        where: {
+                            ...payload,
+                            status: default_status
+                        }, 
+                        transaction
                     }
-                }, { transaction: t });
+                );
+    
+                if (rider > 0) {
+                    const rider_account = await RIDER_ACCOUNT.update(
+                        {
+                            status: default_delete_status
+                        }, {
+                            where: {
+                                rider_unique_id: payload.unique_id,
+                                status: default_status
+                            }, 
+                            transaction
+                        }
+                    );
+    
+                    const rider_bank_accounts = await RIDER_BANK_ACCOUNTS.update(
+                        {
+                            status: default_delete_status
+                        }, {
+                            where: {
+                                rider_unique_id: payload.unique_id,
+                                status: default_status
+                            }, 
+                            transaction
+                        }
+                    );
+    
+                    const rider_shipping = await RIDER_SHIPPING.update(
+                        {
+                            status: default_delete_status
+                        }, {
+                            where: {
+                                rider_unique_id: payload.unique_id
+                            }, 
+                            transaction
+                        }
+                    );
+    
+                    SuccessResponse(res, { unique_id: tag_admin + " | " + payload.unique_id, text: "Rider removed successfully!" });
+                } else {
+                    throw new Error("Rider not found");
+                }
             });
-
-            if (rider > 0) {
-                const rider_account = await db.sequelize.transaction((t) => {
-                    return RIDER_ACCOUNT.update({
-                        status: default_delete_status
-                    }, {
-                        where: {
-                            rider_unique_id: payload.unique_id,
-                            status: default_status
-                        }
-                    }, { transaction: t });
-                });
-
-                const rider_bank_accounts = await db.sequelize.transaction((t) => {
-                    return RIDER_BANK_ACCOUNTS.update({
-                        status: default_delete_status
-                    }, {
-                        where: {
-                            rider_unique_id: payload.unique_id,
-                            status: default_status
-                        }
-                    }, { transaction: t });
-                });
-
-                const rider_shipping = await db.sequelize.transaction((t) => {
-                    return RIDER_SHIPPING.update({
-                        status: default_delete_status
-                    }, {
-                        where: {
-                            rider_unique_id: payload.unique_id
-                        }
-                    }, { transaction: t });
-                });
-
-                SuccessResponse(res, { unique_id: tag_admin + " | " + payload.unique_id, text: "Rider removed successfully!" });
-            } else {
-                BadRequestError(res, { unique_id: tag_admin + " | " + payload.unique_id, text: "Rider not found!" }, null);
-            }
         } catch (err) {
             ServerError(res, { unique_id: tag_admin + " | " + payload.unique_id, text: err.message }, null);
         }
@@ -473,57 +512,63 @@ export async function restoreRider(req, res) {
 
     if (!errors.isEmpty()) {
         ValidationError(res, `${tag_admin} | restoreRider | Validation Error Occured`, errors.array())
-    }
-    else {
+    } else {
         try {
-            const rider = await db.sequelize.transaction((t) => {
-                return RIDERS.update({
-                    status: default_status
-                }, {
-                    where: {
-                        ...payload,
-                        status: default_delete_status
+            await db.sequelize.transaction(async (transaction) => {
+
+                const rider = await RIDERS.update(
+                    {
+                        status: default_status
+                    }, {
+                        where: {
+                            ...payload,
+                            status: default_delete_status
+                        }, 
+                        transaction
                     }
-                }, { transaction: t });
+                );
+    
+                if (rider > 0) {
+                    const rider_account = await RIDER_ACCOUNT.update(
+                        {
+                            status: default_status
+                        }, {
+                            where: {
+                                rider_unique_id: payload.unique_id,
+                                status: default_delete_status
+                            }, 
+                            transaction
+                        }
+                    );
+    
+                    const rider_bank_accounts = await RIDER_BANK_ACCOUNTS.update(
+                        {
+                            status: default_status
+                        }, {
+                            where: {
+                                rider_unique_id: payload.unique_id,
+                                status: default_delete_status
+                            }, 
+                            transaction
+                        }
+                    );
+    
+                    const rider_shipping = await RIDER_SHIPPING.update(
+                        {
+                            status: default_status
+                        }, {
+                            where: {
+                                rider_unique_id: payload.unique_id
+                            }, 
+                            transaction
+                        }
+                    );
+    
+                    SuccessResponse(res, { unique_id: tag_admin + " | " + payload.unique_id, text: "Rider restored successfully!" });
+                } else {
+                    throw new Error("Rider not found");
+                }
             });
-
-            if (rider > 0) {
-                const rider_account = await db.sequelize.transaction((t) => {
-                    return RIDER_ACCOUNT.update({
-                        status: default_status
-                    }, {
-                        where: {
-                            rider_unique_id: payload.unique_id,
-                            status: default_delete_status
-                        }
-                    }, { transaction: t });
-                });
-
-                const rider_bank_accounts = await db.sequelize.transaction((t) => {
-                    return RIDER_BANK_ACCOUNTS.update({
-                        status: default_status
-                    }, {
-                        where: {
-                            rider_unique_id: payload.unique_id,
-                            status: default_delete_status
-                        }
-                    }, { transaction: t });
-                });
-
-                const rider_shipping = await db.sequelize.transaction((t) => {
-                    return RIDER_SHIPPING.update({
-                        status: default_status
-                    }, {
-                        where: {
-                            rider_unique_id: payload.unique_id
-                        }
-                    }, { transaction: t });
-                });
-
-                SuccessResponse(res, { unique_id: tag_admin + " | " + payload.unique_id, text: "Rider restored successfully!" });
-            } else {
-                BadRequestError(res, { unique_id: tag_admin + " | " + payload.unique_id, text: "Rider not found!" }, null);
-            }
         } catch (err) {
             ServerError(res, { unique_id: tag_admin + " | " + payload.unique_id, text: err.message }, null);
         }
@@ -539,45 +584,42 @@ export async function removeRiderPermanently(req, res) {
     }
     else {
         try {
-            const rider_account = await db.sequelize.transaction((t) => { return RIDER_ACCOUNT.destroy({ where: { rider_unique_id: payload.unique_id } }, { transaction: t }) });
-            const rider_bank_accounts = await db.sequelize.transaction((t) => { return RIDER_BANK_ACCOUNTS.destroy({ where: { rider_unique_id: payload.unique_id } }, { transaction: t }) });
-            const rider_shipping = await db.sequelize.transaction((t) => { return RIDER_SHIPPING.destroy({ where: { rider_unique_id: payload.unique_id } }, { transaction: t }) });
+            await db.sequelize.transaction(async (transaction) => {
 
-            const affected_rows = rider_account + rider_bank_accounts + rider_shipping;
-
-            if (affected_rows > 0) {
-                const action_2 = await db.sequelize.transaction((t) => {
-                    const riders = RIDERS.destroy({ where: { ...payload } }, { transaction: t })
-                    return riders;
-                });
-
-                if (action_2 > 0) {
-                    const folder_name = user_documents_path + payload.unique_id;
-                    if (existsSync(folder_name)) rmdirSync(folder_name);
-                    if (!existsSync(folder_name)) {
-                        logger.info(`Rider directory deleted successfully [${folder_name}]`)
-                        OtherSuccessResponse(res, { unique_id: tag_admin + " | " + payload.unique_id, text: `Rider deleted permanently! ${affected_rows + action_2} rows affected.` })
-                    };
+                const rider_account = await RIDER_ACCOUNT.destroy({ where: { rider_unique_id: payload.unique_id }, transaction });
+                const rider_bank_accounts = await RIDER_BANK_ACCOUNTS.destroy({ where: { rider_unique_id: payload.unique_id }, transaction });
+                const rider_shipping = await RIDER_SHIPPING.destroy({ where: { rider_unique_id: payload.unique_id }, transaction });
+    
+                const affected_rows = rider_account + rider_bank_accounts + rider_shipping;
+    
+                if (affected_rows > 0) {
+                    const action_2 = await RIDERS.destroy({ where: { ...payload }, transaction });
+    
+                    if (action_2 > 0) {
+                        const folder_name = user_documents_path + payload.unique_id;
+                        if (existsSync(folder_name)) rmdirSync(folder_name);
+                        if (!existsSync(folder_name)) {
+                            logger.info(`Rider directory deleted successfully [${folder_name}]`)
+                            OtherSuccessResponse(res, { unique_id: tag_admin + " | " + payload.unique_id, text: `Rider deleted permanently! ${affected_rows + action_2} rows affected.` })
+                        };
+                    } else {
+                        throw new Error("Rider not found");
+                    }
                 } else {
-                    BadRequestError(res, { unique_id: tag_admin + " | " + payload.unique_id, text: "Rider not found!" }, null);
+                    const action_2 = await RIDERS.destroy({ where: { ...payload }, transaction });
+    
+                    if (action_2 > 0) {
+                        const folder_name = user_documents_path + payload.unique_id;
+                        if (existsSync(folder_name)) rmdirSync(folder_name);
+                        if (!existsSync(folder_name)) {
+                            logger.info(`Rider directory deleted successfully [${folder_name}]`)
+                            OtherSuccessResponse(res, { unique_id: tag_admin + " | " + payload.unique_id, text: `Rider deleted permanently! ${action_2} rows affected.` })
+                        };
+                    } else {
+                        throw new Error("Rider not found");
+                    }
                 }
-            } else {
-                const action_2 = await db.sequelize.transaction((t) => {
-                    const riders = RIDERS.destroy({ where: { ...payload } }, { transaction: t })
-                    return riders;
-                });
-
-                if (action_2 > 0) {
-                    const folder_name = user_documents_path + payload.unique_id;
-                    if (existsSync(folder_name)) rmdirSync(folder_name);
-                    if (!existsSync(folder_name)) {
-                        logger.info(`Rider directory deleted successfully [${folder_name}]`)
-                        OtherSuccessResponse(res, { unique_id: tag_admin + " | " + payload.unique_id, text: `Rider deleted permanently! ${action_2} rows affected.` })
-                    };
-                } else {
-                    BadRequestError(res, { unique_id: tag_admin + " | " + payload.unique_id, text: "Rider not found!" }, null);
-                }
-            }
+            });
         } catch (err) {
             ServerError(res, { unique_id: tag_admin + " | " + payload.unique_id, text: err.message }, null);
         }
