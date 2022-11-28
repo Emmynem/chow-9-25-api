@@ -68,7 +68,7 @@ export function rootGetRiderTransaction(req, res) {
     }
 };
 
-export async function getRiderTransactions(req, res) {
+export function getRiderTransactions(req, res) {
     const rider_unique_id = req.RIDER_UNIQUE_ID;
 
     RIDER_TRANSACTIONS.findAndCountAll({
@@ -91,7 +91,7 @@ export async function getRiderTransactions(req, res) {
     });
 };
 
-export async function getRiderTransaction(req, res) {
+export function getRiderTransaction(req, res) {
     const rider_unique_id = req.RIDER_UNIQUE_ID;
     const errors = validationResult(req);
     const payload = matchedData(req);
@@ -202,9 +202,9 @@ export async function addTransactionInternally(req, res, data, transaction) {
                 unique_id: uuidv4(),
                 status: default_status
             }, { transaction });
-            logger.info({ unique_id: data.rider_unique_id, text: `Transactions - ${data.type}` });
             return_data.status = 1;
             return { ...return_data, err: null };
+            logger.info({ unique_id: data.rider_unique_id, text: `Transactions - ${data.type}` });
         } catch (err) {
             logger.error({ unique_id: data.rider_unique_id, text: err.message });
             return { ...return_data, err: err.message };
@@ -271,7 +271,7 @@ export async function addServiceChargePayment(req, res) {
                                 if (rider_transaction) {
                                     CreationSuccessResponse(res, { unique_id: rider_unique_id, text: "Transaction created successfully!" }, { amount: payload.amount, transaction_unique_id: transaction.unique_id });
                                 } else {
-                                    throw new Error("Error adding transaction!");
+                                    throw new Error("Error adding transaction");
                                 }
                             }
                         } else {
@@ -302,7 +302,7 @@ export async function addServiceChargePayment(req, res) {
                                 if (rider_transaction) {
                                     CreationSuccessResponse(res, { unique_id: rider_unique_id, text: "Transaction created successfully!" }, { amount: payload.amount, transaction_unique_id: transaction.unique_id });
                                 } else {
-                                    throw new Error("Error adding transaction!");
+                                    throw new Error("Error adding transaction");
                                 }
                             }
                         } else {
@@ -377,7 +377,7 @@ export async function addServiceChargePaymentExternally(req, res) {
                                 if (rider_transaction) {
                                     CreationSuccessResponse(res, { unique_id: payload.rider_unique_id, text: "Transaction created successfully!" }, { amount: payload.amount, transaction_unique_id: transaction.unique_id });
                                 } else {
-                                    throw new Error("Error adding transaction!");
+                                    throw new Error("Error adding transaction");
                                 }
                             }
                         } else {
@@ -408,7 +408,7 @@ export async function addServiceChargePaymentExternally(req, res) {
                                 if (rider_transaction) {
                                     CreationSuccessResponse(res, { unique_id: payload.rider_unique_id, text: "Transaction created successfully!" }, { amount: payload.amount, transaction_unique_id: transaction.unique_id });
                                 } else {
-                                    throw new Error("Error adding transaction!");
+                                    throw new Error("Error adding transaction");
                                 }
                             }
                         } else {

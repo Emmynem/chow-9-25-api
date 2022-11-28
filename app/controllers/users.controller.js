@@ -83,29 +83,34 @@ export async function updateUser (req, res) {
 
     if (!errors.isEmpty()) {
         ValidationError(res, { unique_id: user_unique_id, text: "Validation Error Occured" }, errors.array())
-    }
-    else {
+    } else {
         try {
-            const user = await db.sequelize.transaction((t) => {
-                return USERS.update({ ...payload }, {
-                    where: {
-                        unique_id: user_unique_id,
-                        status: default_status
-                    }
-                }, { transaction: t });
-            });
+            await db.sequelize.transaction(async (transaction) => {
 
-            if (user > 0) {
-                const notification_data = {
-                    user_unique_id,
-                    type: "Personal",
-                    action: "Updated profile details!"
-                };
-                addUserNotification(req, res, notification_data);
-                SuccessResponse(res, { unique_id: user_unique_id, text: "User details updated successfully!" }, user);
-            } else {
-                BadRequestError(res, { unique_id: user_unique_id, text: "User not found!" }, null);
-            }
+                const user = await USERS.update(
+                    { 
+                        ...payload 
+                    }, {
+                        where: {
+                            unique_id: user_unique_id,
+                            status: default_status
+                        }, 
+                        transaction
+                    }
+                );
+    
+                if (user > 0) {
+                    const notification_data = {
+                        user_unique_id,
+                        type: "Personal",
+                        action: "Updated profile details!"
+                    };
+                    addUserNotification(req, res, notification_data, transaction);
+                    SuccessResponse(res, { unique_id: user_unique_id, text: "User details updated successfully!" }, user);
+                } else {
+                    throw new Error("User not found");
+                }
+            });
         } catch (err) {
             ServerError(res, { unique_id: user_unique_id, text: err.message }, null);
         }
@@ -118,34 +123,37 @@ export async function updateUserEmailVerified (req, res) {
 
     if (!errors.isEmpty()) {
         ValidationError(res, "updateUserEmailVerified | Validation Error Occured", errors.array())
-    }
-    else {
+    } else {
         try {
-            const user = await db.sequelize.transaction((t) => {
-                return USERS.update({
-                    email_verification: true_status
-                }, {
-                    where: {
-                        ...payload,
-                        email_verification: {
-                            [Op.ne]: true_status
-                        },
-                        status: default_status
-                    }
-                }, { transaction: t });
-            });
+            await db.sequelize.transaction(async (transaction) => {
 
-            if (user > 0) {
-                const notification_data = {
-                    user_unique_id: payload.unique_id,
-                    type: "Personal",
-                    action: "Email was verified successfully!"
-                };
-                addUserNotification(req, res, notification_data);
-                OtherSuccessResponse(res, { unique_id: payload.unique_id, text: "User email verified successfully!" });
-            } else {
-                BadRequestError(res, { unique_id: payload.unique_id, text: "User email verified already!" }, null);
-            }
+                const user = await USERS.update(
+                    {
+                        email_verification: true_status
+                    }, {
+                        where: {
+                            ...payload,
+                            email_verification: {
+                                [Op.ne]: true_status
+                            },
+                            status: default_status
+                        }, 
+                        transaction
+                    }
+                );
+    
+                if (user > 0) {
+                    const notification_data = {
+                        user_unique_id: payload.unique_id,
+                        type: "Personal",
+                        action: "Email was verified successfully!"
+                    };
+                    addUserNotification(req, res, notification_data, transaction);
+                    OtherSuccessResponse(res, { unique_id: payload.unique_id, text: "User email verified successfully!" });
+                } else {
+                    throw new Error("User email verified already");
+                }
+            });
         } catch (err) {
             ServerError(res, { unique_id: payload.unique_id, text: err.message }, null);
         }
@@ -158,34 +166,37 @@ export async function updateUserMobileNumberVerified (req, res) {
 
     if (!errors.isEmpty()) {
         ValidationError(res, "updateUserMobileNumberVerified | Validation Error Occured", errors.array())
-    }
-    else {
+    } else {
         try {
-            const user = await db.sequelize.transaction((t) => {
-                return USERS.update({
-                    mobile_number_verification: true_status
-                }, {
-                    where: {
-                        ...payload,
-                        mobile_number_verification: {
-                            [Op.ne]: true_status
-                        },
-                        status: default_status
-                    }
-                }, { transaction: t });
-            });
+            await db.sequelize.transaction(async (transaction) => {
 
-            if (user > 0) {
-                const notification_data = {
-                    user_unique_id: payload.unique_id,
-                    type: "Personal",
-                    action: "Mobile number was verified successfully!"
-                };
-                addUserNotification(req, res, notification_data);
-                OtherSuccessResponse(res, { unique_id: payload.unique_id, text: "User mobile number verified successfully!" });
-            } else {
-                BadRequestError(res, { unique_id: payload.unique_id, text: "User mobile number verified already!" }, null);
-            }
+                const user = await USERS.update(
+                    {
+                        mobile_number_verification: true_status
+                    }, {
+                        where: {
+                            ...payload,
+                            mobile_number_verification: {
+                                [Op.ne]: true_status
+                            },
+                            status: default_status
+                        }, 
+                        transaction
+                    }
+                );
+    
+                if (user > 0) {
+                    const notification_data = {
+                        user_unique_id: payload.unique_id,
+                        type: "Personal",
+                        action: "Mobile number was verified successfully!"
+                    };
+                    addUserNotification(req, res, notification_data);
+                    OtherSuccessResponse(res, { unique_id: payload.unique_id, text: "User mobile number verified successfully!" });
+                } else {
+                    throw new Error("User mobile number verified already");
+                }
+            });
         } catch (err) {
             ServerError(res, { unique_id: payload.unique_id, text: err.message }, null);
         }
@@ -198,34 +209,37 @@ export async function updateUserAccessGranted (req, res) {
 
     if (!errors.isEmpty()) {
         ValidationError(res, `${tag_admin} | updateUserAccessGranted | Validation Error Occured`, errors.array())
-    }
-    else {
+    } else {
         try {
-            const user = await db.sequelize.transaction((t) => {
-                return USERS.update({
-                    access: access_granted
-                }, {
-                    where: {
-                        ...payload,
-                        access: {
-                            [Op.ne]: access_granted
-                        },
-                        status: default_status
-                    }
-                }, { transaction: t });
-            });
+            await db.sequelize.transaction(async (transaction) => {
 
-            if (user > 0) {
-                const notification_data = {
-                    user_unique_id: payload.unique_id,
-                    type: "Access",
-                    action: "Account access was granted!"
-                };
-                addUserNotification(req, res, notification_data);
-                SuccessResponse(res, { unique_id: tag_admin + " | " + payload.unique_id, text: "User's access was granted successfully!" });
-            } else {
-                BadRequestError(res, { unique_id: tag_admin + " | " + payload.unique_id, text: "User access already granted!" }, null);
-            }
+                const user = await USERS.update(
+                    {
+                        access: access_granted
+                    }, {
+                        where: {
+                            ...payload,
+                            access: {
+                                [Op.ne]: access_granted
+                            },
+                            status: default_status
+                        }, 
+                        transaction
+                    }
+                );
+    
+                if (user > 0) {
+                    const notification_data = {
+                        user_unique_id: payload.unique_id,
+                        type: "Access",
+                        action: "Account access was granted!"
+                    };
+                    addUserNotification(req, res, notification_data, transaction);
+                    SuccessResponse(res, { unique_id: tag_admin + " | " + payload.unique_id, text: "User's access was granted successfully!" });
+                } else {
+                    throw new Error("User access already granted");
+                }
+            });
         } catch (err) {
             ServerError(res, { unique_id: tag_admin + " | " + payload.unique_id, text: err.message }, null);
         }
@@ -238,34 +252,37 @@ export async function updateUserAccessSuspended (req, res) {
 
     if (!errors.isEmpty()) {
         ValidationError(res, `${tag_admin} | updateUserAccessSuspended | Validation Error Occured`, errors.array())
-    }
-    else {
+    } else {
         try {
-            const user = await db.sequelize.transaction((t) => {
-                return USERS.update({
-                    access: access_suspended
-                }, {
-                    where: {
-                        ...payload,
-                        access: {
-                            [Op.ne]: access_suspended
-                        },
-                        status: default_status
-                    }
-                }, { transaction: t });
-            });
+            await db.sequelize.transaction(async (transaction) => {
 
-            if (user > 0) {
-                const notification_data = {
-                    user_unique_id: payload.unique_id,
-                    type: "Access",
-                    action: "Account access was suspended!"
-                };
-                addUserNotification(req, res, notification_data);
-                SuccessResponse(res, { unique_id: tag_admin + " | " + payload.unique_id, text: "User's access was suspended successfully!" });
-            } else {
-                BadRequestError(res, { unique_id: tag_admin + " | " + payload.unique_id, text: "User access already suspended!" }, null);
-            }
+                const user = await USERS.update(
+                    {
+                        access: access_suspended
+                    }, {
+                        where: {
+                            ...payload,
+                            access: {
+                                [Op.ne]: access_suspended
+                            },
+                            status: default_status
+                        }, 
+                        transaction
+                    }
+                );
+    
+                if (user > 0) {
+                    const notification_data = {
+                        user_unique_id: payload.unique_id,
+                        type: "Access",
+                        action: "Account access was suspended!"
+                    };
+                    addUserNotification(req, res, notification_data, transaction);
+                    SuccessResponse(res, { unique_id: tag_admin + " | " + payload.unique_id, text: "User's access was suspended successfully!" });
+                } else {
+                    throw new Error("User access already suspended");
+                }
+            });
         } catch (err) {
             ServerError(res, { unique_id: tag_admin + " | " + payload.unique_id, text: err.message }, null);
         }
@@ -278,34 +295,37 @@ export async function updateUserAccessRevoked (req, res) {
 
     if (!errors.isEmpty()) {
         ValidationError(res, `${tag_admin} | updateUserAccessRevoked | Validation Error Occured`, errors.array())
-    }
-    else {
+    } else {
         try {
-            const user = await db.sequelize.transaction((t) => {
-                return USERS.update({
-                    access: access_revoked
-                }, {
-                    where: {
-                        ...payload,
-                        access: {
-                            [Op.ne] : access_revoked
-                        },
-                        status: default_status
+            await db.sequelize.transaction(async (transaction) => {
+
+                const user = await USERS.update(
+                    {
+                        access: access_revoked
+                    }, {
+                        where: {
+                            ...payload,
+                            access: {
+                                [Op.ne] : access_revoked
+                            },
+                            status: default_status
+                        }, 
+                        transaction
                     }
-                }, { transaction: t });
+                );
+                
+                if (user > 0) {
+                    const notification_data = {
+                        user_unique_id: payload.unique_id,
+                        type: "Access",
+                        action: "Account access was revoked!"
+                    };
+                    addUserNotification(req, res, notification_data, transaction);
+                    SuccessResponse(res, { unique_id: tag_admin + " | " + payload.unique_id, text: "User's access was revoked successfully!" });
+                } else {
+                    throw new Error("User access already revoked");
+                }
             });
-            
-            if (user > 0) {
-                const notification_data = {
-                    user_unique_id: payload.unique_id,
-                    type: "Access",
-                    action: "Account access was revoked!"
-                };
-                addUserNotification(req, res, notification_data);
-                SuccessResponse(res, { unique_id: tag_admin + " | " + payload.unique_id, text: "User's access was revoked successfully!" });
-            } else {
-                BadRequestError(res, { unique_id: tag_admin + " | " + payload.unique_id, text: "User access already revoked!" }, null);
-            }
         } catch (err) {
             ServerError(res, { unique_id: tag_admin + " | " + payload.unique_id, text: err.message }, null);
         }
@@ -318,25 +338,28 @@ export async function removeUser (req, res) {
 
     if (!errors.isEmpty()) {
         ValidationError(res, `${tag_admin} | removeUser | Validation Error Occured`, errors.array())
-    }
-    else {
+    } else {
         try {
-            const user = await db.sequelize.transaction((t) => {
-                return USERS.update({
-                    status: default_delete_status
-                }, {
-                    where: {
-                        ...payload,
-                        status: default_status
-                    }
-                }, { transaction: t });
-            });
+            await db.sequelize.transaction(async (transaction) => {
 
-            if (user > 0) {
-                SuccessResponse(res, { unique_id: tag_admin + " | " + payload.unique_id, text: "User removed successfully!" });
-            } else {
-                BadRequestError(res, { unique_id: tag_admin + " | " + payload.unique_id, text: "User not found!" }, null);
-            }
+                const user = await USERS.update(
+                    {
+                        status: default_delete_status
+                    }, {
+                        where: {
+                            ...payload,
+                            status: default_status
+                        }, 
+                        transaction
+                    }
+                );
+    
+                if (user > 0) {
+                    SuccessResponse(res, { unique_id: tag_admin + " | " + payload.unique_id, text: "User removed successfully!" });
+                } else {
+                    throw new Error("User not found");
+                }
+            });
         } catch (err) {
             ServerError(res, { unique_id: tag_admin + " | " + payload.unique_id, text: err.message }, null);
         }
@@ -349,25 +372,28 @@ export async function restoreUser (req, res) {
 
     if (!errors.isEmpty()) {
         ValidationError(res, `${tag_admin} | restoreUser | Validation Error Occured`, errors.array())
-    }
-    else {
+    } else {
         try {
-            const user = await db.sequelize.transaction((t) => {
-                return USERS.update({
-                    status: default_status
-                }, {
-                    where: {
-                        ...payload,
-                        status: default_delete_status
+            await db.sequelize.transaction(async (transaction) => {
+
+                const user = await USERS.update(
+                    {
+                        status: default_status
+                    }, {
+                        where: {
+                            ...payload,
+                            status: default_delete_status
+                        }, 
+                        transaction
                     }
-                }, { transaction: t });
+                );
+                
+                if (user > 0) {
+                    SuccessResponse(res, { unique_id: tag_admin + " | " + payload.unique_id, text: "User restored successfully!" });
+                } else {
+                    throw new Error("User not found");
+                }
             });
-            
-            if (user > 0) {
-                SuccessResponse(res, { unique_id: tag_admin + " | " + payload.unique_id, text: "User restored successfully!" });
-            } else {
-                BadRequestError(res, { unique_id: tag_admin + " | " + payload.unique_id, text: "User not found!" }, null);
-            }
         } catch (err) {
             ServerError(res, { unique_id: tag_admin + " | " + payload.unique_id, text: err.message }, null);
         }
@@ -380,49 +406,45 @@ export async function removeUserPermanently (req, res) {
 
     if (!errors.isEmpty()) {
         ValidationError(res, `${tag_admin} | removeUserPermanently | Validation Error Occured`, errors.array())
-    }
-    else {
+    } else {
         try {
-            const notifications = await db.sequelize.transaction((t) => { return NOTIFICATIONS.destroy({ where: { user_unique_id: payload.unique_id } }, { transaction: t }) });
-            const privates = await db.sequelize.transaction((t) => { return PRIVATES.destroy({ where: { user_unique_id: payload.unique_id } }, { transaction: t }) });
-            const referrals = await db.sequelize.transaction((t) => { return REFERRALS.destroy({ where: { user_unique_id: payload.unique_id } }, { transaction: t }) });
-            const user_account = await db.sequelize.transaction((t) => { return USER_ACCOUNT.destroy({ where: { user_unique_id: payload.unique_id } }, { transaction: t }) });
+            await db.sequelize.transaction(async (transaction) => {
 
-            const affected_rows = notifications + privates + referrals + user_account;
-
-            if (affected_rows > 0) {
-                const action_2 = await db.sequelize.transaction((t) => { 
-                    const users = USERS.destroy({ where: { ...payload } }, { transaction: t })
-                    return users;
-                });
+                const notifications = await NOTIFICATIONS.destroy({ where: { user_unique_id: payload.unique_id }, transaction });
+                const privates = await PRIVATES.destroy({ where: { user_unique_id: payload.unique_id }, transaction });
+                const referrals = await REFERRALS.destroy({ where: { user_unique_id: payload.unique_id }, transaction });
+                const user_account = await USER_ACCOUNT.destroy({ where: { user_unique_id: payload.unique_id }, transaction });
     
-                if (action_2 > 0) {
-                    const folder_name = user_documents_path + payload.unique_id;
-                    if (existsSync(folder_name)) rmdirSync(folder_name);
-                    if (!existsSync(folder_name)) { 
-                        logger.info(`User directory deleted successfully [${folder_name}]`)
-                        OtherSuccessResponse(res, { unique_id: tag_admin + " | " + payload.unique_id, text: `User deleted permanently! ${affected_rows + action_2} rows affected.` })
-                    };
+                const affected_rows = notifications + privates + referrals + user_account;
+    
+                if (affected_rows > 0) {
+                    const action_2 = await USERS.destroy({ where: { ...payload }, transaction });
+        
+                    if (action_2 > 0) {
+                        const folder_name = user_documents_path + payload.unique_id;
+                        if (existsSync(folder_name)) rmdirSync(folder_name);
+                        if (!existsSync(folder_name)) { 
+                            logger.info(`User directory deleted successfully [${folder_name}]`)
+                            OtherSuccessResponse(res, { unique_id: tag_admin + " | " + payload.unique_id, text: `User deleted permanently! ${affected_rows + action_2} rows affected.` })
+                        };
+                    } else {
+                        throw new Error("User not found");
+                    }
                 } else {
-                    BadRequestError(res, { unique_id: tag_admin + " | " + payload.unique_id, text: "User not found!" }, null);
+                    const action_2 = await USERS.destroy({ where: { ...payload }, transaction });
+    
+                    if (action_2 > 0) {
+                        const folder_name = user_documents_path + payload.unique_id;
+                        if (existsSync(folder_name)) rmdirSync(folder_name);
+                        if (!existsSync(folder_name)) {
+                            logger.info(`User directory deleted successfully [${folder_name}]`)
+                            OtherSuccessResponse(res, { unique_id: tag_admin + " | " + payload.unique_id, text: `User deleted permanently! ${action_2} rows affected.` })
+                        };
+                    } else {
+                        throw new Error("User not found");
+                    }
                 }
-            } else {
-                const action_2 = await db.sequelize.transaction((t) => {
-                    const users = USERS.destroy({ where: { ...payload } }, { transaction: t })
-                    return users;
-                });
-
-                if (action_2 > 0) {
-                    const folder_name = user_documents_path + payload.unique_id;
-                    if (existsSync(folder_name)) rmdirSync(folder_name);
-                    if (!existsSync(folder_name)) {
-                        logger.info(`User directory deleted successfully [${folder_name}]`)
-                        OtherSuccessResponse(res, { unique_id: tag_admin + " | " + payload.unique_id, text: `User deleted permanently! ${action_2} rows affected.` })
-                    };
-                } else {
-                    BadRequestError(res, { unique_id: tag_admin + " | " + payload.unique_id, text: "User not found!" }, null);
-                }
-            }
+            });
         } catch (err) {
             ServerError(res, { unique_id: tag_admin + " | " + payload.unique_id, text: err.message }, null);
         }
