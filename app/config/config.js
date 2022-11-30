@@ -125,17 +125,19 @@ export const default_profile_image = domain_name + "/resources/images/user.svg";
 export const default_platform_image = domain_name + "/resources/images/platform.svg";
 export const default_cover_image = domain_name + "/resources/images/cover.svg";
 
-export const user_documents_path = __document_chow_925 + "/resources/documents/users/";
-export const platform_documents_path = __document_chow_925 + "/resources/documents/platforms/";
-
-export const save_document_domain = domain_name;
-
 export const save_user_document_dir = "/resources/documents/users/";
 export const save_platform_document_dir = "/resources/documents/platforms/";
 export const save_image_dir = "/resources/images/";
 
-export const save_user_document_path = save_document_domain + "/resources/documents/users/";
-export const save_platform_document_path = save_document_domain + "/resources/documents/platforms/";
+export const user_documents_path = __document_chow_925 + save_user_document_dir;
+export const platform_documents_path = __document_chow_925 + save_platform_document_dir;
+export const images_documents_path = __document_chow_925 + save_image_dir;
+
+export const save_document_domain = domain_name;
+
+export const save_user_document_path = save_document_domain + save_user_document_dir;
+export const save_platform_document_path = save_document_domain + save_platform_document_dir;
+export const save_image_document_path = save_document_domain + save_image_dir;
 
 export const profile_image_document_name = "Profile Image";
 export const cover_image_document_name = "Cover Image";
@@ -433,6 +435,15 @@ export const platform_rename_document = (platform, document, filename) => {
     return return_file;
 };
 
+export const image_rename_document = (text, document, filename) => {
+    let text_name = strip_text(text.toLowerCase());
+    let document_txt = strip_text(document);
+    let lastIndex = filename.lastIndexOf(".");
+    let extension = filename.slice(lastIndex);
+    let return_file = `${random_uuid(3)}-${today_str()}-${text_name}-${document_txt}-${time_zero_hundred()}-${random_uuid(3)}${extension}`;
+    return return_file;
+};
+
 export const user_documents_path_alt = () => {
     let file_path = path.join(__document_chow_925, 'resources', 'documents', 'users');
     return file_path;
@@ -443,41 +454,65 @@ export const platform_documents_path_alt = () => {
     return file_path;
 };
 
-export const user_join_path_and_file = (file_name, req) => {
-    let file_path = req.files[file_name] !== undefined ? path.join(__document_chow_925, 'resources', 'documents', 'users', req.files[file_name][0].filename) : null;
+export const image_documents_path_alt = () => {
+    let file_path = path.join(__document_chow_925, 'resources', 'images');
     return file_path;
 };
 
-export const platform_join_path_and_file = (file_name, req) => {
-    let file_path = req.files[file_name] !== undefined ? path.join(__document_chow_925, 'resources', 'documents', 'platforms', req.files[file_name][0].filename) : null;
+export const user_join_path_and_file = (file_name, user_folder, req) => {
+    let file_path = req.files[file_name] !== undefined ? path.join(__document_chow_925, 'resources', 'documents', 'users', user_folder, req.files[file_name][0].filename) : null;
     return file_path;
 };
 
-export const user_remove_file = (file_name) => {
-    fs.unlink(path.join(user_documents_path_alt(), file_name), (err) => {
+export const platform_join_path_and_file = (file_name, platform_folder, req) => {
+    let file_path = req.files[file_name] !== undefined ? path.join(__document_chow_925, 'resources', 'documents', 'platforms', platform_folder, req.files[file_name][0].filename) : null;
+    return file_path;
+};
+
+export const image_join_path_and_file = (file_name, req) => {
+    let file_path = req.files[file_name] !== undefined ? path.join(__document_chow_925, 'resources', 'images', req.files[file_name][0].filename) : null;
+    return file_path;
+};
+
+export const user_remove_file = (file_name, user_folder) => {
+    fs.unlink(path.join(user_documents_path_alt(), user_folder, file_name), (err) => {
         if (err) throw err;
-        logger.warn(`${path.join(user_documents_path_alt(), file_name)} was deleted and replaced`);
+        logger.warn(`${path.join(user_documents_path_alt(), user_folder, file_name)} was deleted and replaced`);
     });
 };
 
-export const platform_remove_file = (file_name) => {
-    fs.unlink(path.join(platform_documents_path_alt(), file_name), (err) => {
+export const platform_remove_file = (file_name, platform_folder) => {
+    fs.unlink(path.join(platform_documents_path_alt(), platform_folder, file_name), (err) => {
         if (err) throw err;
-        logger.warn(`${path.join(platform_documents_path_alt(), file_name)} was deleted and replaced`);
+        logger.warn(`${path.join(platform_documents_path_alt(), platform_folder, file_name)} was deleted and replaced`);
     });
 };
 
-export const user_remove_unwanted_file = (file_name, req) => {
-    if (req.files[file_name] !== undefined) fs.unlink(user_join_path_and_file(file_name, req), (err) => {
+export const image_remove_file = (file_name) => {
+    fs.unlink(path.join(image_documents_path_alt(), file_name), (err) => {
         if (err) throw err;
-        logger.warn(`${user_join_path_and_file(file_name, req)} was deleted`);
+        logger.warn(`${path.join(image_documents_path_alt(), file_name)} was deleted and replaced`);
     });
 };
 
-export const platform_remove_unwanted_file = (file_name, req) => {
-    if (req.files[file_name] !== undefined) fs.unlink(platform_join_path_and_file(file_name, req), (err) => {
+export const user_remove_unwanted_file = (file_name, user_folder, req) => {
+    if (req.files[file_name] !== undefined) fs.unlink(user_join_path_and_file(file_name, user_folder, req), (err) => {
         if (err) throw err;
-        logger.warn(`${platform_join_path_and_file(file_name, req)} was deleted`);
+        logger.warn(`${user_join_path_and_file(file_name, user_folder, req)} was deleted`);
+    });
+};
+
+export const platform_remove_unwanted_file = (file_name, platform_folder, req) => {
+    if (req.files[file_name] !== undefined) fs.unlink(platform_join_path_and_file(file_name, platform_folder, req), (err) => {
+        if (err) throw err;
+        logger.warn(`${platform_join_path_and_file(file_name, platform_folder, req)} was deleted`);
+    });
+};
+
+export const image_remove_unwanted_file = (file_name, req) => {
+    if (req.files[file_name] !== undefined) fs.unlink(image_join_path_and_file(file_name, req), (err) => {
+        if (err) throw err;
+        logger.warn(`${image_join_path_and_file(file_name, req)} was deleted`);
     });
 };
 
