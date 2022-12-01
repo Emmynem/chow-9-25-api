@@ -288,6 +288,48 @@ export const max_debt = {
     value: 5000
 };
 
+export const email_host = {
+    criteria: "Email Host",
+    data_type: "STRING",
+    value: "9-25.co"
+};
+
+export const no_reply_email = {
+    criteria: "No Reply Email",
+    data_type: "STRING",
+    value: "noreply@9-25.co"
+};
+
+export const no_reply_email_password = {
+    criteria: "No Reply Email Password",
+    data_type: "STRING",
+    value: "password-noreply"
+};
+
+export const no_reply_email_name = {
+    criteria: "No Reply Email Name",
+    data_type: "STRING",
+    value: "9:25"
+};
+
+export const notifications_email = {
+    criteria: "Notifications Email",
+    data_type: "STRING",
+    value: "notifications@9-25.co"
+};
+
+export const notifications_email_password = {
+    criteria: "Notifications Email Password",
+    data_type: "STRING",
+    value: "password-notifications"
+};
+
+export const notifications_email_name = {
+    criteria: "Notifications Email Name",
+    data_type: "STRING",
+    value: "Notifications - 9:25"
+};
+
 // End - App Defaults
 
 export const chow_925_header_token = "chow-925-access-token";
