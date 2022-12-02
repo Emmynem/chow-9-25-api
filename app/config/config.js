@@ -517,45 +517,81 @@ export const image_join_path_and_file = (file_name, req) => {
 };
 
 export const user_remove_file = (file_name, user_folder) => {
-    fs.unlink(path.join(user_documents_path_alt(), user_folder, file_name), (err) => {
-        if (err) throw err;
-        logger.warn(`${path.join(user_documents_path_alt(), user_folder, file_name)} was deleted and replaced`);
-    });
+    if (fs.existsSync(path.join(user_documents_path_alt(), user_folder, file_name))) {
+        fs.unlink(path.join(user_documents_path_alt(), user_folder, file_name), (err) => {
+            if (err) throw err;
+            logger.warn(`${path.join(user_documents_path_alt(), user_folder, file_name)} was deleted and replaced`);
+        });
+    } else {
+        logger.error(`${path.join(user_documents_path_alt(), user_folder, file_name)} was not found`);
+    }
 };
 
 export const platform_remove_file = (file_name, platform_folder) => {
-    fs.unlink(path.join(platform_documents_path_alt(), platform_folder, file_name), (err) => {
-        if (err) throw err;
-        logger.warn(`${path.join(platform_documents_path_alt(), platform_folder, file_name)} was deleted and replaced`);
-    });
+    if (fs.existsSync(path.join(platform_documents_path_alt(), platform_folder, file_name))) {
+        fs.unlink(path.join(platform_documents_path_alt(), platform_folder, file_name), (err) => {
+            if (err) throw err;
+            logger.warn(`${path.join(platform_documents_path_alt(), platform_folder, file_name)} was deleted and replaced`);
+        });
+    } else {
+        logger.error(`${path.join(platform_documents_path_alt(), platform_folder, file_name)} was not found`);
+    }
 };
 
 export const image_remove_file = (file_name) => {
-    fs.unlink(path.join(image_documents_path_alt(), file_name), (err) => {
-        if (err) throw err;
-        logger.warn(`${path.join(image_documents_path_alt(), file_name)} was deleted and replaced`);
-    });
+    if (fs.existsSync(path.join(image_documents_path_alt(), file_name))) {
+        fs.unlink(path.join(image_documents_path_alt(), file_name), (err) => {
+            if (err) throw err;
+            logger.warn(`${path.join(image_documents_path_alt(), file_name)} was deleted and replaced`);
+        });
+    } else {
+        logger.error(`${path.join(image_documents_path_alt(), file_name)} was not found`);
+    }
 };
 
 export const user_remove_unwanted_file = (file_name, user_folder, req) => {
-    if (req.files[file_name] !== undefined) fs.unlink(user_join_path_and_file(file_name, user_folder, req), (err) => {
-        if (err) throw err;
-        logger.warn(`${user_join_path_and_file(file_name, user_folder, req)} was deleted`);
-    });
+    if (req.files[file_name] !== undefined) {
+        if (fs.existsSync(user_join_path_and_file(file_name, user_folder, req))) {
+            fs.unlink(user_join_path_and_file(file_name, user_folder, req), (err) => {
+                if (err) throw err;
+                logger.warn(`${user_join_path_and_file(file_name, user_folder, req)} was deleted`);
+            });
+        } else {
+            logger.error(`${user_join_path_and_file(file_name, user_folder, req)} was not found`);
+        }
+    } else {
+        logger.error(`<user_remove_unwanted_file> file undefined`);
+    }
 };
 
 export const platform_remove_unwanted_file = (file_name, platform_folder, req) => {
-    if (req.files[file_name] !== undefined) fs.unlink(platform_join_path_and_file(file_name, platform_folder, req), (err) => {
-        if (err) throw err;
-        logger.warn(`${platform_join_path_and_file(file_name, platform_folder, req)} was deleted`);
-    });
+    if (req.files[file_name] !== undefined) {
+        if (fs.existsSync(platform_join_path_and_file(file_name, platform_folder, req))) {
+            fs.unlink(platform_join_path_and_file(file_name, platform_folder, req), (err) => {
+                if (err) throw err;
+                logger.warn(`${platform_join_path_and_file(file_name, platform_folder, req)} was deleted`);
+            });
+        } else {
+            logger.warn(`${platform_join_path_and_file(file_name, platform_folder, req)} was not found`);
+        }
+    } else {
+        logger.error(`<platform_remove_unwanted_file> file undefined`);
+    } 
 };
 
 export const image_remove_unwanted_file = (file_name, req) => {
-    if (req.files[file_name] !== undefined) fs.unlink(image_join_path_and_file(file_name, req), (err) => {
-        if (err) throw err;
-        logger.warn(`${image_join_path_and_file(file_name, req)} was deleted`);
-    });
+    if (req.files[file_name] !== undefined) {
+        if (fs.existsSync(image_join_path_and_file(file_name, req))) {
+            fs.unlink(image_join_path_and_file(file_name, req), (err) => {
+                if (err) throw err;
+                logger.warn(`${image_join_path_and_file(file_name, req)} was deleted`);
+            });
+        } else {
+            logger.error(`${image_join_path_and_file(file_name, req)} was not found`);
+        }
+    } else {
+        logger.error(`<image_remove_unwanted_file> file undefined`);
+    }
 };
 
 export const validate_pg_age_signup = (dob) => {
