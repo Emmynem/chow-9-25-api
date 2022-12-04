@@ -3,6 +3,7 @@ import db from "../models/index.js";
 import { strip_text, default_status, default_delete_status } from '../config/config.js';
 
 const CATEGORIES = db.categories;
+const CATEGORY_IMAGES = db.category_images;
 const Op = db.Sequelize.Op;
 
 export const category_rules = {
@@ -33,6 +34,30 @@ export const category_rules = {
             .custom(category_unique_id => {
                 return CATEGORIES.findOne({ where: { unique_id: category_unique_id, status: default_status } }).then(data => {
                     if (!data) return Promise.reject('Category not found!');
+                });
+            })
+    ],
+    forFindingCategoryImage: [
+        check('category_unique_id', "Category Unique Id is required")
+            .exists({ checkNull: true, checkFalsy: true })
+            .bail()
+            .custom(category_unique_id => {
+                return CATEGORIES.findOne({ where: { unique_id: category_unique_id, status: default_status } }).then(data => {
+                    if (!data) return Promise.reject('Category not found!');
+                });
+            }),
+        check('unique_id', "Unique Id is required")
+            .exists({ checkNull: true, checkFalsy: true })
+            .bail()
+            .custom((unique_id, { req }) => {
+                return CATEGORY_IMAGES.findOne({ 
+                    where: { 
+                        unique_id, 
+                        category_unique_id: req.query.category_unique_id || req.body.category_unique_id || '',
+                        status: default_status 
+                    } 
+                }).then(data => {
+                    if (!data) return Promise.reject('Category Image not found!');
                 });
             })
     ],

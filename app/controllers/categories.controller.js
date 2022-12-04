@@ -1,13 +1,21 @@
 import { validationResult, matchedData } from 'express-validator';
 import { v4 as uuidv4 } from 'uuid';
+import fs from "fs";
+import path from 'path';
 import { ServerError, SuccessResponse, ValidationError, OtherSuccessResponse, NotFoundError, CreationSuccessResponse, BadRequestError, logger } from '../common/index.js';
-import { default_delete_status, default_status, tag_admin } from '../config/config.js';
+import { 
+    default_delete_status, default_status, tag_admin, image_rename_document, category_image_document_name, save_image_document_path,
+    save_document_domain, save_image_dir, image_join_path_and_file, image_remove_unwanted_file, image_remove_file, image_documents_path_alt, 
+    strip_text, file_length_5Mb
+} from '../config/config.js';
 import db from "../models/index.js";
 
 const CATEGORIES = db.categories;
 const CATEGORY_IMAGES = db.category_images;
 const PRODUCTS = db.products;
 const Op = db.Sequelize.Op;
+
+const { rename } = fs;
 
 export function rootGetCategories(req, res) {
     CATEGORIES.findAndCountAll({
@@ -124,6 +132,199 @@ export async function addCategory(req, res) {
                     throw new Error("Error creating category");
                 }
             });
+        } catch (err) {
+            ServerError(res, { unique_id: tag_admin, text: err.message }, null);
+        }
+    }
+};
+
+export async function addCategoryImage(req, res) {
+    const errors = validationResult(req);
+    const payload = matchedData(req);
+
+    if (!errors.isEmpty()) {
+        if (req.files['image'] !== undefined) image_remove_unwanted_file('image', req);
+        ValidationError(res, { unique_id: tag_admin, text: "Validation Error Occured" }, errors.array())
+    } else {
+        if (req.files === undefined || req.files['image'] === undefined) {
+            BadRequestError(res, { unique_id: tag_admin, text: "Image is required" });
+        } else {
+            if (req.files['image'][0].size > file_length_5Mb) {
+                if (req.files['image'] !== undefined) image_remove_unwanted_file('image', req);
+                BadRequestError(res, { unique_id: tag_admin, text: "File size limit reached (5MB)" });
+            } else {
+                try {
+
+                    const category = await CATEGORIES.findOne({
+                        where: {
+                            unique_id: payload.category_unique_id,
+                            status: default_status
+                        }
+                    });
+
+                    const image_renamed = image_rename_document(category.name, category_image_document_name, req.files['image'][0].originalname);
+                    const saved_image = save_image_document_path + image_renamed;
+                    const image_size = req.files['image'][0].size;
+
+                    rename(image_join_path_and_file('image', req), path.join(image_documents_path_alt(), image_renamed), async function (err) {
+                        if (err) {
+                            if (req.files['image'] !== undefined) image_remove_unwanted_file('image', req);
+                            BadRequestError(res, { unique_id: tag_admin, text: "Error uploading file ..." });
+                        } else {
+                            await db.sequelize.transaction(async (transaction) => {
+                                const category_images = await CATEGORY_IMAGES.create(
+                                    {
+                                        unique_id: uuidv4(),
+                                        category_unique_id: payload.category_unique_id,
+                                        image_base_url: save_document_domain,
+                                        image_dir: save_image_dir,
+                                        image: saved_image,
+                                        image_file: image_renamed,
+                                        image_size,
+                                        status: default_status
+                                    }, { transaction }
+                                );
+
+                                if (category_images) {
+                                    CreationSuccessResponse(res, { unique_id: tag_admin, text: `${category.name} Category Image was saved successfully!` });
+                                } else {
+                                    throw new Error("Error saving category image");
+                                }
+
+                            })
+                        }
+                    });
+                } catch (err) {
+                    if (req.files['image'] !== undefined) image_remove_unwanted_file('image', req);
+                    ServerError(res, { unique_id: tag_admin, text: err.message }, null);
+                }
+            }
+        }
+    }
+};
+
+export async function editCategoryImage(req, res) {
+    const errors = validationResult(req);
+    const payload = matchedData(req);
+
+    if (!errors.isEmpty()) {
+        if (req.files['image'] !== undefined) image_remove_unwanted_file('image', req);
+        ValidationError(res, { unique_id: tag_admin, text: "Validation Error Occured" }, errors.array())
+    } else {
+        if (req.files === undefined || req.files['image'] === undefined) {
+            BadRequestError(res, { unique_id: tag_admin, text: "Image is required" });
+        } else {
+            if (req.files['image'][0].size > file_length_5Mb) {
+                if (req.files['image'] !== undefined) image_remove_unwanted_file('image', req);
+                BadRequestError(res, { unique_id: tag_admin, text: "File size limit reached (5MB)" });
+            } else {
+                try {
+                    const category = await CATEGORIES.findOne({
+                        where: {
+                            unique_id: payload.category_unique_id,
+                            status: default_status
+                        }
+                    });
+
+                    const category_images = await CATEGORY_IMAGES.findOne({
+                        where: {
+                            unique_id: payload.unique_id,
+                            category_unique_id: payload.category_unique_id,
+                            status: default_status
+                        }
+                    });
+
+                    const image_renamed = image_rename_document(category.name, category_image_document_name, req.files['image'][0].originalname);
+                    const saved_image = save_image_document_path + image_renamed;
+                    const image_size = req.files['image'][0].size;
+
+                    rename(image_join_path_and_file('image', req), path.join(image_documents_path_alt(), image_renamed), async function (err) {
+                        if (err) { 
+                            if (req.files['image'] !== undefined) image_remove_unwanted_file('image', req);
+                            BadRequestError(res, { unique_id: tag_admin, text: "Error uploading file ..." });
+                        } else {
+                            await db.sequelize.transaction(async (transaction) => {
+                                const category_image = await CATEGORY_IMAGES.update(
+                                    {
+                                        image_base_url: save_document_domain,
+                                        image_dir: save_image_dir,
+                                        image: saved_image,
+                                        image_file: image_renamed,
+                                        image_size,
+                                    }, {
+                                        where: {
+                                            unique_id: payload.unique_id,
+                                            category_unique_id: payload.category_unique_id,
+                                            status: default_status
+                                        },
+                                        transaction
+                                    }
+                                );
+        
+                                if (category_image > 0) {
+                                    if (category_images.image_file !== null) image_remove_file(category_images.image_file);
+                                    OtherSuccessResponse(res, { unique_id: tag_admin, text: `${category.name} Category Image was updated successfully!` });
+                                } else {
+                                    throw new Error("Error saving category image");
+                                }
+                            });
+                        }
+                    })
+                } catch (err) {
+                    if (req.files['image'] !== undefined) image_remove_unwanted_file('image', req);
+                    ServerError(res, { unique_id: tag_admin, text: err.message }, null);
+                }
+            }
+        }
+    }
+};
+
+export async function deleteCategoryImage(req, res) {
+    const errors = validationResult(req);
+    const payload = matchedData(req);
+
+    if (!errors.isEmpty()) {
+        ValidationError(res, { unique_id: tag_admin, text: "Validation Error Occured" }, errors.array())
+    } else {
+        try {
+            await db.sequelize.transaction(async (transaction) => {
+
+                const category = await CATEGORIES.findOne({
+                    where: {
+                        unique_id: payload.category_unique_id,
+                        status: default_status
+                    }, 
+                    transaction
+                });
+    
+                const category_images = await CATEGORY_IMAGES.findOne({
+                    where: {
+                        unique_id: payload.unique_id,
+                        category_unique_id: payload.category_unique_id,
+                        status: default_status
+                    }, 
+                    transaction
+                });
+
+                const category_image = await CATEGORY_IMAGES.destroy(
+                    {
+                        where: {
+                            unique_id: payload.unique_id,
+                            category_unique_id: payload.category_unique_id,
+                            status: default_status
+                        },
+                        transaction
+                    }
+                );
+
+                if (category_image > 0) {
+                    if (category_images.image_file !== null) image_remove_file(category_images.image_file);
+                    OtherSuccessResponse(res, { unique_id: tag_admin, text: `${category.name} Category Image was deleted successfully!` });
+                } else {
+                    throw new Error("Error deleting category image");
+                }
+            });
+
         } catch (err) {
             ServerError(res, { unique_id: tag_admin, text: err.message }, null);
         }
