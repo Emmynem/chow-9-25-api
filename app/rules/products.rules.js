@@ -4,6 +4,7 @@ import { default_status, default_delete_status, strip_text, check_length_TEXT } 
 
 const VENDORS = db.vendors;
 const PRODUCTS = db.products;
+const PRODUCT_IMAGES = db.product_images;
 const CATEGORIES = db.categories;
 const MENUS = db.menus;
 const Op = db.Sequelize.Op;
@@ -64,6 +65,30 @@ export const product_rules = {
             .custom(product_unique_id => {
                 return PRODUCTS.findOne({ where: { unique_id: product_unique_id, status: default_status } }).then(data => {
                     if (!data) return Promise.reject('Product not found!');
+                });
+            })
+    ],
+    forFindingProductImage: [
+        check('product_unique_id', "Product Unique Id is required")
+            .exists({ checkNull: true, checkFalsy: true })
+            .bail()
+            .custom(product_unique_id => {
+                return PRODUCTS.findOne({ where: { unique_id: product_unique_id, status: default_status } }).then(data => {
+                    if (!data) return Promise.reject('Product not found!');
+                });
+            }),
+        check('unique_id', "Unique Id is required")
+            .exists({ checkNull: true, checkFalsy: true })
+            .bail()
+            .custom((unique_id, { req }) => {
+                return PRODUCT_IMAGES.findOne({
+                    where: {
+                        unique_id,
+                        product_unique_id: req.query.product_unique_id || req.body.product_unique_id || '',
+                        status: default_status
+                    }
+                }).then(data => {
+                    if (!data) return Promise.reject('Product Image not found!');
                 });
             })
     ],
