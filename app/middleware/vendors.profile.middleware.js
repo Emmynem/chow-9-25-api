@@ -12,7 +12,7 @@ const imageFilter = (req, file, cb) => {
 
 let storage = diskStorage({
     destination: (req, file, cb) => {
-        cb(null, platform_documents_path + req.UNIQUE_ID + "/");
+        cb(null, platform_documents_path + req.VENDOR_UNIQUE_ID + "/");
     },
     filename: (req, file, cb) => {
         cb(null, `${file.originalname}`);
