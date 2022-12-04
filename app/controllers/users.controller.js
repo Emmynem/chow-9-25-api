@@ -1,9 +1,13 @@
 import { validationResult, matchedData } from 'express-validator';
 import fs from "fs";
+import path from 'path';
 import { ServerError, SuccessResponse, ValidationError, OtherSuccessResponse, NotFoundError, BadRequestError, logger } from '../common/index.js';
-import { access_granted, access_revoked, access_suspended, default_delete_status, default_status, false_status, true_status, tag_admin, user_documents_path } from '../config/config.js';
+import { 
+    access_granted, access_revoked, access_suspended, default_delete_status, default_status, false_status, true_status, 
+    tag_admin, user_documents_path, user_rename_document, profile_image_document_name, save_user_document_path, save_document_domain, 
+    save_user_document_dir, user_join_path_and_file, user_remove_unwanted_file, user_remove_file, user_documents_path_alt, file_length_5Mb
+} from '../config/config.js';
 import db from "../models/index.js";
-import { addUserNotification } from './notifications.controller.js';
 
 const USERS = db.users;
 const USER_ACCOUNT = db.user_account;
@@ -12,7 +16,7 @@ const PRIVATES = db.privates;
 const REFERRALS = db.referrals;
 const Op = db.Sequelize.Op;
 
-const { existsSync, rmdirSync } = fs;
+const { existsSync, rmdirSync, rename } = fs;
 
 export function rootGetUsers (req, res) {
     USERS.findAndCountAll({
@@ -100,12 +104,6 @@ export async function updateUser (req, res) {
                 );
     
                 if (user > 0) {
-                    const notification_data = {
-                        user_unique_id,
-                        type: "Personal",
-                        action: "Updated profile details!"
-                    };
-                    addUserNotification(req, res, notification_data, transaction);
                     SuccessResponse(res, { unique_id: user_unique_id, text: "User details updated successfully!" }, user);
                 } else {
                     throw new Error("User not found");
@@ -113,6 +111,74 @@ export async function updateUser (req, res) {
             });
         } catch (err) {
             ServerError(res, { unique_id: user_unique_id, text: err.message }, null);
+        }
+    }
+};
+
+export async function updateProfileImage(req, res) {
+    const user_unique_id = req.UNIQUE_ID || payload.unique_id || '';
+    const errors = validationResult(req);
+    const payload = matchedData(req);
+
+    if (!errors.isEmpty()) {
+        if (req.files['profile_image'] !== undefined) user_remove_unwanted_file('profile_image', user_unique_id, req);
+        ValidationError(res, { unique_id: user_unique_id, text: "Validation Error Occured" }, errors.array())
+    } else {
+        if (req.files === undefined || req.files['profile_image'] === undefined) {
+            BadRequestError(res, { unique_id: user_unique_id, text: "Profile Image is required" });
+        } else {
+            if (req.files['profile_image'][0].size > file_length_5Mb) {
+                if (req.files['profile_image'] !== undefined) user_remove_unwanted_file('profile_image', user_unique_id, req);
+                BadRequestError(res, { unique_id: user_unique_id, text: "File size limit reached (5MB)" });
+            } else {
+                try {
+                    const user = await USERS.findOne({
+                        where: {
+                            unique_id: user_unique_id,
+                            status: default_status
+                        }
+                    });
+
+                    const profile_image_renamed = user_rename_document(user.firstname, user.lastname, profile_image_document_name, req.files['profile_image'][0].originalname);
+                    const saved_profile_image = save_user_document_path + profile_image_renamed;
+                    const profile_image_size = req.files['profile_image'][0].size;
+
+                    rename(user_join_path_and_file('profile_image', user_unique_id, req), path.join(user_documents_path_alt(), user_unique_id, profile_image_renamed), async function (err) {
+                        if (err) {
+                            if (req.files['profile_image'] !== undefined) user_remove_unwanted_file('profile_image', user_unique_id, req);
+                            BadRequestError(res, { unique_id: user_unique_id, text: "Error uploading file ..." });
+                        } else {
+                            await db.sequelize.transaction(async (transaction) => {
+                                const profile_image = await USERS.update(
+                                    {
+                                        profile_image_base_url: save_document_domain,
+                                        profile_image_dir: save_user_document_dir,
+                                        profile_image: saved_profile_image,
+                                        profile_image_file: profile_image_renamed,
+                                        profile_image_size,
+                                    }, {
+                                        where: {
+                                            unique_id: user_unique_id,
+                                            status: default_status
+                                        },
+                                        transaction
+                                    }
+                                );
+
+                                if (profile_image > 0) {
+                                    if (user.profile_image_file !== null) user_remove_file(user.profile_image_file, user_unique_id);
+                                    OtherSuccessResponse(res, { unique_id: user_unique_id, text: `${user.firstname + (user.middlename !== null ? " " + user.middlename + " " : " ") + user.lastname} Profifle Image was updated successfully!` });
+                                } else {
+                                    throw new Error("Error saving profile image");
+                                }
+                            });
+                        }
+                    })
+                } catch (err) {
+                    if (req.files['profile_image'] !== undefined) user_remove_unwanted_file('profile_image', user_unique_id, req);
+                    ServerError(res, { unique_id: user_unique_id, text: err.message }, null);
+                }
+            }
         }
     }
 };
@@ -143,12 +209,6 @@ export async function updateUserEmailVerified (req, res) {
                 );
     
                 if (user > 0) {
-                    const notification_data = {
-                        user_unique_id: payload.unique_id,
-                        type: "Personal",
-                        action: "Email was verified successfully!"
-                    };
-                    addUserNotification(req, res, notification_data, transaction);
                     OtherSuccessResponse(res, { unique_id: payload.unique_id, text: "User email verified successfully!" });
                 } else {
                     throw new Error("User email verified already");
@@ -186,12 +246,6 @@ export async function updateUserMobileNumberVerified (req, res) {
                 );
     
                 if (user > 0) {
-                    const notification_data = {
-                        user_unique_id: payload.unique_id,
-                        type: "Personal",
-                        action: "Mobile number was verified successfully!"
-                    };
-                    addUserNotification(req, res, notification_data);
                     OtherSuccessResponse(res, { unique_id: payload.unique_id, text: "User mobile number verified successfully!" });
                 } else {
                     throw new Error("User mobile number verified already");
@@ -229,12 +283,6 @@ export async function updateUserAccessGranted (req, res) {
                 );
     
                 if (user > 0) {
-                    const notification_data = {
-                        user_unique_id: payload.unique_id,
-                        type: "Access",
-                        action: "Account access was granted!"
-                    };
-                    addUserNotification(req, res, notification_data, transaction);
                     SuccessResponse(res, { unique_id: tag_admin + " | " + payload.unique_id, text: "User's access was granted successfully!" });
                 } else {
                     throw new Error("User access already granted");
@@ -272,12 +320,6 @@ export async function updateUserAccessSuspended (req, res) {
                 );
     
                 if (user > 0) {
-                    const notification_data = {
-                        user_unique_id: payload.unique_id,
-                        type: "Access",
-                        action: "Account access was suspended!"
-                    };
-                    addUserNotification(req, res, notification_data, transaction);
                     SuccessResponse(res, { unique_id: tag_admin + " | " + payload.unique_id, text: "User's access was suspended successfully!" });
                 } else {
                     throw new Error("User access already suspended");
@@ -315,12 +357,6 @@ export async function updateUserAccessRevoked (req, res) {
                 );
                 
                 if (user > 0) {
-                    const notification_data = {
-                        user_unique_id: payload.unique_id,
-                        type: "Access",
-                        action: "Account access was revoked!"
-                    };
-                    addUserNotification(req, res, notification_data, transaction);
                     SuccessResponse(res, { unique_id: tag_admin + " | " + payload.unique_id, text: "User's access was revoked successfully!" });
                 } else {
                     throw new Error("User access already revoked");
