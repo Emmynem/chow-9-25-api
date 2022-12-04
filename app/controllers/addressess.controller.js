@@ -3,7 +3,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { ServerError, SuccessResponse, ValidationError, OtherSuccessResponse, NotFoundError, CreationSuccessResponse, BadRequestError, logger } from '../common/index.js';
 import { default_delete_status, default_status, false_status, tag_admin, true_status } from '../config/config.js';
 import db from "../models/index.js";
-import { addUserNotification } from './notifications.controller.js';
 
 const ADDRESSESS = db.addressess;
 const USERS = db.users;
@@ -182,12 +181,6 @@ export async function addUserAddress(req, res) {
                 );
     
                 if (addressess) {
-                    const notification_data = {
-                        user_unique_id,
-                        type: "Address",
-                        action: "Created new address successfully!"
-                    };
-                    addUserNotification(req, res, notification_data, transaction);
                     CreationSuccessResponse(res, { unique_id: user_unique_id, text: "Address created successfully!" });
                 } else {
                     throw new Error("Error creating address!");
@@ -223,12 +216,6 @@ export async function updateUserAddress(req, res) {
                 );
     
                 if (address > 0) {
-                    const notification_data = {
-                        user_unique_id,
-                        type: "Address",
-                        action: "Updated address details successfully!"
-                    };
-                    addUserNotification(req, res, notification_data, transaction);
                     OtherSuccessResponse(res, { unique_id: user_unique_id, text: "Address was updated successfully!" });
                 } else {
                     throw new Error("Error updating address details!");
@@ -280,12 +267,6 @@ export async function changeUserDefaultAddress(req, res) {
                 );
     
                 if (address > 0) {
-                    const notification_data = {
-                        user_unique_id,
-                        type: "Address",
-                        action: "Updated default address successfully!"
-                    };
-                    addUserNotification(req, res, notification_data, transaction);
                     OtherSuccessResponse(res, { unique_id: user_unique_id, text: "Default address was updated successfully!" });
                 } else {
                     throw new Error("Error updating default address!");
@@ -332,12 +313,6 @@ export async function deleteUserAddress(req, res) {
                     );
         
                     if (address > 0) {
-                        const notification_data = {
-                            user_unique_id,
-                            type: "Address",
-                            action: "Deleted address successfully!"
-                        };
-                        addUserNotification(req, res, notification_data, transaction);
                         OtherSuccessResponse(res, { unique_id: user_unique_id, text: "Address was deleted successfully!" });
                     } else {
                         throw new Error("Error deleting address!");

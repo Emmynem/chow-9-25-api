@@ -335,8 +335,8 @@ export const notifications_email_name = {
 export const chow_925_header_token = "chow-925-access-token";
 export const chow_925_header_key = "chow-925-access-key";
 
-export const verified_status = 1;
-export const unverified_status = 0;
+export const verified_status = true;
+export const unverified_status = false;
 
 export const false_status = false;
 export const true_status = true;

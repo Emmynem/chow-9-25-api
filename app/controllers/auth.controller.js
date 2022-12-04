@@ -70,7 +70,7 @@ export async function userSignUp(req, res) {
                     }, { transaction }
                 );
     
-                const referred_by = req.params.ref || payload.ref;
+                const referred_by = req.params.ref || payload.ref || '';
     
                 const user = await USERS.findOne({
                     where: {
@@ -153,7 +153,7 @@ export async function userSigninViaEmail(req, res) {
                             type: "Signin",
                             action: "Signed in successfully via email!"
                         };
-                        addUserNotification(req, res, notification_data, transaction);
+                        addUserNotification(req, res, notification_data);
     
                         const return_data = {
                             token,
@@ -211,7 +211,7 @@ export async function userSigninViaMobile(req, res) {
                             type: "Signin",
                             action: "Signed in successfully via mobile number!"
                         };
-                        addUserNotification(req, res, notification_data, transaction);
+                        addUserNotification(req, res, notification_data);
     
                         const return_data = {
                             token,
@@ -468,6 +468,7 @@ export async function vendorSignUp(req, res) {
                         cover_image: default_cover_image,
                         pro: false_status,
                         pro_expiring: null,
+                        verification: unverified_status,
                         access: access_granted,
                         status: default_status
                     }, { transaction }
@@ -522,8 +523,7 @@ export async function vendorUserSignin(req, res) {
     if (payload.email) {
         if (!errors.isEmpty()) {
             ValidationError(res, { unique_id: payload.email, text: "Validation Error Occured" }, errors.array())
-        }
-        else {
+        } else {
             try {
                 await db.sequelize.transaction(async (transaction) => {
 
@@ -876,6 +876,7 @@ export async function riderSignUp(req, res) {
                         profile_image_base_url: save_document_domain,
                         profile_image_dir: save_image_dir,
                         profile_image: default_profile_image,
+                        availability: false_status,
                         verification: unverified_status,
                         access: access_granted,
                         status: default_status
@@ -927,7 +928,7 @@ export async function riderSigninViaEmail(req, res) {
                 });
     
                 if (!rider) {
-                    NotFoundError(res, { unique_id: payload.email, text: "User not found" }, null);
+                    NotFoundError(res, { unique_id: payload.email, text: "Rider not found" }, null);
                 } else if (rider.access === access_suspended) {
                     ForbiddenError(res, { unique_id: payload.email, text: "Account has been suspended" }, null);
                 } else if (rider.access === access_revoked) {
@@ -940,7 +941,7 @@ export async function riderSigninViaEmail(req, res) {
                     if (!passwordIsValid) {
                         UnauthorizedError(res, { unique_id: payload.email, text: "Invalid Password!" }, null);
                     } else {
-                        const token = sign({ unique_id: rider.unique_id }, secret, {
+                        const token = sign({ rider_unique_id: rider.unique_id }, secret, {
                             expiresIn: payload.remember_me ? 2592000 /* 30 days */ : 86400 // 24 hours
                         });
     
@@ -978,7 +979,7 @@ export async function riderSigninViaMobile(req, res) {
                 });
     
                 if (!rider) {
-                    NotFoundError(res, { unique_id: payload.mobile_number, text: "User not found" }, null);
+                    NotFoundError(res, { unique_id: payload.mobile_number, text: "Rider not found" }, null);
                 } else if (rider.access === access_suspended) {
                     ForbiddenError(res, { unique_id: payload.mobile_number, text: "Account has been suspended" }, null);
                 } else if (rider.access === access_revoked) {
@@ -991,7 +992,7 @@ export async function riderSigninViaMobile(req, res) {
                     if (!passwordIsValid) {
                         UnauthorizedError(res, { unique_id: payload.mobile_number, text: "Invalid Password!" }, null);
                     } else {
-                        const token = sign({ unique_id: rider.unique_id }, secret, {
+                        const token = sign({ rider_unique_id: rider.unique_id }, secret, {
                             expiresIn: payload.remember_me ? 2592000 /* 30 days */ : 86400 // 24 hours
                         });
                         
