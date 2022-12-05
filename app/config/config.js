@@ -379,10 +379,9 @@ export const check_user_route = (method, path, routes) => {
     const _method = method;
     const _path = path;
 
-    if (typeof routes === "string" && routes === "all") {
+    if (typeof routes === "string" && routes === super_admin_routes) {
         return true;
-    }
-    else {
+    } else {
         try {
             const _routes = !Array.isArray(routes) ? JSON.parse(routes) : routes;
 

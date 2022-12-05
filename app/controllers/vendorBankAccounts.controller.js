@@ -107,7 +107,7 @@ export async function getVendorBankAccounts(req, res) {
         }
     });
 
-    if (check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
+    if (!check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
         BadRequestError(res, { unique_id: vendor_unique_id, text: "You don't have access to perform this action!" }, null);
     } else {
         VENDOR_BANK_ACCOUNTS.findAndCountAll({
@@ -142,7 +142,7 @@ export async function getVendorDefaultBankAccount(req, res) {
         }
     });
 
-    if (check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
+    if (!check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
         BadRequestError(res, { unique_id: vendor_unique_id, text: "You don't have access to perform this action!" }, null);
     } else {
         VENDOR_BANK_ACCOUNTS.findOne({
@@ -177,7 +177,7 @@ export async function getVendorBankAccount(req, res) {
         }
     });
 
-    if (check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
+    if (!check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
         BadRequestError(res, { unique_id: vendor_unique_id, text: "You don't have access to perform this action!" }, null);
     } else {
         const errors = validationResult(req);
@@ -218,7 +218,7 @@ export async function addVendorBankAccount(req, res) {
         }
     });
 
-    if (check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
+    if (!check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
         BadRequestError(res, { unique_id: vendor_unique_id, text: "You don't have access to perform this action!" }, null);
     } else {
         const errors = validationResult(req);
@@ -267,7 +267,7 @@ export async function updateVendorBankAccount(req, res) {
         }
     });
 
-    if (check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
+    if (!check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
         BadRequestError(res, { unique_id: vendor_unique_id, text: "You don't have access to perform this action!" }, null);
     } else {
         const errors = validationResult(req);
@@ -317,7 +317,7 @@ export async function changeVendorDefaultBankAccount(req, res) {
         }
     });
 
-    if (check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
+    if (!check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
         BadRequestError(res, { unique_id: vendor_unique_id, text: "You don't have access to perform this action!" }, null);
     } else {
         const errors = validationResult(req);
@@ -382,7 +382,7 @@ export async function deleteVendorBankAccount(req, res) {
         }
     });
 
-    if (check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
+    if (!check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
         BadRequestError(res, { unique_id: vendor_unique_id, text: "You don't have access to perform this action!" }, null);
     } else {
         const errors = validationResult(req);

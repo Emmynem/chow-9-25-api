@@ -156,7 +156,7 @@ export async function getProducts(req, res) {
         }
     });
 
-    if (check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
+    if (!check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
         BadRequestError(res, { unique_id: vendor_unique_id, text: "You don't have access to perform this action!" }, null);
     } else {
         PRODUCTS.findAndCountAll({
@@ -205,7 +205,7 @@ export async function getProduct(req, res) {
         }
     });
 
-    if (check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
+    if (!check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
         BadRequestError(res, { unique_id: vendor_unique_id, text: "You don't have access to perform this action!" }, null);
     } else {
         const errors = validationResult(req);
@@ -260,7 +260,7 @@ export async function addProduct(req, res) {
         }
     });
 
-    if (check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
+    if (!check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
         BadRequestError(res, { unique_id: vendor_unique_id, text: "You don't have access to perform this action!" }, null);
     } else {
         const errors = validationResult(req);
@@ -283,6 +283,7 @@ export async function addProduct(req, res) {
                             name: product_name,
                             stripped,
                             ...payload,
+                            remaining: !payload.remaining ? payload.quantity : payload.remaining,
                             views: zero,
                             favorites: zero,
                             good_rating: zero,
@@ -316,7 +317,7 @@ export async function addProductImage(req, res) {
         }
     });
 
-    if (check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
+    if (!check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
         if (req.files['image'] !== undefined) platform_remove_unwanted_file('image', vendor_unique_id, req);
         BadRequestError(res, { unique_id: vendor_unique_id, text: "You don't have access to perform this action!" }, null);
     } else {
@@ -397,7 +398,7 @@ export async function editProductImage(req, res) {
         }
     });
 
-    if (check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
+    if (!check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
         if (req.files['image'] !== undefined) platform_remove_unwanted_file('image', vendor_unique_id, req);
         BadRequestError(res, { unique_id: vendor_unique_id, text: "You don't have access to perform this action!" }, null);
     } else {
@@ -489,7 +490,7 @@ export async function deleteProductImage(req, res) {
         }
     });
 
-    if (check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
+    if (!check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
         BadRequestError(res, { unique_id: vendor_unique_id, text: "You don't have access to perform this action!" }, null);
     } else {
         const errors = validationResult(req);
@@ -555,7 +556,7 @@ export async function updateProductName(req, res) {
         }
     });
 
-    if (check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
+    if (!check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
         BadRequestError(res, { unique_id: vendor_unique_id, text: "You don't have access to perform this action!" }, null);
     } else {
         const errors = validationResult(req);
@@ -609,7 +610,7 @@ export async function updateProductOthers(req, res) {
         }
     });
 
-    if (check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
+    if (!check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
         BadRequestError(res, { unique_id: vendor_unique_id, text: "You don't have access to perform this action!" }, null);
     } else {
         const errors = validationResult(req);
@@ -660,7 +661,7 @@ export async function removeProduct(req, res) {
         }
     });
 
-    if (check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
+    if (!check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
         BadRequestError(res, { unique_id: vendor_unique_id, text: "You don't have access to perform this action!" }, null);
     } else {
         const errors = validationResult(req);
@@ -722,7 +723,7 @@ export async function restoreProduct(req, res) {
         }
     });
 
-    if (check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
+    if (!check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
         BadRequestError(res, { unique_id: vendor_unique_id, text: "You don't have access to perform this action!" }, null);
     } else {
         const errors = validationResult(req);

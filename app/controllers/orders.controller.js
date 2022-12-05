@@ -1920,7 +1920,7 @@ export async function updateOrderCompleted(req, res) {
         }
     });
 
-    if (check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
+    if (!check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
         BadRequestError(res, { unique_id: vendor_unique_id, text: "You don't have access to perform this action!" }, null);
     } else {
         const errors = validationResult(req);

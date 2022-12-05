@@ -81,7 +81,7 @@ export async function getTransactions(req, res) {
         }
     });
 
-    if (check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
+    if (!check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
         BadRequestError(res, { unique_id: vendor_unique_id, text: "You don't have access to perform this action!" }, null);
     } else {
         TRANSACTIONS.findAndCountAll({
@@ -117,7 +117,7 @@ export async function getTransaction(req, res) {
         }
     });
 
-    if (check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
+    if (!check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
         BadRequestError(res, { unique_id: vendor_unique_id, text: "You don't have access to perform this action!" }, null);
     } else {
         const errors = validationResult(req);
@@ -158,7 +158,7 @@ export async function addTransaction(req, res) {
         }
     });
 
-    if (check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
+    if (!check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
         BadRequestError(res, { unique_id: vendor_unique_id, text: "You don't have access to perform this action!" }, null);
     } else {
         const errors = validationResult(req);
@@ -267,7 +267,7 @@ export async function addServiceChargePayment(req, res) {
         }
     });
 
-    if (check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
+    if (!check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
         BadRequestError(res, { unique_id: vendor_unique_id, text: "You don't have access to perform this action!" }, null);
     } else {
         const errors = validationResult(req);
@@ -501,7 +501,7 @@ export async function addWithdrawal(req, res) {
         then uncomment the lines of code below and remove the present if statement.
     */
 
-    // if (check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
+    // if (!check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
     //     BadRequestError(res, { unique_id: vendor_unique_id, text: "You don't have access to perform this action!" }, null);
     // } 
     if (vendor_user_routes.routes !== super_admin_routes) {
@@ -695,7 +695,7 @@ export async function cancelServiceChargePayment(req, res) {
         }
     });
 
-    if (check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
+    if (!check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
         BadRequestError(res, { unique_id: vendor_unique_id, text: "You don't have access to perform this action!" }, null);
     } else {
         const errors = validationResult(req);
@@ -812,7 +812,7 @@ export async function cancelWithdrawal(req, res) {
         }
     });
 
-    if (check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
+    if (!check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
         BadRequestError(res, { unique_id: vendor_unique_id, text: "You don't have access to perform this action!" }, null);
     } else {
         const errors = validationResult(req);
@@ -1092,7 +1092,7 @@ export async function updateTransaction(req, res) {
         }
     });
 
-    if (check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
+    if (!check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
         BadRequestError(res, { unique_id: vendor_unique_id, text: "You don't have access to perform this action!" }, null);
     } else {
         const errors = validationResult(req);
@@ -1143,7 +1143,7 @@ export async function removeTransaction(req, res) {
         }
     });
 
-    if (check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
+    if (!check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
         BadRequestError(res, { unique_id: vendor_unique_id, text: "You don't have access to perform this action!" }, null);
     } else {
         const errors = validationResult(req);
@@ -1194,7 +1194,7 @@ export async function restoreTransaction(req, res) {
         }
     });
 
-    if (check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
+    if (!check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
         BadRequestError(res, { unique_id: vendor_unique_id, text: "You don't have access to perform this action!" }, null);
     } else {
         const errors = validationResult(req);
