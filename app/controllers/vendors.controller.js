@@ -1,8 +1,14 @@
 import { validationResult, matchedData } from 'express-validator';
 import moment from 'moment';
 import fs from "fs";
+import path from 'path';
 import { ServerError, SuccessResponse, ValidationError, OtherSuccessResponse, NotFoundError, BadRequestError, logger } from '../common/index.js';
-import { access_granted, access_revoked, access_suspended, default_delete_status, default_status, false_status, true_status, tag_admin, platform_documents_path } from '../config/config.js';
+import { 
+    access_granted, access_revoked, access_suspended, default_delete_status, default_status, false_status, true_status, tag_admin, 
+    platform_documents_path, platform_rename_document, cover_image_document_name, profile_image_document_name, save_platform_document_path, save_document_domain, 
+    save_platform_document_dir, platform_join_path_and_file, platform_remove_unwanted_file, platform_remove_file, platform_documents_path_alt, 
+    file_length_5Mb
+} from '../config/config.js';
 import db from "../models/index.js";
 
 const VENDORS = db.vendors;
@@ -16,7 +22,7 @@ const TRANSACTIONS = db.transactions;
 const OTPS = db.otps;
 const Op = db.Sequelize.Op;
 
-const { existsSync, rmdirSync } = fs;
+const { existsSync, rmdirSync, rename } = fs;
 
 export function rootGetVendors(req, res) {
     VENDORS.findAndCountAll({
@@ -111,6 +117,142 @@ export async function updateVendor(req, res) {
             });
         } catch (err) {
             ServerError(res, { unique_id: vendor_unique_id, text: err.message }, null);
+        }
+    }
+};
+
+export async function updateProfileImage(req, res) {
+    const vendor_unique_id = req.VENDOR_UNIQUE_ID || payload.unique_id || '';
+    const errors = validationResult(req);
+    const payload = matchedData(req);
+
+    if (!errors.isEmpty()) {
+        if (req.files['profile_image'] !== undefined) platform_remove_unwanted_file('profile_image', vendor_unique_id, req);
+        ValidationError(res, { unique_id: vendor_unique_id, text: "Validation Error Occured" }, errors.array())
+    } else {
+        if (req.files === undefined || req.files['profile_image'] === undefined) {
+            BadRequestError(res, { unique_id: vendor_unique_id, text: "Profile Image is required" });
+        } else {
+            if (req.files['profile_image'][0].size > file_length_5Mb) {
+                if (req.files['profile_image'] !== undefined) platform_remove_unwanted_file('profile_image', vendor_unique_id, req);
+                BadRequestError(res, { unique_id: vendor_unique_id, text: "File size limit reached (5MB)" });
+            } else {
+                try {
+                    const vendor = await VENDORS.findOne({
+                        where: {
+                            unique_id: vendor_unique_id,
+                            status: default_status
+                        }
+                    });
+
+                    const profile_image_renamed = platform_rename_document(vendor.name, profile_image_document_name, req.files['profile_image'][0].originalname);
+                    const saved_profile_image = save_platform_document_path + profile_image_renamed;
+                    const profile_image_size = req.files['profile_image'][0].size;
+
+                    rename(platform_join_path_and_file('profile_image', vendor_unique_id, req), path.join(platform_documents_path_alt(), vendor_unique_id, profile_image_renamed), async function (err) {
+                        if (err) {
+                            if (req.files['profile_image'] !== undefined) platform_remove_unwanted_file('profile_image', vendor_unique_id, req);
+                            BadRequestError(res, { unique_id: vendor_unique_id, text: "Error uploading file ..." });
+                        } else {
+                            await db.sequelize.transaction(async (transaction) => {
+                                const profile_image = await VENDORS.update(
+                                    {
+                                        profile_image_base_url: save_document_domain,
+                                        profile_image_dir: save_platform_document_dir,
+                                        profile_image: saved_profile_image,
+                                        profile_image_file: profile_image_renamed,
+                                        profile_image_size,
+                                    }, {
+                                        where: {
+                                            unique_id: vendor_unique_id,
+                                            status: default_status
+                                        },
+                                        transaction
+                                    }
+                                );
+
+                                if (profile_image > 0) {
+                                    if (vendor.profile_image_file !== null) platform_remove_file(vendor.profile_image_file, vendor_unique_id);
+                                    OtherSuccessResponse(res, { unique_id: vendor_unique_id, text: `${vendor.name} Profile Image was updated successfully!` });
+                                } else {
+                                    throw new Error("Error saving profile image");
+                                }
+                            });
+                        }
+                    })
+                } catch (err) {
+                    if (req.files['profile_image'] !== undefined) platform_remove_unwanted_file('profile_image', vendor_unique_id, req);
+                    ServerError(res, { unique_id: vendor_unique_id, text: err.message }, null);
+                }
+            }
+        }
+    }
+};
+
+export async function updateCoverImage(req, res) {
+    const vendor_unique_id = req.VENDOR_UNIQUE_ID || payload.unique_id || '';
+    const errors = validationResult(req);
+    const payload = matchedData(req);
+
+    if (!errors.isEmpty()) {
+        if (req.files['cover_image'] !== undefined) platform_remove_unwanted_file('cover_image', vendor_unique_id, req);
+        ValidationError(res, { unique_id: vendor_unique_id, text: "Validation Error Occured" }, errors.array())
+    } else {
+        if (req.files === undefined || req.files['cover_image'] === undefined) {
+            BadRequestError(res, { unique_id: vendor_unique_id, text: "Cover Image is required" });
+        } else {
+            if (req.files['cover_image'][0].size > file_length_5Mb) {
+                if (req.files['cover_image'] !== undefined) platform_remove_unwanted_file('cover_image', vendor_unique_id, req);
+                BadRequestError(res, { unique_id: vendor_unique_id, text: "File size limit reached (5MB)" });
+            } else {
+                try {
+                    const vendor = await VENDORS.findOne({
+                        where: {
+                            unique_id: vendor_unique_id,
+                            status: default_status
+                        }
+                    });
+
+                    const cover_image_renamed = platform_rename_document(vendor.name, cover_image_document_name, req.files['cover_image'][0].originalname);
+                    const saved_cover_image = save_platform_document_path + cover_image_renamed;
+                    const cover_image_size = req.files['cover_image'][0].size;
+
+                    rename(platform_join_path_and_file('cover_image', vendor_unique_id, req), path.join(platform_documents_path_alt(), vendor_unique_id, cover_image_renamed), async function (err) {
+                        if (err) {
+                            if (req.files['cover_image'] !== undefined) platform_remove_unwanted_file('cover_image', vendor_unique_id, req);
+                            BadRequestError(res, { unique_id: vendor_unique_id, text: "Error uploading file ..." });
+                        } else {
+                            await db.sequelize.transaction(async (transaction) => {
+                                const cover_image = await VENDORS.update(
+                                    {
+                                        cover_image_base_url: save_document_domain,
+                                        cover_image_dir: save_platform_document_dir,
+                                        cover_image: saved_cover_image,
+                                        cover_image_file: cover_image_renamed,
+                                        cover_image_size,
+                                    }, {
+                                        where: {
+                                            unique_id: vendor_unique_id,
+                                            status: default_status
+                                        },
+                                        transaction
+                                    }
+                                );
+
+                                if (cover_image > 0) {
+                                    if (vendor.cover_image_file !== null) platform_remove_file(vendor.cover_image_file, vendor_unique_id);
+                                    OtherSuccessResponse(res, { unique_id: vendor_unique_id, text: `${vendor.name} Cover Image was updated successfully!` });
+                                } else {
+                                    throw new Error("Error saving cover image");
+                                }
+                            });
+                        }
+                    })
+                } catch (err) {
+                    if (req.files['cover_image'] !== undefined) platform_remove_unwanted_file('cover_image', vendor_unique_id, req);
+                    ServerError(res, { unique_id: vendor_unique_id, text: err.message }, null);
+                }
+            }
         }
     }
 };
