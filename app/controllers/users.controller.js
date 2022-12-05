@@ -167,7 +167,7 @@ export async function updateProfileImage(req, res) {
 
                                 if (profile_image > 0) {
                                     if (user.profile_image_file !== null) user_remove_file(user.profile_image_file, user_unique_id);
-                                    OtherSuccessResponse(res, { unique_id: user_unique_id, text: `${user.firstname + (user.middlename !== null ? " " + user.middlename + " " : " ") + user.lastname} Profifle Image was updated successfully!` });
+                                    OtherSuccessResponse(res, { unique_id: user_unique_id, text: `${user.firstname + (user.middlename !== null ? " " + user.middlename + " " : " ") + user.lastname} Profile Image was updated successfully!` });
                                 } else {
                                     throw new Error("Error saving profile image");
                                 }
