@@ -127,7 +127,7 @@ export async function updateProfileImage(req, res) {
     const payload = matchedData(req);
 
     if (!errors.isEmpty()) {
-        if (req.files['profile_image'] !== undefined) platform_remove_unwanted_file('profile_image', vendor_unique_id, req);
+        if (req.files !== undefined && req.files['profile_image'] !== undefined) platform_remove_unwanted_file('profile_image', vendor_unique_id, req);
         ValidationError(res, { unique_id: vendor_unique_id, text: "Validation Error Occured" }, errors.array())
     } else {
         if (req.files === undefined || req.files['profile_image'] === undefined) {
@@ -195,7 +195,7 @@ export async function updateCoverImage(req, res) {
     const payload = matchedData(req);
 
     if (!errors.isEmpty()) {
-        if (req.files['cover_image'] !== undefined) platform_remove_unwanted_file('cover_image', vendor_unique_id, req);
+        if (req.files !== undefined && req.files['cover_image'] !== undefined) platform_remove_unwanted_file('cover_image', vendor_unique_id, req);
         ValidationError(res, { unique_id: vendor_unique_id, text: "Validation Error Occured" }, errors.array())
     } else {
         if (req.files === undefined || req.files['cover_image'] === undefined) {

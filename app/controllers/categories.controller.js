@@ -143,7 +143,7 @@ export async function addCategoryImage(req, res) {
     const payload = matchedData(req);
 
     if (!errors.isEmpty()) {
-        if (req.files['image'] !== undefined) image_remove_unwanted_file('image', req);
+        if (req.files !== undefined && req.files['image'] !== undefined) image_remove_unwanted_file('image', req);
         ValidationError(res, { unique_id: tag_admin, text: "Validation Error Occured" }, errors.array())
     } else {
         if (req.files === undefined || req.files['image'] === undefined) {
@@ -208,7 +208,7 @@ export async function editCategoryImage(req, res) {
     const payload = matchedData(req);
 
     if (!errors.isEmpty()) {
-        if (req.files['image'] !== undefined) image_remove_unwanted_file('image', req);
+        if (req.files !== undefined && req.files['image'] !== undefined) image_remove_unwanted_file('image', req);
         ValidationError(res, { unique_id: tag_admin, text: "Validation Error Occured" }, errors.array())
     } else {
         if (req.files === undefined || req.files['image'] === undefined) {

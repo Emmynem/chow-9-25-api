@@ -318,14 +318,14 @@ export async function addProductImage(req, res) {
     });
 
     if (!check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
-        if (req.files['image'] !== undefined) platform_remove_unwanted_file('image', vendor_unique_id, req);
+        if (req.files !== undefined && req.files['image'] !== undefined) platform_remove_unwanted_file('image', vendor_unique_id, req);
         BadRequestError(res, { unique_id: vendor_unique_id, text: "You don't have access to perform this action!" }, null);
     } else {
         const errors = validationResult(req);
         const payload = matchedData(req);
     
         if (!errors.isEmpty()) {
-            if (req.files['image'] !== undefined) platform_remove_unwanted_file('image', vendor_unique_id, req);
+            if (req.files !== undefined && req.files['image'] !== undefined) platform_remove_unwanted_file('image', vendor_unique_id, req);
             ValidationError(res, { unique_id: vendor_unique_id, text: "Validation Error Occured" }, errors.array())
         } else {
             if (req.files === undefined || req.files['image'] === undefined) {
@@ -399,14 +399,14 @@ export async function editProductImage(req, res) {
     });
 
     if (!check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
-        if (req.files['image'] !== undefined) platform_remove_unwanted_file('image', vendor_unique_id, req);
+        if (req.files !== undefined && req.files['image'] !== undefined) platform_remove_unwanted_file('image', vendor_unique_id, req);
         BadRequestError(res, { unique_id: vendor_unique_id, text: "You don't have access to perform this action!" }, null);
     } else {
         const errors = validationResult(req);
         const payload = matchedData(req);
 
         if (!errors.isEmpty()) {
-            if (req.files['image'] !== undefined) platform_remove_unwanted_file('image', vendor_unique_id, req);
+            if (req.files !== undefined && req.files['image'] !== undefined) platform_remove_unwanted_file('image', vendor_unique_id, req);
             ValidationError(res, { unique_id: vendor_unique_id, text: "Validation Error Occured" }, errors.array())
         } else {
             if (req.files === undefined || req.files['image'] === undefined) {

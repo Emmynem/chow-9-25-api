@@ -121,7 +121,7 @@ export async function updateProfileImage(req, res) {
     const payload = matchedData(req);
 
     if (!errors.isEmpty()) {
-        if (req.files['profile_image'] !== undefined) user_remove_unwanted_file('profile_image', user_unique_id, req);
+        if (req.files !== undefined && req.files['profile_image'] !== undefined) user_remove_unwanted_file('profile_image', user_unique_id, req);
         ValidationError(res, { unique_id: user_unique_id, text: "Validation Error Occured" }, errors.array())
     } else {
         if (req.files === undefined || req.files['profile_image'] === undefined) {
