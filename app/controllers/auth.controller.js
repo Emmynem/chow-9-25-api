@@ -527,24 +527,18 @@ export async function vendorUserSignin(req, res) {
             try {
                 await db.sequelize.transaction(async (transaction) => {
 
-                    const vendor = await VENDORS.findOne({ 
-                        where: { 
-                            stripped: req.params.stripped, 
-                            status: default_status 
-                        },
-                        transaction
-                    });
-    
-                    const vendor_user = await VENDOR_USERS.findOne({
-                        where: {
-                            vendor_unique_id: vendor.unique_id,
-                            email: payload.email,
-                            status: default_status
-                        },
-                        transaction
-                    });
-    
+                    const vendor = await VENDORS.findOne({ where: { stripped: req.params.stripped, status: default_status }, transaction });
+                    
                     if (vendor) {
+                        const vendor_user = await VENDOR_USERS.findOne({
+                            where: {
+                                vendor_unique_id: vendor.unique_id,
+                                email: payload.email,
+                                status: default_status
+                            },
+                            transaction
+                        });
+                        
                         if (!vendor_user) {
                             NotFoundError(res, { unique_id: payload.email, text: "User not found" }, null);
                         } else if (vendor_user.access === access_suspended) {
@@ -589,24 +583,18 @@ export async function vendorUserSignin(req, res) {
             try {
                 await db.sequelize.transaction(async (transaction) => {
 
-                    const vendor = await VENDORS.findOne({
-                        where: {
-                            stripped: req.params.stripped,
-                            status: default_status
-                        },
-                        transaction
-                    });
-    
-                    const vendor_user = await VENDOR_USERS.findOne({
-                        where: {
-                            vendor_unique_id: vendor.unique_id,
-                            mobile_number: payload.mobile_number,
-                            status: default_status
-                        },
-                        transaction
-                    });
-    
+                    const vendor = await VENDORS.findOne({ where: { stripped: req.params.stripped, status: default_status }, transaction });
+
                     if (vendor) {
+                        const vendor_user = await VENDOR_USERS.findOne({
+                            where: {
+                                vendor_unique_id: vendor.unique_id,
+                                mobile_number: payload.mobile_number,
+                                status: default_status
+                            },
+                            transaction
+                        });
+                        
                         if (!vendor_user) {
                             NotFoundError(res, { unique_id: payload.mobile_number, text: "User not found" }, null);
                         } else if (vendor_user.access === access_suspended) {
