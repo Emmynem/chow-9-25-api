@@ -43,8 +43,7 @@ export function rootGetMenu(req, res) {
 
     if (!errors.isEmpty()) {
         ValidationError(res, { unique_id: tag_admin, text: "Validation Error Occured" }, errors.array())
-    }
-    else {
+    } else {
         MENUS.findOne({
             attributes: { exclude: ['id'] },
             where: {
@@ -65,6 +64,43 @@ export function rootGetMenu(req, res) {
                 NotFoundError(res, { unique_id: tag_admin, text: "Menu not found" }, null);
             } else {
                 SuccessResponse(res, { unique_id: tag_admin, text: "Menu loaded" }, menu);
+            }
+        }).catch(err => {
+            ServerError(res, { unique_id: tag_admin, text: err.message }, null);
+        });
+    }
+};
+
+export function rootGetMenusSpecifically(req, res) {
+    const errors = validationResult(req);
+    const payload = matchedData(req);
+
+    if (!errors.isEmpty()) {
+        ValidationError(res, { unique_id: tag_admin, text: "Validation Error Occured" }, errors.array())
+    } else {
+        MENUS.findAndCountAll({
+            attributes: { exclude: ['id'] },
+            where: {
+                ...payload
+            },
+            order: [
+                ['createdAt', 'DESC']
+            ],
+            include: [
+                {
+                    model: VENDORS,
+                    attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'pro']
+                },
+                {
+                    model: VENDOR_USERS,
+                    attributes: ['firstname', 'middlename', 'lastname', 'email', 'mobile_number']
+                }
+            ]
+        }).then(menus => {
+            if (!menus || menus.length == 0) {
+                SuccessResponse(res, { unique_id: tag_admin, text: "Menus Not found" }, []);
+            } else {
+                SuccessResponse(res, { unique_id: tag_admin, text: "Menus loaded" }, menus);
             }
         }).catch(err => {
             ServerError(res, { unique_id: tag_admin, text: err.message }, null);

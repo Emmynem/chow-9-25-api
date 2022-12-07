@@ -32,6 +32,41 @@ export function rootGetNotifications (req, res) {
     });
 };
 
+export function rootGetNotificationsSpecifically(req, res) {
+    const errors = validationResult(req);
+    const payload = matchedData(req);
+
+    if (!errors.isEmpty()) {
+        ValidationError(res, { unique_id: tag_admin, text: "Validation Error Occured" }, errors.array())
+    } else {
+        NOTIFICATIONS.findAndCountAll({
+            attributes: { exclude: ['id'] },
+            where: {
+                ...payload  
+            },
+            order: [
+                ['createdAt', 'DESC']
+            ],
+            include: [
+                {
+                    model: USERS,
+                    attributes: ['firstname', 'middlename', 'lastname', 'email', 'mobile_number', 'profile_image']
+                }
+            ],
+        }).then(notifications => {
+            if (!notifications || notifications.length == 0) {
+                SuccessResponse(res, { unique_id: tag_admin, text: "Notifications Not found" }, []);
+            } else {
+                NOTIFICATIONS.count({ where: { seen: false_status } }).then(data => {
+                    SuccessResponse(res, { unique_id: tag_admin, text: "Notifications loaded" }, { ...notifications, unread: data });
+                });
+            }
+        }).catch(err => {
+            ServerError(res, { unique_id: tag_admin, text: err.message }, null);
+        });
+    }
+};
+
 export function getUserNotifications (req, res) {
     const user_unique_id = req.UNIQUE_ID;
 
@@ -159,8 +194,7 @@ export async function updateUserNotificationSeen (req, res) {
 
     if (!errors.isEmpty()) {
         ValidationError(res, { unique_id: user_unique_id, text: "Validation Error Occured" }, errors.array())
-    }
-    else {
+    } else {
         try {
             await db.sequelize.transaction(async (transaction) => {
                 
@@ -196,8 +230,7 @@ export async function removeUserNotification(req, res) {
 
     if (!errors.isEmpty()) {
         ValidationError(res, { unique_id: user_unique_id, text: "Validation Error Occured" }, errors.array())
-    }
-    else {
+    } else {
         try {
             await db.sequelize.transaction(async (transaction) => {
 

@@ -144,6 +144,30 @@ export const order_rules = {
                 });
             })
     ],
+    forFindingOrderAltByUser: [
+        check('user_unique_id', "User Unique Id is required")
+            .exists({ checkNull: true, checkFalsy: true })
+            .bail()
+            .custom(user_unique_id => {
+                return USERS.findOne({ where: { unique_id: user_unique_id, status: default_status } }).then(data => {
+                    if (!data) return Promise.reject('User not found!');
+                });
+            }),
+        check('order_unique_id', "Order Unique Id is required")
+            .exists({ checkNull: true, checkFalsy: true })
+            .bail()
+            .custom((order_unique_id, { req }) => {
+                return ORDERS.findOne({ 
+                    where: {
+                        unique_id: order_unique_id,
+                        user_unique_id: req.query.user_unique_id || req.body.user_unique_id || '',
+                        status: default_status
+                    }
+                }).then(data => {
+                    if (!data) return Promise.reject('Order not found!');
+                });
+            })
+    ],
     forFindingOrderViaTrackingNumberAlt: [
         check('tracking_number', "Tracking Number is required")
             .exists({ checkNull: true, checkFalsy: true })
