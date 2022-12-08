@@ -138,11 +138,11 @@ db.menus.belongsTo(db.products, { foreignKey: 'unique_id', targetKey: 'menu_uniq
 
 //    - Product Images Associations
 db.product_images.hasMany(db.products, { foreignKey: 'unique_id', sourceKey: 'product_unique_id' });
-db.products.belongsTo(db.product_images, { foreignKey: 'unique_id', targetKey: 'product_unique_id' });
+db.products.hasMany(db.product_images, { sourceKey: 'unique_id', foreignKey: 'product_unique_id' });
 
 //    - Category Images Associations
 db.category_images.hasMany(db.categories, { foreignKey: 'unique_id', sourceKey: 'category_unique_id' });
-db.categories.belongsTo(db.category_images, { foreignKey: 'unique_id', targetKey: 'category_unique_id' });
+db.categories.hasMany(db.category_images, { sourceKey: 'unique_id', foreignKey: 'category_unique_id' });
 
 //    - Menus Associations
 db.menus.hasMany(db.vendors, { foreignKey: 'unique_id', sourceKey: 'vendor_unique_id' });

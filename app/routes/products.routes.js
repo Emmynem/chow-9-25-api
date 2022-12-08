@@ -4,6 +4,7 @@ import { vendor_rules } from "../rules/vendors.rules.js";
 import { vendor_user_rules } from "../rules/vendorUsers.rules.js";
 import { menu_rules } from "../rules/menus.rule.js";
 import { category_rules } from "../rules/categories.rules.js";
+import { vendorProductMiddleware } from "../middleware/products.middleware.js";
 import {
     addProduct, addProductImage, deleteProductImage, editProductImage, getProduct, getProducts, 
     removeProduct, restoreProduct, rootGetProduct, rootGetProducts, rootGetProductsSpecifically, 
@@ -25,7 +26,7 @@ export default function (app) {
     app.get("/products/via/vendor/menu/:vendor_stripped/:menu_stripped", getProductsByVendorMenuGenerally);
     app.get("/products/via/vendor/category/:vendor_stripped/:category_stripped", getProductsByVendorCategoryGenerally);
     app.get("/products/via/category/:stripped", getProductsByCategoryGenerally);
-    app.get("/product/:stripped", getProductGenerally);
+    app.get("/product/:vendor_stripped/:stripped", getProductGenerally);
 
     app.get("/vendors/products", [checks.verifyVendorUserToken, checks.isVendorUser], getProducts);
     app.get("/vendors/product", [checks.verifyVendorUserToken, checks.isVendorUser, product_rules.forFindingProduct], getProduct);
@@ -33,7 +34,7 @@ export default function (app) {
     app.post("/vendors/product", [checks.verifyVendorUserToken, checks.isVendorUser, product_rules.forAdding], addProduct);
     app.post("/vendors/product/image", [checks.verifyVendorUserToken, checks.isVendorUser, vendorProductMiddleware, product_rules.forFindingProductAlt], addProductImage);
 
-    app.put("/vendors/product/name", [checks.verifyVendorUserToken, checks.isVendorUser, product_rules.forFindingProduct, product_rules.forEditing], updateProductName);
+    app.put("/vendors/product/name", [checks.verifyVendorUserToken, checks.isVendorUser, product_rules.forFindingProduct, product_rules.forUpdatingName], updateProductName);
     app.put("/vendors/product/description", [checks.verifyVendorUserToken, checks.isVendorUser, product_rules.forFindingProduct, product_rules.forUpdatingDescription], updateProductOthers);
     app.put("/vendors/product/criteria", [checks.verifyVendorUserToken, checks.isVendorUser, product_rules.forFindingProduct, product_rules.forUpdatingCriteria], updateProductOthers);
     app.put("/vendors/product/stock", [checks.verifyVendorUserToken, checks.isVendorUser, product_rules.forFindingProduct, product_rules.forUpdatingStock], updateProductOthers);

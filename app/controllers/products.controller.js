@@ -28,6 +28,10 @@ export function rootGetProducts(req, res) {
         ],
         include: [
             {
+                model: PRODUCT_IMAGES,
+                attributes: ['image']
+            },
+            {
                 model: VENDORS,
                 attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'pro', 'verification']
             },
@@ -72,6 +76,10 @@ export function rootGetProductsSpecifically(req, res) {
             ],
             include: [
                 {
+                    model: PRODUCT_IMAGES,
+                    attributes: ['image']
+                },
+                {
                     model: VENDORS,
                     attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'pro', 'verification']
                 },
@@ -114,6 +122,10 @@ export function rootGetProduct(req, res) {
             },
             include: [
                 {
+                    model: PRODUCT_IMAGES,
+                    attributes: ['image']
+                },
+                {
                     model: VENDORS,
                     attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'pro', 'verification']
                 },
@@ -144,17 +156,21 @@ export function rootGetProduct(req, res) {
 
 export function getProductsGenerally(req, res) {
     PRODUCTS.findAndCountAll({
-        attributes: { exclude: ['id', 'vendor_user_unique_id'] },
+        attributes: { exclude: ['id', 'vendor_user_unique_id', 'status', 'createdAt', 'updatedAt'] },
         where: {
             status: default_status
         },
         order: [
+            ['good_rating', 'DESC'],
             ['sales_price', 'ASC'],
-            ['views', 'ASC'],
-            ['favorites', 'ASC'],
-            ['good_rating', 'ASC'],
+            ['favorites', 'DESC'],
+            ['views', 'DESC'],
         ],
         include: [
+            {
+                model: PRODUCT_IMAGES,
+                attributes: ['image']
+            },
             {
                 model: VENDORS,
                 attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'verification']
@@ -192,18 +208,22 @@ export async function getProductsByVendorGenerally(req, res) {
             BadRequestError(res, { unique_id: anonymous, text: "Vendor Products not found!" }, null);
         } else {
             PRODUCTS.findAndCountAll({
-                attributes: { exclude: ['id', 'vendor_user_unique_id'] },
+                attributes: { exclude: ['id', 'vendor_user_unique_id', 'status', 'createdAt', 'updatedAt'] },
                 where: {
                     vendor_unique_id: vendors.unique_id,
                     status: default_status
                 },
                 order: [
+                    ['good_rating', 'DESC'],
                     ['sales_price', 'ASC'],
-                    ['views', 'ASC'],
-                    ['favorites', 'ASC'],
-                    ['good_rating', 'ASC'],
+                    ['favorites', 'DESC'],
+                    ['views', 'DESC'],
                 ],
                 include: [
+                    {
+                        model: PRODUCT_IMAGES,
+                        attributes: ['image']
+                    },
                     {
                         model: VENDORS,
                         attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'verification']
@@ -246,19 +266,23 @@ export async function getProductsByVendorCategoryGenerally(req, res) {
             BadRequestError(res, { unique_id: anonymous, text: "Vendor Category Products not found!" }, null);
         } else {
             PRODUCTS.findAndCountAll({
-                attributes: { exclude: ['id', 'vendor_user_unique_id'] },
+                attributes: { exclude: ['id', 'vendor_user_unique_id', 'status', 'createdAt', 'updatedAt'] },
                 where: {
                     vendor_unique_id: vendors.unique_id,
                     category_unique_id: categories.unique_id,
                     status: default_status
                 },
                 order: [
+                    ['good_rating', 'DESC'],
                     ['sales_price', 'ASC'],
-                    ['views', 'ASC'],
-                    ['favorites', 'ASC'],
-                    ['good_rating', 'ASC'],
+                    ['favorites', 'DESC'],
+                    ['views', 'DESC'],
                 ],
                 include: [
+                    {
+                        model: PRODUCT_IMAGES,
+                        attributes: ['image']
+                    },
                     {
                         model: VENDORS,
                         attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'verification']
@@ -303,19 +327,23 @@ export async function getProductsByVendorMenuGenerally(req, res) {
                 BadRequestError(res, { unique_id: anonymous, text: "Vendor Menu Products not found!" }, null);
             } else {
                 PRODUCTS.findAndCountAll({
-                    attributes: { exclude: ['id', 'vendor_user_unique_id'] },
+                    attributes: { exclude: ['id', 'vendor_user_unique_id', 'status', 'createdAt', 'updatedAt'] },
                     where: {
                         vendor_unique_id: vendors.unique_id,
                         menu_unique_id: menus.unique_id,
                         status: default_status
                     },
                     order: [
+                        ['good_rating', 'DESC'],
                         ['sales_price', 'ASC'],
-                        ['views', 'ASC'],
-                        ['favorites', 'ASC'],
-                        ['good_rating', 'ASC'],
+                        ['favorites', 'DESC'],
+                        ['views', 'DESC'],
                     ],
                     include: [
+                        {
+                            model: PRODUCT_IMAGES,
+                            attributes: ['image']
+                        },
                         {
                             model: VENDORS,
                             attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'verification']
@@ -351,18 +379,22 @@ export async function getProductsByCategoryGenerally(req, res) {
         BadRequestError(res, { unique_id: anonymous, text: "Category not found!" }, null);
     } else {
         PRODUCTS.findAndCountAll({
-            attributes: { exclude: ['id', 'vendor_user_unique_id'] },
+            attributes: { exclude: ['id', 'vendor_user_unique_id', 'status', 'createdAt', 'updatedAt'] },
             where: {
                 category_unique_id: categories.unique_id,
                 status: default_status
             },
             order: [
+                ['good_rating', 'DESC'],
                 ['sales_price', 'ASC'],
-                ['views', 'ASC'],
-                ['favorites', 'ASC'],
-                ['good_rating', 'ASC'],
+                ['favorites', 'DESC'],
+                ['views', 'DESC'],
             ],
             include: [
+                {
+                    model: PRODUCT_IMAGES,
+                    attributes: ['image']
+                },
                 {
                     model: VENDORS,
                     attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'verification']
@@ -388,42 +420,52 @@ export async function getProductsByCategoryGenerally(req, res) {
     }
 };
 
-export function getProductGenerally(req, res) {
-    const errors = validationResult(req);
-    const payload = matchedData(req);
+export async function getProductGenerally(req, res) {
+    const vendors = await VENDORS.findOne({ where: { stripped: req.params.vendor_stripped, status: default_status } });
 
-    if (!errors.isEmpty()) {
-        ValidationError(res, { unique_id: anonymous, text: "Validation Error Occured" }, errors.array())
+    if (!vendors) {
+        BadRequestError(res, { unique_id: anonymous, text: "Vendor not found!" }, null);
     } else {
-        PRODUCTS.findOne({
-            attributes: { exclude: ['vendor_user_unique_id', 'id'] },
-            where: {
-                stripped: req.params.stripped,
-                status: default_status
-            },
-            include: [
-                {
-                    model: VENDORS,
-                    attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'verification']
+        const vendor_product = await PRODUCTS.findOne({ where: { vendor_unique_id: vendors.unique_id, stripped: req.params.stripped, status: default_status } });
+
+        if (!vendor_product) {
+            BadRequestError(res, { unique_id: anonymous, text: "Vendor Product not found!" }, null);
+        } else {
+            PRODUCTS.findOne({
+                attributes: { exclude: ['id', 'vendor_user_unique_id', 'status', 'createdAt', 'updatedAt'] },
+                where: {
+                    vendor_unique_id: vendors.unique_id,
+                    stripped: req.params.stripped,
+                    status: default_status
                 },
-                {
-                    model: MENUS,
-                    attributes: ['name', 'stripped', 'start_time', 'end_time']
-                },
-                {
-                    model: CATEGORIES,
-                    attributes: ['name', 'stripped']
+                include: [
+                    {
+                        model: PRODUCT_IMAGES,
+                        attributes: ['image']
+                    },
+                    {
+                        model: VENDORS,
+                        attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'verification']
+                    },
+                    {
+                        model: MENUS,
+                        attributes: ['name', 'stripped', 'start_time', 'end_time']
+                    },
+                    {
+                        model: CATEGORIES,
+                        attributes: ['name', 'stripped']
+                    }
+                ]
+            }).then(product => {
+                if (!product) {
+                    NotFoundError(res, { unique_id: anonymous, text: "Product not found" }, null);
+                } else {
+                    SuccessResponse(res, { unique_id: anonymous, text: "Product loaded" }, product);
                 }
-            ]
-        }).then(product => {
-            if (!product) {
-                NotFoundError(res, { unique_id: anonymous, text: "Product not found" }, null);
-            } else {
-                SuccessResponse(res, { unique_id: anonymous, text: "Product loaded" }, product);
-            }
-        }).catch(err => {
-            ServerError(res, { unique_id: anonymous, text: err.message }, null);
-        });
+            }).catch(err => {
+                ServerError(res, { unique_id: anonymous, text: err.message }, null);
+            });
+        }
     }
 };
 
@@ -451,6 +493,10 @@ export async function getProducts(req, res) {
                 ['createdAt', 'DESC']
             ],
             include: [
+                {
+                    model: PRODUCT_IMAGES,
+                    attributes: ['image']
+                },
                 {
                     model: VENDOR_USERS,
                     attributes: ['firstname', 'middlename', 'lastname', 'email', 'mobile_number']
@@ -505,6 +551,10 @@ export async function getProduct(req, res) {
                     status: default_status
                 },
                 include: [
+                    {
+                        model: PRODUCT_IMAGES,
+                        attributes: ['image']
+                    },
                     {
                         model: VENDOR_USERS,
                         attributes: ['firstname', 'middlename', 'lastname', 'email', 'mobile_number']
