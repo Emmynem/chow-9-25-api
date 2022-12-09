@@ -130,12 +130,12 @@ export function getFavorites(req, res) {
     const user_unique_id = req.UNIQUE_ID;
 
     FAVORITES.findAndCountAll({
-        attributes: { exclude: ['id', 'user_unique_id', 'createdAt', 'updatedAt'] },
+        attributes: { exclude: ['id', 'user_unique_id', 'createdAt', 'status'] },
         where: {
             user_unique_id
         },
         order: [
-            ['createdAt', 'DESC']
+            ['updatedAt', 'DESC']
         ],
         include: [
             {
@@ -169,7 +169,7 @@ export function getFavoriteSpecifically(req, res) {
         ValidationError(res, { unique_id: user_unique_id, text: "Validation Error Occured" }, errors.array())
     } else {
         FAVORITES.findOne({
-            attributes: { exclude: ['id'] },
+            attributes: { exclude: ['id', 'user_unique_id', 'createdAt', 'status'] },
             where: {
                 user_unique_id,
                 ...payload,
@@ -220,10 +220,12 @@ export async function addFavorite(req, res) {
                 });
     
                 if (last_favorite) {
+                    const product_favorites = await PRODUCTS.decrement({ favorites: 1 }, { where: { unique_id: payload.product_unique_id }, transaction });
+
                     const favorite = await FAVORITES.destroy(
                         {
                             where: {
-                                unique_id: payload.unique_id,
+                                unique_id: last_favorite.unique_id,
                                 user_unique_id,
                                 status: default_status
                             },
@@ -237,6 +239,8 @@ export async function addFavorite(req, res) {
                         throw new Error("Error deleting favorite");
                     }
                 } else {
+                    const product_favorites = await PRODUCTS.increment({ favorites: 1 }, { where: { unique_id: payload.product_unique_id }, transaction });
+
                     const favorite = await FAVORITES.create(
                         {
                             ...payload,
@@ -270,6 +274,8 @@ export async function deleteFavorite(req, res) {
     } else {
         try {
             await db.sequelize.transaction(async (transaction) => {
+
+                const product_favorites = await PRODUCTS.decrement({ favorites: 1 }, { where: { unique_id: payload.product_unique_id }, transaction });
 
                 const favorite = await FAVORITES.destroy(
                     {

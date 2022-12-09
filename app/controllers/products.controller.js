@@ -456,10 +456,11 @@ export async function getProductGenerally(req, res) {
                         attributes: ['name', 'stripped']
                     }
                 ]
-            }).then(product => {
+            }).then(async product => {
                 if (!product) {
                     NotFoundError(res, { unique_id: anonymous, text: "Product not found" }, null);
                 } else {
+                    const product_favorites = await PRODUCTS.increment({ views: 1 }, { where: { stripped: req.params.stripped } });
                     SuccessResponse(res, { unique_id: anonymous, text: "Product loaded" }, product);
                 }
             }).catch(err => {
