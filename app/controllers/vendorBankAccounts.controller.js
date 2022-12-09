@@ -13,7 +13,7 @@ export function rootGetVendorsBankAccounts(req, res) {
     VENDOR_BANK_ACCOUNTS.findAndCountAll({
         attributes: { exclude: ['id'] },
         order: [
-            ['createdAt', 'DESC']
+            ['updatedAt', 'DESC']
         ],
         include: [
             {
@@ -32,30 +32,32 @@ export function rootGetVendorsBankAccounts(req, res) {
     });
 };
 
-export function rootGetVendorBankAccounts(req, res) {
+export function rootGetVendorsBankAccountsSpecifically(req, res) {
     const errors = validationResult(req);
     const payload = matchedData(req);
 
     if (!errors.isEmpty()) {
         ValidationError(res, { unique_id: tag_admin, text: "Validation Error Occured" }, errors.array())
-    }
-    else {
-        VENDOR_BANK_ACCOUNTS.findOne({
+    } else {
+        VENDOR_BANK_ACCOUNTS.findAndCountAll({
             attributes: { exclude: ['id'] },
             where: {
-                unique_id: payload.vendor_bank_account_unique_id,
+                ...payload
             },
+            order: [
+                ['updatedAt', 'DESC']
+            ],
             include: [
                 {
                     model: VENDORS,
                     attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'pro']
                 }
             ]
-        }).then(vendor_bank_accounts => {
-            if (!vendor_bank_accounts) {
-                NotFoundError(res, { unique_id: tag_admin, text: "Vendor Bank Accounts not found" }, null);
+        }).then(vendors_bank_accounts => {
+            if (!vendors_bank_accounts || vendors_bank_accounts.length == 0) {
+                SuccessResponse(res, { unique_id: tag_admin, text: "Vendor Bank Accounts Not found" }, []);
             } else {
-                SuccessResponse(res, { unique_id: tag_admin, text: "Vendor Bank Accounts loaded" }, vendor_bank_accounts);
+                SuccessResponse(res, { unique_id: tag_admin, text: "Vendor Bank Accounts loaded" }, vendors_bank_accounts);
             }
         }).catch(err => {
             ServerError(res, { unique_id: tag_admin, text: err.message }, null);
@@ -63,36 +65,30 @@ export function rootGetVendorBankAccounts(req, res) {
     }
 };
 
-export function rootGetDefaultVendorBankAccounts(req, res) {
-    const errors = validationResult(req);
-    const payload = matchedData(req);
-
-    if (!errors.isEmpty()) {
-        ValidationError(res, { unique_id: tag_admin, text: "Validation Error Occured" }, errors.array())
-    }
-    else {
-        VENDOR_BANK_ACCOUNTS.findOne({
-            attributes: { exclude: ['id'] },
-            where: {
-                unique_id: payload.vendor_bank_account_unique_id,
-                default_bank: true_status
-            },
-            include: [
-                {
-                    model: VENDORS,
-                    attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'pro']
-                }
-            ]
-        }).then(vendor_bank_accounts => {
-            if (!vendor_bank_accounts) {
-                NotFoundError(res, { unique_id: tag_admin, text: "Vendor Bank Accounts not found" }, null);
-            } else {
-                SuccessResponse(res, { unique_id: tag_admin, text: "Vendor Bank Accounts loaded" }, vendor_bank_accounts);
+export function rootGetDefaultVendorsBankAccounts(req, res) {
+    VENDOR_BANK_ACCOUNTS.findAndCountAll({
+        attributes: { exclude: ['id'] },
+        where: {
+            default_bank: true_status
+        },
+        order: [
+            ['updatedAt', 'DESC']
+        ],
+        include: [
+            {
+                model: VENDORS,
+                attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'pro']
             }
-        }).catch(err => {
-            ServerError(res, { unique_id: tag_admin, text: err.message }, null);
-        });
-    }
+        ]
+    }).then(vendors_bank_accounts => {
+        if (!vendors_bank_accounts || vendors_bank_accounts.length == 0) {
+            SuccessResponse(res, { unique_id: tag_admin, text: "Vendors Bank Accounts Not found" }, []);
+        } else {
+            SuccessResponse(res, { unique_id: tag_admin, text: "Vendors Bank Accounts loaded" }, vendors_bank_accounts);
+        }
+    }).catch(err => {
+        ServerError(res, { unique_id: tag_admin, text: err.message }, null);
+    });
 };
 
 export async function getVendorBankAccounts(req, res) {
@@ -149,7 +145,6 @@ export async function getVendorDefaultBankAccount(req, res) {
             attributes: { exclude: ['vendor_unique_id', 'id'] },
             where: {
                 vendor_unique_id,
-                ...payload,
                 default_bank: true_status,
                 status: default_status
             }
