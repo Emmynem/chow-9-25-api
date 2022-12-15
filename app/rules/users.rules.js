@@ -241,4 +241,11 @@ export const user_rules = {
                 });
             })
     ],
+    forSearching: [
+        check('search', "Search is required")
+            .exists({ checkNull: true, checkFalsy: true })
+            .bail()
+            .isString().isLength({ min: 2, max: 200 })
+            .withMessage("Invalid length (2 - 200) characters"),
+    ]
 };

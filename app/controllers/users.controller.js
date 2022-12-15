@@ -23,6 +23,12 @@ export function rootGetUsers (req, res) {
         attributes: { exclude: ['user_private', 'id'] },
         order: [
             ['createdAt', 'DESC']
+        ],
+        include: [
+            {
+                model: USER_ACCOUNT,
+                attributes: ['balance', 'updatedAt']
+            }
         ]
     }).then(users => {
         if (!users || users.length == 0) {
@@ -41,13 +47,18 @@ export function rootGetUser (req, res) {
 
     if (!errors.isEmpty()) {
         ValidationError(res, { unique_id: tag_admin, text: "Validation Error Occured" }, errors.array())
-    }
-    else {
+    } else {
         USERS.findOne({
             attributes: { exclude: ['user_private', 'id'] },
             where: {
                 ...payload
-            }
+            },
+            include: [
+                {
+                    model: USER_ACCOUNT,
+                    attributes: ['balance', 'updatedAt']
+                }
+            ]
         }).then(user => {
             if (!user) {
                 NotFoundError(res, { unique_id: tag_admin, text: "User not found" }, null);
@@ -60,15 +71,128 @@ export function rootGetUser (req, res) {
     }
 };
 
+export function rootSearchUsers(req, res) {
+    const errors = validationResult(req);
+    const payload = matchedData(req);
+
+    if (!errors.isEmpty()) {
+        ValidationError(res, { unique_id: tag_admin, text: "Validation Error Occured" }, errors.array())
+    } else {
+        USERS.findAndCountAll({
+            attributes: { exclude: ['user_private', 'id'] },
+            where: {
+                [Op.or]: [
+                    {
+                        firstname: {
+                            [Op.or]: {
+                                [Op.like]: `%${payload.search}`,
+                                [Op.startsWith]: `${payload.search}`,
+                                [Op.endsWith]: `${payload.search}`,
+                                [Op.substring]: `${payload.search}`,
+                            }
+                        }
+                    },
+                    {
+                        lastname: {
+                            [Op.or]: {
+                                [Op.like]: `%${payload.search}`,
+                                [Op.startsWith]: `${payload.search}`,
+                                [Op.endsWith]: `${payload.search}`,
+                                [Op.substring]: `${payload.search}`,
+                            }
+                        }
+                    },
+                    {
+                        middlename: {
+                            [Op.or]: {
+                                [Op.like]: `%${payload.search}`,
+                                [Op.startsWith]: `${payload.search}`,
+                                [Op.endsWith]: `${payload.search}`,
+                                [Op.substring]: `${payload.search}`,
+                            }
+                        }
+                    },
+                    {
+                        email: {
+                            [Op.or]: {
+                                [Op.like]: `%${payload.search}`,
+                                [Op.startsWith]: `${payload.search}`,
+                                [Op.endsWith]: `${payload.search}`,
+                                [Op.substring]: `${payload.search}`,
+                            }
+                        }
+                    },
+                    {
+                        mobile_number: {
+                            [Op.or]: {
+                                [Op.like]: `%${payload.search}`,
+                                [Op.startsWith]: `${payload.search}`,
+                                [Op.endsWith]: `${payload.search}`,
+                                [Op.substring]: `${payload.search}`,
+                            }
+                        }
+                    },
+                    {
+                        gender: {
+                            [Op.or]: {
+                                [Op.like]: `%${payload.search}`,
+                                [Op.startsWith]: `${payload.search}`,
+                                [Op.endsWith]: `${payload.search}`,
+                                [Op.substring]: `${payload.search}`,
+                            }
+                        }
+                    },
+                    {
+                        dob: {
+                            [Op.or]: {
+                                [Op.like]: `%${payload.search}`,
+                                [Op.startsWith]: `${payload.search}`,
+                                [Op.endsWith]: `${payload.search}`,
+                                [Op.substring]: `${payload.search}`,
+                            }
+                        }
+                    }
+                ]
+            },
+            order: [
+                ['firstname', 'ASC'],
+                ['lastname', 'ASC'],
+                ['middlename', 'ASC'],
+                ['createdAt', 'DESC']
+            ],
+            include: [
+                {
+                    model: USER_ACCOUNT,
+                    attributes: ['balance', 'updatedAt']
+                }
+            ]
+        }).then(users => {
+            if (!users || users.length == 0) {
+                SuccessResponse(res, { unique_id: tag_admin, text: "Users Not found" }, []);
+            } else {
+                SuccessResponse(res, { unique_id: tag_admin, text: "Users loaded" }, users);
+            }
+        }).catch(err => {
+            ServerError(res, { unique_id: tag_admin, text: err.message }, null);
+        });
+    }
+};
+
 export function getUser (req, res) {
     const user_unique_id = req.UNIQUE_ID;
 
     USERS.findOne({
-        attributes: { exclude: ['user_private', 'profile_image_base_url', 'profile_image_dir', 'profile_image_file', 'profile_image_size', 'id', 'access'] },
+        attributes: { exclude: ['user_private', 'profile_image_base_url', 'profile_image_dir', 'profile_image_file', 'profile_image_size', 'id', 'access', 'unique_id', 'method', 'status', 'createdAt', 'updatedAt'] },
         where: {
-            user_unique_id,
+            unique_id: user_unique_id,
             status: default_status
-        }
+        },
+        include: [
+            {
+                model: USER_ACCOUNT,
+                attributes: ['balance']
+            }
+        ]
     }).then(user => {
         if (!user) {
             NotFoundError(res, { unique_id: user_unique_id, text: "User not found"}, null);
@@ -104,7 +228,7 @@ export async function updateUser (req, res) {
                 );
     
                 if (user > 0) {
-                    SuccessResponse(res, { unique_id: user_unique_id, text: "User details updated successfully!" }, user);
+                    SuccessResponse(res, { unique_id: user_unique_id, text: "User details updated successfully!" }, null);
                 } else {
                     throw new Error("User not found");
                 }
