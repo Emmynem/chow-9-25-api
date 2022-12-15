@@ -154,6 +154,76 @@ export function rootGetProduct(req, res) {
     }
 };
 
+export function searchProducts(req, res) {
+    const errors = validationResult(req);
+    const payload = matchedData(req);
+
+    if (!errors.isEmpty()) {
+        ValidationError(res, { unique_id: anonymous, text: "Validation Error Occured" }, errors.array())
+    } else {
+        PRODUCTS.findAndCountAll({
+            attributes: { exclude: ['id', 'vendor_user_unique_id', 'status', 'createdAt', 'updatedAt'] },
+            where: {
+                [Op.or]: [
+                    {
+                        name: {
+                            [Op.or]: {
+                                [Op.like]: `%${payload.search}`,
+                                [Op.startsWith]: `${payload.search}`,
+                                [Op.endsWith]: `${payload.search}`,
+                                [Op.substring]: `${payload.search}`,
+                            }
+                        }
+
+                    },
+                    {
+                        description: {
+                            [Op.or]: {
+                                [Op.substring]: `${payload.search}`
+                            }
+                        }
+
+                    }
+                ],
+                status: default_status
+            },
+            order: [
+                ['good_rating', 'DESC'],
+                ['sales_price', 'ASC'],
+                ['favorites', 'DESC'],
+                ['remaining', 'DESC'],
+                ['views', 'DESC'],
+            ],
+            include: [
+                {
+                    model: PRODUCT_IMAGES,
+                    attributes: ['image']
+                },
+                {
+                    model: VENDORS,
+                    attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'verification']
+                },
+                {
+                    model: MENUS,
+                    attributes: ['name', 'stripped', 'start_time', 'end_time']
+                },
+                {
+                    model: CATEGORIES,
+                    attributes: ['name', 'stripped']
+                }
+            ]
+        }).then(products => {
+            if (!products || products.length == 0) {
+                SuccessResponse(res, { unique_id: anonymous, text: "Products Not found" }, []);
+            } else {
+                SuccessResponse(res, { unique_id: anonymous, text: "Products loaded" }, products);
+            }
+        }).catch(err => {
+            ServerError(res, { unique_id: anonymous, text: err.message }, null);
+        });
+    }
+};
+
 export function getProductsGenerally(req, res) {
     PRODUCTS.findAndCountAll({
         attributes: { exclude: ['id', 'vendor_user_unique_id', 'status', 'createdAt', 'updatedAt'] },

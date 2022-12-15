@@ -161,10 +161,10 @@ export const product_rules = {
             .bail()
             .isFloat()
             .custom(weight => {
-                if (weight < 0) return false;
+                if (weight < 1) return false;
                 else return true;
             })
-            .withMessage("Weight invalid"),
+            .withMessage("Weight invalid, minimum of 1 gram"),
         check('quantity', "Quantity is required")
             .exists({ checkNull: true, checkFalsy: true })
             .bail()
@@ -250,7 +250,7 @@ export const product_rules = {
                 if (weight < 1) return false;
                 else return true;
             })
-            .withMessage("Weight invalid")
+            .withMessage("Weight invalid, minimum of 1 gram")
     ],
     forUpdatingStock: [
         check('quantity', "Quantity is required")
@@ -326,5 +326,12 @@ export const product_rules = {
                     if (!data) return Promise.reject('Category not found!');
                 });
             })
+    ],
+    forSearching: [
+        check('search', "Search is required")
+            .exists({ checkNull: true, checkFalsy: true })
+            .bail()
+            .isString().isLength({ min: 2, max: 200 })
+            .withMessage("Invalid length (2 - 200) characters"),
     ]
 };  

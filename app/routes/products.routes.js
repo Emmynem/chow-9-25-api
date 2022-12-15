@@ -10,7 +10,7 @@ import {
     removeProduct, restoreProduct, rootGetProduct, rootGetProducts, rootGetProductsSpecifically, 
     updateProductName, updateProductOthers, getProductGenerally, getProductsGenerally,
     getProductsByCategoryGenerally, getProductsByVendorCategoryGenerally, getProductsByVendorGenerally, 
-    getProductsByVendorMenuGenerally
+    getProductsByVendorMenuGenerally, searchProducts
 } from "../controllers/products.controller.js";
 
 export default function (app) {
@@ -21,6 +21,7 @@ export default function (app) {
     app.get("/root/products/via/category", [checks.verifyKey, checks.isAdministratorKey, category_rules.forFindingCategoryAlt], rootGetProductsSpecifically);
     app.get("/root/product", [checks.verifyKey, checks.isAdministratorKey, product_rules.forFindingProductAlt], rootGetProduct);
 
+    app.get("/search/products", [product_rules.forSearching], searchProducts);
     app.get("/products", getProductsGenerally);
     app.get("/products/via/vendor/:stripped", getProductsByVendorGenerally);
     app.get("/products/via/vendor/menu/:vendor_stripped/:menu_stripped", getProductsByVendorMenuGenerally);
