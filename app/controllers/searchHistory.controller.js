@@ -7,6 +7,9 @@ import db from "../models/index.js";
 const SEARCH_HISTORY = db.search_history;
 const USERS = db.users;
 const PRODUCTS = db.products;
+const VENDORS = db.vendors;
+const MENUS = db.menus;
+const CATEGORIES = db.categories;
 const Op = db.Sequelize.Op;
 
 export function rootGetSearchHistories(req, res) {
@@ -32,30 +35,32 @@ export function rootGetSearchHistories(req, res) {
     });
 };
 
-export function rootGetSearchHistory(req, res) {
+export function rootGetSearchHistorySpecifically(req, res) {
     const errors = validationResult(req);
     const payload = matchedData(req);
 
     if (!errors.isEmpty()) {
         ValidationError(res, { unique_id: tag_admin, text: "Validation Error Occured" }, errors.array())
-    }
-    else {
-        SEARCH_HISTORY.findOne({
+    } else {
+        SEARCH_HISTORY.findAndCountAll({
             attributes: { exclude: ['id'] },
             where: {
-                unique_id: payload.search_history_unique_id,
+                ...payload
             },
+            order: [
+                ['createdAt', 'DESC']
+            ],
             include: [
                 {
                     model: USERS,
                     attributes: ['firstname', 'middlename', 'lastname', 'email', 'mobile_number', 'profile_image']
                 }
             ]
-        }).then(search_history => {
-            if (!search_history) {
-                NotFoundError(res, { unique_id: tag_admin, text: "Search hisitory not found" }, null);
+        }).then(search_histories => {
+            if (!search_histories || search_histories.length == 0) {
+                SuccessResponse(res, { unique_id: tag_admin, text: "Search histories Not found" }, []);
             } else {
-                SuccessResponse(res, { unique_id: tag_admin, text: "Search hisitory loaded" }, search_history);
+                SuccessResponse(res, { unique_id: tag_admin, text: "Search histories loaded" }, search_histories);
             }
         }).catch(err => {
             ServerError(res, { unique_id: tag_admin, text: err.message }, null);
@@ -101,10 +106,9 @@ export async function searchProducts(req, res) {
                         search: {
                             [Op.like]: `%${payload.search}`
                         },
-                        user_unique_id: payload.user_unique_id,
+                        user_unique_id: payload.user_unique_id || '',
                         status: default_status
-                    },
-                    transaction
+                    }
                 });
         
                 const last_general_search_history = await SEARCH_HISTORY.findOne({
@@ -112,12 +116,9 @@ export async function searchProducts(req, res) {
                         search: {
                             [Op.like]: `%${payload.search}`
                         },
-                        user_unique_id: {
-                            [Op.ne]: payload.user_unique_id
-                        },
+                        user_unique_id: null,
                         status: default_status
-                    },
-                    transaction
+                    }
                 });
 
                 const products = await PRODUCTS.findAndCountAll({
@@ -133,7 +134,11 @@ export async function searchProducts(req, res) {
                         }
                     },
                     order: [
-                        ['createdAt', 'DESC']
+                        ['good_rating', 'DESC'],
+                        ['sales_price', 'ASC'],
+                        ['favorites', 'DESC'],
+                        ['remaining', 'DESC'],
+                        ['views', 'DESC'],
                     ],
                     include: [
                         {
@@ -148,116 +153,113 @@ export async function searchProducts(req, res) {
                             model: CATEGORIES,
                             attributes: ['name', 'stripped']
                         }
-                    ],
-                    transaction
+                    ]
                 });
-
-                if (!products || products.length == 0) {
-                    if (last_search_history) {
-                        const updated_search_history_timestamp = await SEARCH_HISTORY.update(
-                            {
-                                status: product_availablity.unavailable,
-                            }, {
-                                where: {
-                                    search: {
-                                        [Op.like]: `%${payload.search}`
-                                    },
-                                    user_unique_id: payload.user_unique_id,
-                                    status: default_status
-                                }, 
-                                transaction
-                            }
-                        );
+                
+                if (!products || products.rows.length == 0) {
+                    if (payload.user_unique_id) {
+                        if (last_search_history) {
+                            const updated_search_history_timestamp = await SEARCH_HISTORY.update(
+                                {
+                                    status: product_availablity.unavailable,
+                                }, {
+                                    where: {
+                                        search: {
+                                            [Op.like]: `%${payload.search}`
+                                        },
+                                        user_unique_id: payload.user_unique_id,
+                                        status: default_status
+                                    }
+                                }
+                            );
+                        } else {
+                            const search_history = await SEARCH_HISTORY.create(
+                                {
+                                    unique_id: uuidv4(),
+                                    user_unique_id: payload.user_unique_id || null,
+                                    search: payload.search,
+                                    status: product_availablity.unavailable
+                                }
+                            );
+                        }
                     } else {
-                        const search_history = await SEARCH_HISTORY.create(
-                            {
-                                unique_id: uuidv4(),
-                                user_unique_id: payload.user_unique_id || null,
-                                search: payload.search,
-                                status: product_availablity.unavailable
-                            }, { transaction }
-                        );
-                    }
-                    if (last_general_search_history) {
-                        const updated_general_search_history_timestamp = await SEARCH_HISTORY.update(
-                            {
-                                status: product_availablity.unavailable,
-                            }, {
-                                where: {
-                                    search: {
-                                        [Op.like]: `%${payload.search}`
-                                    },
-                                    user_unique_id: {
-                                        [Op.ne]: payload.user_unique_id
-                                    },
-                                    status: default_status
-                                },
-                                transaction
-                            }
-                        );
-                    } else {
-                        const search_history = await SEARCH_HISTORY.create(
-                            {
-                                unique_id: uuidv4(),
-                                user_unique_id: payload.user_unique_id || null,
-                                search: payload.search,
-                                status: product_availablity.unavailable
-                            }, { transaction }
-                        );
+                        if (last_general_search_history) {
+                            const updated_general_search_history_timestamp = await SEARCH_HISTORY.update(
+                                {
+                                    status: product_availablity.unavailable,
+                                }, {
+                                    where: {
+                                        search: {
+                                            [Op.like]: `%${payload.search}`
+                                        },
+                                        user_unique_id: null,
+                                        status: default_status
+                                    }
+                                }
+                            );
+                        } else {
+                            const search_history = await SEARCH_HISTORY.create(
+                                {
+                                    unique_id: uuidv4(),
+                                    user_unique_id: payload.user_unique_id || null,
+                                    search: payload.search,
+                                    status: product_availablity.unavailable
+                                }
+                            );
+                        }
                     }
                     SuccessResponse(res, { unique_id: payload.user_unique_id || anonymous, text: "Products Not found" }, []);
                 } else {
-                    if (last_search_history) {
-                        const updated_search_history_timestamp = SEARCH_HISTORY.update(
-                            {
-                                status: product_availablity.available,
-                            }, {
-                                where: {
-                                    search: {
-                                        [Op.like]: `%${payload.search}`
-                                    },
-                                    user_unique_id: payload.user_unique_id,
-                                    status: default_status
-                                },
-                                transaction
-                            }
-                        );
+                    if (payload.user_unique_id) {
+                        if (last_search_history) {
+                            const updated_search_history_timestamp = SEARCH_HISTORY.update(
+                                {
+                                    status: product_availablity.available,
+                                }, {
+                                    where: {
+                                        search: {
+                                            [Op.like]: `%${payload.search}`
+                                        },
+                                        user_unique_id: payload.user_unique_id,
+                                        status: default_status
+                                    }
+                                }
+                            );
+                        } else {
+                            const search_history = SEARCH_HISTORY.create(
+                                {
+                                    unique_id: uuidv4(),
+                                    user_unique_id: payload.user_unique_id || null,
+                                    search: payload.search,
+                                    status: product_availablity.available
+                                }
+                            );
+                        }
                     } else {
-                        const search_history = SEARCH_HISTORY.create(
-                            {
-                                unique_id: uuidv4(),
-                                user_unique_id: payload.user_unique_id || null,
-                                search: payload.search,
-                                status: product_availablity.available
-                            }, { transaction }
-                        );
-                    }
-                    if (last_general_search_history) {
-                        const updated_general_search_history_timestamp = SEARCH_HISTORY.update(
-                            {
-                                status: product_availablity.available,
-                            }, {
-                                where: {
-                                    search: {
-                                        [Op.like]: `%${payload.search}`
-                                    },
-                                    user_unique_id: {
-                                        [Op.ne]: payload.user_unique_id
-                                    },
-                                    status: default_status
-                                }, 
-                                transaction
-                            }
-                        );
-                    } else {
-                        const search_history = SEARCH_HISTORY.create(
-                            {
-                                unique_id: uuidv4(),
-                                user_unique_id: payload.user_unique_id || null,
-                                search: payload.search,
-                                status: product_availablity.available
-                            }, { transaction }
-                        );
+                        if (last_general_search_history) {
+                            const updated_general_search_history_timestamp = SEARCH_HISTORY.update(
+                                {
+                                    status: product_availablity.available,
+                                }, {
+                                    where: {
+                                        search: {
+                                            [Op.like]: `%${payload.search}`
+                                        },
+                                        user_unique_id: null,
+                                        status: default_status
+                                    }
+                                }
+                            );
+                        } else {
+                            const search_history = SEARCH_HISTORY.create(
+                                {
+                                    unique_id: uuidv4(),
+                                    user_unique_id: payload.user_unique_id || null,
+                                    search: payload.search,
+                                    status: product_availablity.available
+                                }
+                            );
+                        }
                     }
                     SuccessResponse(res, { unique_id: payload.user_unique_id || anonymous, text: "Products loaded" }, products);
                 }

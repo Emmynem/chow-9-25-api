@@ -78,5 +78,12 @@ export const search_history_rules = {
             .bail()
             .isString().isLength({ min: 1, max: 300 })
             .withMessage("Invalid length (1 - 300) characters"),
+    ],
+    forFindingViaSearch: [
+        check('search', "Search is required")
+            .exists({ checkNull: true, checkFalsy: true })
+            .bail()
+            .isString().isLength({ min: 1, max: 300 })
+            .withMessage("Invalid length (1 - 300) characters")
     ]
 };  
