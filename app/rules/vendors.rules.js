@@ -143,7 +143,7 @@ export const vendor_rules = {
             .isBoolean()
             .withMessage("Value should be true or false")
     ],
-    forEditing: [
+    forUpdatingName: [
         check('name', "Name is required")
             .exists({ checkNull: true, checkFalsy: true })
             .bail()
@@ -162,7 +162,9 @@ export const vendor_rules = {
                 }).then(data => {
                     if (data) return Promise.reject('Vendor already exists!');
                 });
-            }),
+            })
+    ],
+    forUpdatingDescription: [
         check('description', "Description is required")
             .exists({ checkNull: true, checkFalsy: true })
             .bail()
@@ -175,7 +177,7 @@ export const vendor_rules = {
             .bail()
             .custom(opening_hours => {
                 const later = moment(opening_hours, "HH:mm", true);
-                return later.isValid();
+                return later.isValid() || opening_hours === null;
             })
             .withMessage("Invalid opening hours time format (HH:mm)"),
         check('closing_hours')
@@ -183,8 +185,49 @@ export const vendor_rules = {
             .bail()
             .custom(closing_hours => {
                 const later = moment(closing_hours, "HH:mm", true);
-                return later.isValid();
+                return later.isValid() || closing_hours === null;
             })
             .withMessage("Invalid closing hours time format (HH:mm)"),
+    ],
+    forFindingViaOpeningHours: [
+        check('opening_hours')
+            .optional({ checkFalsy: false })
+            .bail()
+            .custom(opening_hours => {
+                const later = moment(opening_hours, "HH:mm", true);
+                return later.isValid();
+            })
+            .withMessage("Invalid opening hours time format (HH:mm)")
+    ],
+    forFindingViaClosingHours: [
+        check('closing_hours')
+            .optional({ checkFalsy: false })
+            .bail()
+            .custom(closing_hours => {
+                const later = moment(closing_hours, "HH:mm", true);
+                return later.isValid();
+            })
+            .withMessage("Invalid closing hours time format (HH:mm)")
+    ],
+    forFindingViaPro: [
+        check('pro', "Pro is required")
+            .exists({ checkNull: true, checkFalsy: false })
+            .bail()
+            .isBoolean()
+            .withMessage("Value should be true or false"),
+    ],
+    forFindingViaVerification: [
+        check('verification', "Verification is required")
+            .exists({ checkNull: true, checkFalsy: false })
+            .bail()
+            .isBoolean()
+            .withMessage("Value should be true or false"),
+    ],
+    forSearching: [
+        check('search', "Search is required")
+            .exists({ checkNull: true, checkFalsy: true })
+            .bail()
+            .isString().isLength({ min: 2, max: 50 })
+            .withMessage("Invalid length (2 - 50) characters"),
     ]
 };  
