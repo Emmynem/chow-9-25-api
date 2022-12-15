@@ -32,30 +32,32 @@ export function rootGetVendorsAddress(req, res) {
     });
 };
 
-export function rootGetVendorAddress(req, res) {
+export function rootGetVendorsAddressSpecifically(req, res) {
     const errors = validationResult(req);
     const payload = matchedData(req);
 
     if (!errors.isEmpty()) {
         ValidationError(res, { unique_id: tag_admin, text: "Validation Error Occured" }, errors.array())
-    }
-    else {
-        VENDOR_ADDRESS.findOne({
+    } else {
+        VENDOR_ADDRESS.findAndCountAll({
             attributes: { exclude: ['id'] },
             where: {
-                unique_id: payload.vendor_address_unique_id,
+                ...payload
             },
+            order: [
+                ['createdAt', 'DESC']
+            ],
             include: [
                 {
                     model: VENDORS,
                     attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'pro']
                 }
             ]
-        }).then(vendor_address => {
-            if (!vendor_address) {
-                NotFoundError(res, { unique_id: tag_admin, text: "Vendor Address not found" }, null);
+        }).then(vendors_address => {
+            if (!vendors_address || vendors_address.length == 0) {
+                SuccessResponse(res, { unique_id: tag_admin, text: "Vendors Address Not found" }, []);
             } else {
-                SuccessResponse(res, { unique_id: tag_admin, text: "Vendor Address loaded" }, vendor_address);
+                SuccessResponse(res, { unique_id: tag_admin, text: "Vendors Address loaded" }, vendors_address);
             }
         }).catch(err => {
             ServerError(res, { unique_id: tag_admin, text: err.message }, null);
@@ -170,7 +172,7 @@ export async function updateVendorAddress(req, res) {
                             ...payload
                         }, {
                             where: {
-                                unique_id: payload.unique_id,
+                                // unique_id: payload.unique_id, // No need for this for now
                                 vendor_unique_id,
                                 status: default_status
                             }, 

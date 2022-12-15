@@ -130,5 +130,26 @@ export const vendor_address_rules = {
             .bail()
             .isString().isLength({ min: 3, max: 50 })
             .withMessage("Invalid length (3 - 50) characters")
+    ],
+    forFindingViaCity: [
+        check('city', "City is required")
+            .exists({ checkNull: true, checkFalsy: true })
+            .bail()
+            .isString().isLength({ min: 3, max: 50 })
+            .withMessage("Invalid length (3 - 50) characters")
+    ],
+    forFindingViaState: [
+        check('state', "State is required")
+            .exists({ checkNull: true, checkFalsy: true })
+            .bail()
+            .isString().isLength({ min: 3, max: 50 })
+            .withMessage("Invalid length (3 - 50) characters")
+    ], 
+    forFindingViaCountry: [
+        check('country', "Country is required")
+            .exists({ checkNull: true, checkFalsy: true })
+            .bail()
+            .isString().isLength({ min: 3, max: 50 })
+            .withMessage("Invalid length (3 - 50) characters")
     ]
 };  
