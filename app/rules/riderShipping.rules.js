@@ -81,7 +81,7 @@ export const rider_shipping_rules = {
                 if (min_weight < 0) return false;
                 else return true;
             })
-            .withMessage("Min Weight invalid"),
+            .withMessage("Min Weight invalid, minimum of 1 gram"),
         check('max_weight', "Max Weight is required")
             .exists({ checkNull: true, checkFalsy: true })
             .bail()
@@ -91,7 +91,7 @@ export const rider_shipping_rules = {
                 else if (req.body.min_weight > max_weight || req.query.min_weight > max_weight) return false;
                 else return true;
             })
-            .withMessage("Max Weight invalid"),
+            .withMessage("Max Weight invalid, minimum of 1 gram"),
         check('price', "Price is required")
             .exists({ checkNull: true, checkFalsy: true })
             .bail()
@@ -150,7 +150,7 @@ export const rider_shipping_rules = {
                 if (min_weight < 0) return false;
                 else return true;
             })
-            .withMessage("Min Weight invalid"),
+            .withMessage("Min Weight invalid, minimum of 1 gram"),
         check('max_weight', "Max Weight is required")
             .exists({ checkNull: true, checkFalsy: true })
             .bail()
@@ -160,7 +160,7 @@ export const rider_shipping_rules = {
                 else if (req.body.min_weight > max_weight || req.query.min_weight > max_weight) return false;
                 else return true;
             })
-            .withMessage("Max Weight invalid"),
+            .withMessage("Max Weight invalid, minimum of 1 gram"),
         check('price', "Price is required")
             .exists({ checkNull: true, checkFalsy: true })
             .bail()

@@ -130,7 +130,7 @@ export async function getProductShippingAnonymously(req, res) {
             BadRequestError(res, { unique_id: anonymous, text: "Product not found!" }, null);
         } else {
             const default_rider_shipping = await RIDER_SHIPPING.findAll({
-                attributes: ['rider_unique_id', 'min_weight', 'max_weight', 'price', 'from_city', 'from_state', 'from_country'],
+                attributes: ['unique_id', 'rider_unique_id', 'min_weight', 'max_weight', 'price', 'from_city', 'from_state', 'from_country'],
                 where: {
                     min_weight: {
                         [Op.lte]: product.weight
@@ -165,7 +165,7 @@ export async function getProductShippingAnonymously(req, res) {
             });
 
             const freelance_rider_shipping = await RIDER_SHIPPING.findAll({
-                attributes: ['rider_unique_id', 'min_weight', 'max_weight', 'price', 'from_city', 'from_state', 'from_country'],
+                attributes: ['unique_id', 'rider_unique_id', 'min_weight', 'max_weight', 'price', 'from_city', 'from_state', 'from_country'],
                 where: {
                     min_weight: {
                         [Op.lte]: product.weight
@@ -239,7 +239,7 @@ export async function getProductShipping(req, res) {
             BadRequestError(res, { unique_id: user_unique_id, text: "User address not found!" }, null);
         } else {
             const default_rider_shipping = await RIDER_SHIPPING.findAll({
-                attributes: ['rider_unique_id', 'min_weight', 'max_weight', 'price', 'from_city', 'from_state', 'from_country', 'to_city', 'to_state', 'to_country'],
+                attributes: ['unique_id', 'rider_unique_id', 'min_weight', 'max_weight', 'price', 'from_city', 'from_state', 'from_country', 'to_city', 'to_state', 'to_country'],
                 where: {
                     min_weight: {
                         [Op.lte]: product.weight
@@ -277,7 +277,7 @@ export async function getProductShipping(req, res) {
             });
 
             const freelance_rider_shipping = await RIDER_SHIPPING.findAll({
-                attributes: ['rider_unique_id', 'min_weight', 'max_weight', 'price', 'from_city', 'from_state', 'from_country', 'to_city', 'to_state', 'to_country'],
+                attributes: ['unique_id', 'rider_unique_id', 'min_weight', 'max_weight', 'price', 'from_city', 'from_state', 'from_country', 'to_city', 'to_state', 'to_country'],
                 where: {
                     min_weight: {
                         [Op.lte]: product.weight
