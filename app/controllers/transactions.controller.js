@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { ServerError, SuccessResponse, ValidationError, OtherSuccessResponse, NotFoundError, CreationSuccessResponse, BadRequestError, logger } from '../common/index.js';
 import { 
     default_delete_status, default_status, tag_admin, url_path_without_limits, check_user_route, true_status, false_status, debt, processing, 
-    vendor_payment_methods, currency, super_admin_routes, withdrawal, max_debt, cancelled, completed
+    vendor_payment_methods, currency, super_admin_routes, withdrawal, max_debt, cancelled, completed, anonymous
 } from '../config/config.js';
 import db from "../models/index.js";
 
@@ -44,12 +44,11 @@ export function rootGetTransaction(req, res) {
 
     if (!errors.isEmpty()) {
         ValidationError(res, { unique_id: tag_admin, text: "Validation Error Occured" }, errors.array())
-    }
-    else {
+    } else {
         TRANSACTIONS.findOne({
             attributes: { exclude: ['id'] },
             where: {
-                unique_id: payload.transaction_unique_id,
+                ...payload
             },
             include: [
                 {
@@ -62,6 +61,39 @@ export function rootGetTransaction(req, res) {
                 NotFoundError(res, { unique_id: tag_admin, text: "Transaction not found" }, null);
             } else {
                 SuccessResponse(res, { unique_id: tag_admin, text: "Transaction loaded" }, transaction);
+            }
+        }).catch(err => {
+            ServerError(res, { unique_id: tag_admin, text: err.message }, null);
+        });
+    }
+};
+
+export function rootGetTransactionsSpecifically(req, res) {
+    const errors = validationResult(req);
+    const payload = matchedData(req);
+
+    if (!errors.isEmpty()) {
+        ValidationError(res, { unique_id: tag_admin, text: "Validation Error Occured" }, errors.array())
+    } else {
+        TRANSACTIONS.findAndCountAll({
+            attributes: { exclude: ['id'] },
+            where: {
+                ...payload
+            },
+            order: [
+                ['createdAt', 'DESC']
+            ],
+            include: [
+                {
+                    model: VENDORS,
+                    attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'pro']
+                }
+            ]
+        }).then(transactions => {
+            if (!transactions || transactions.length == 0) {
+                SuccessResponse(res, { unique_id: tag_admin, text: "Transactions Not found" }, []);
+            } else {
+                SuccessResponse(res, { unique_id: tag_admin, text: "Transactions loaded" }, transactions);
             }
         }).catch(err => {
             ServerError(res, { unique_id: tag_admin, text: err.message }, null);
@@ -1107,7 +1139,6 @@ export async function updateTransaction(req, res) {
                     const transactions = await TRANSACTIONS.update(
                         {
                             ...payload,
-                            vendor_user_unique_id,
                         }, {
                             where: {
                                 unique_id: payload.unique_id,
@@ -1127,6 +1158,41 @@ export async function updateTransaction(req, res) {
             } catch (err) {
                 ServerError(res, { unique_id: vendor_unique_id, text: err.message }, null);
             }
+        }
+    }
+};
+
+export async function updateTransactionExternally(req, res) {
+    const errors = validationResult(req);
+    const payload = matchedData(req);
+
+    if (!errors.isEmpty()) {
+        ValidationError(res, { unique_id: payload.vendor_unique_id || anonymous, text: "Validation Error Occured" }, errors.array())
+    } else {
+        try {
+            await db.sequelize.transaction(async (transaction) => {
+
+                const transactions = await TRANSACTIONS.update(
+                    {
+                        ...payload,
+                    }, {
+                        where: {
+                            unique_id: payload.unique_id,
+                            vendor_unique_id: payload.vendor_unique_id,
+                            status: default_status
+                        },
+                        transaction
+                    }
+                );
+
+                if (transactions > 0) {
+                    OtherSuccessResponse(res, { unique_id: payload.vendor_unique_id, text: "Transaction was updated successfully!" });
+                } else {
+                    throw new Error("Error updating transaction");
+                }
+            });
+        } catch (err) {
+            ServerError(res, { unique_id: payload.vendor_unique_id, text: err.message }, null);
         }
     }
 };
