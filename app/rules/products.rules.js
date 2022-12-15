@@ -139,6 +139,7 @@ export const product_rules = {
                     where: { 
                         stripped: strip_text(name), 
                         vendor_unique_id: req.query.vendor_unique_id || req.body.vendor_unique_id || '',
+                        category_unique_id: req.query.category_unique_id || req.body.category_unique_id || '',
                         status: default_status 
                     } 
                 }).then(data => {
@@ -160,8 +161,7 @@ export const product_rules = {
             .bail()
             .isFloat()
             .custom(weight => {
-                if (weight === 0) return false;
-                else if (weight < 0) return false;
+                if (weight < 0) return false;
                 else return true;
             })
             .withMessage("Weight invalid"),
@@ -221,6 +221,7 @@ export const product_rules = {
                             [Op.ne]: req.query.unique_id || req.body.unique_id || '',
                         },
                         vendor_unique_id: req.query.vendor_unique_id || req.body.vendor_unique_id || '',
+                        category_unique_id: req.query.category_unique_id || req.body.category_unique_id || '',
                         status: default_status
                     }
                 }).then(data => {
@@ -246,8 +247,7 @@ export const product_rules = {
             .bail()
             .isFloat()
             .custom(weight => {
-                if (weight === 0) return false;
-                else if (weight < 0) return false;
+                if (weight < 1) return false;
                 else return true;
             })
             .withMessage("Weight invalid")

@@ -34,7 +34,7 @@ export default function (app) {
     app.post("/vendors/product", [checks.verifyVendorUserToken, checks.isVendorUser, product_rules.forAdding], addProduct);
     app.post("/vendors/product/image", [checks.verifyVendorUserToken, checks.isVendorUser, vendorProductMiddleware, product_rules.forFindingProductAlt], addProductImage);
 
-    app.put("/vendors/product/name", [checks.verifyVendorUserToken, checks.isVendorUser, product_rules.forFindingProduct, product_rules.forUpdatingName], updateProductName);
+    app.put("/vendors/product/name", [checks.verifyVendorUserToken, checks.isVendorUser, product_rules.forFindingProduct, category_rules.forFindingCategoryAlt, product_rules.forUpdatingName], updateProductName);
     app.put("/vendors/product/description", [checks.verifyVendorUserToken, checks.isVendorUser, product_rules.forFindingProduct, product_rules.forUpdatingDescription], updateProductOthers);
     app.put("/vendors/product/criteria", [checks.verifyVendorUserToken, checks.isVendorUser, product_rules.forFindingProduct, product_rules.forUpdatingCriteria], updateProductOthers);
     app.put("/vendors/product/stock", [checks.verifyVendorUserToken, checks.isVendorUser, product_rules.forFindingProduct, product_rules.forUpdatingStock], updateProductOthers);

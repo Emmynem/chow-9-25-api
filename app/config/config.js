@@ -375,6 +375,38 @@ export const url_path_without_limits = (path) => {
     return _path[0];
 };
 
+const check_key = (arr, key_name) => {
+    const check_all = [];
+    arr.map((obj, key) => {
+        const key_exist = Object.keys(obj).some(key => key === key_name);
+        check_all.push(key_exist);
+    })
+    if (check_all.includes(false)) return false;
+    return true;
+};
+
+export const validate_shipping = (shipping) => {
+    try {
+        const _shipping = Array.isArray(shipping) ? shipping : false;
+
+        if (!_shipping) {
+            return false;
+        } else {
+            if (
+                check_key(shipping, "min_weight") && check_key(shipping, "max_weight") && check_key(shipping, "price") &&
+                check_key(shipping, "from_city") && check_key(shipping, "from_state") && check_key(shipping, "from_country") &&
+                check_key(shipping, "to_city") && check_key(shipping, "to_state") && check_key(shipping, "to_country")
+            ) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    } catch (error) {
+        return false;
+    }
+};
+
 export const check_user_route = (method, path, routes) => {
     const _method = method;
     const _path = path;
