@@ -18,22 +18,22 @@ export default function (app) {
     app.get("/riders/transactions", [checks.verifyRiderToken, checks.isRider], getRiderTransactions);
     app.get("/riders/transaction", [checks.verifyRiderToken, checks.isRider, rider_transaction_rules.forFindingRiderTransaction], getRiderTransaction);
 
-    // app.post("/riders/transaction", [checks.verifyRiderToken, checks.isRider, rider_transaction_rules.forAdding], addRiderTransaction); // Will use later, maybe
-    app.post("/riders/transaction/payment/service/charge", [checks.verifyRiderToken, checks.isRider, rider_rules.forFindingRiderAlt, rider_transaction_rules.forServiceChargePayment], addServiceChargePayment);
-    app.post("/riders/transaction/payment/service/charge/externally", [rider_rules.forFindingRiderAlt, rider_transaction_rules.forServiceChargePayment], addServiceChargePaymentExternally);
-    app.post("/riders/transaction/payment/withdrawal", [checks.verifyRiderToken, checks.isRider, rider_rules.forFindingRiderAlt, rider_transaction_rules.forWithdrawal], addWithdrawal);
-    app.post("/riders/transaction/payment/withdrawal/externally", [rider_rules.forFindingRiderAlt, rider_transaction_rules.forWithdrawal], addWithdrawalExternally);
-    app.post("/riders/transaction/cancel/service/charge", [checks.verifyRiderToken, checks.isRider, rider_rules.forFindingRiderAlt, rider_transaction_rules.forFindingRiderTransaction], cancelServiceChargePayment);
-    app.post("/riders/transaction/cancel/service/charge/externally", [rider_rules.forFindingRiderAlt, rider_transaction_rules.forFindingRiderTransaction], cancelServiceChargePaymentExternally);
-    app.post("/riders/transaction/cancel/withdrawal", [checks.verifyRiderToken, checks.isRider, rider_rules.forFindingRiderAlt, rider_transaction_rules.forFindingRiderTransaction], cancelWithdrawal);
-    app.post("/riders/transaction/cancel/withdrawal/externally", [rider_rules.forFindingRiderAlt, rider_transaction_rules.forFindingRiderTransaction], cancelWithdrawalExternally);
-    app.post("/riders/transaction/complete/service/charge/externally", [rider_rules.forFindingRiderAlt, rider_transaction_rules.forFindingRiderTransaction], completeServiceChargePayment);
-    app.post("/riders/transaction/complete/withdrawal/externally", [rider_rules.forFindingRiderAlt, rider_transaction_rules.forFindingRiderTransaction], completeWithdrawal);
+    // app.post("/riders/transaction", [checks.verifyKey, checks.isInternalKey, checks.verifyRiderToken, checks.isRider, rider_transaction_rules.forAdding], addRiderTransaction); // Will use later, maybe
+    app.post("/riders/transaction/payment/service/charge", [checks.verifyKey, checks.isInternalKey, checks.verifyRiderToken, checks.isRider, rider_rules.forFindingRiderAlt, rider_transaction_rules.forServiceChargePayment], addServiceChargePayment);
+    app.post("/riders/transaction/payment/service/charge/externally", [checks.verifyKey, checks.isInternalKey, rider_rules.forFindingRiderAlt, rider_transaction_rules.forServiceChargePayment], addServiceChargePaymentExternally);
+    app.post("/riders/transaction/payment/withdrawal", [checks.verifyKey, checks.isInternalKey, checks.verifyRiderToken, checks.isRider, rider_rules.forFindingRiderAlt, rider_transaction_rules.forWithdrawal], addWithdrawal);
+    app.post("/riders/transaction/payment/withdrawal/externally", [checks.verifyKey, checks.isInternalKey, rider_rules.forFindingRiderAlt, rider_transaction_rules.forWithdrawal], addWithdrawalExternally);
+    app.post("/riders/transaction/cancel/service/charge", [checks.verifyKey, checks.isInternalKey, checks.verifyRiderToken, checks.isRider, rider_rules.forFindingRiderAlt, rider_transaction_rules.forFindingRiderTransaction], cancelServiceChargePayment);
+    app.post("/riders/transaction/cancel/service/charge/externally", [checks.verifyKey, checks.isInternalKey, rider_rules.forFindingRiderAlt, rider_transaction_rules.forFindingRiderTransaction], cancelServiceChargePaymentExternally);
+    app.post("/riders/transaction/cancel/withdrawal", [checks.verifyKey, checks.isInternalKey, checks.verifyRiderToken, checks.isRider, rider_rules.forFindingRiderAlt, rider_transaction_rules.forFindingRiderTransaction], cancelWithdrawal);
+    app.post("/riders/transaction/cancel/withdrawal/externally", [checks.verifyKey, checks.isInternalKey, rider_rules.forFindingRiderAlt, rider_transaction_rules.forFindingRiderTransaction], cancelWithdrawalExternally);
+    app.post("/riders/transaction/complete/service/charge/externally", [checks.verifyKey, checks.isInternalKey, rider_rules.forFindingRiderAlt, rider_transaction_rules.forFindingRiderTransaction], completeServiceChargePayment);
+    app.post("/riders/transaction/complete/withdrawal/externally", [checks.verifyKey, checks.isInternalKey, rider_rules.forFindingRiderAlt, rider_transaction_rules.forFindingRiderTransaction], completeWithdrawal);
 
-    // app.put("/riders/transaction/details", [checks.verifyRiderToken, checks.isRider, rider_transaction_rules.forFindingRiderTransaction, rider_transaction_rules.forUpdatingDetails], updateTransaction); // Will use later, maybe
-    // app.put("/riders/transaction/status", [checks.verifyRiderToken, checks.isRider, rider_transaction_rules.forFindingRiderTransaction, rider_transaction_rules.forUpdatingStatus], updateTransaction); // Will use later, maybe
-    // app.put("/riders/transaction/details/externally", [rider_transaction_rules.forFindingRiderTransaction, rider_transaction_rules.forUpdatingDetails], updateTransaction); // Will use later, maybe
-    // app.put("/riders/transaction/status/externally", [rider_transaction_rules.forFindingRiderTransaction, rider_transaction_rules.forUpdatingStatus], updateTransaction); // Will use later, maybe
+    // app.put("/riders/transaction/details", [checks.verifyKey, checks.isInternalKey, checks.verifyRiderToken, checks.isRider, rider_transaction_rules.forFindingRiderTransaction, rider_transaction_rules.forUpdatingDetails], updateTransaction); // Will use later, maybe
+    // app.put("/riders/transaction/status", [checks.verifyKey, checks.isInternalKey, checks.verifyRiderToken, checks.isRider, rider_transaction_rules.forFindingRiderTransaction, rider_transaction_rules.forUpdatingStatus], updateTransaction); // Will use later, maybe
+    // app.put("/riders/transaction/details/externally", [checks.verifyKey, checks.isInternalKey, rider_transaction_rules.forFindingRiderTransaction, rider_transaction_rules.forUpdatingDetails], updateTransaction); // Will use later, maybe
+    // app.put("/riders/transaction/status/externally", [checks.verifyKey, checks.isInternalKey, rider_transaction_rules.forFindingRiderTransaction, rider_transaction_rules.forUpdatingStatus], updateTransaction); // Will use later, maybe
 
     app.put("/riders/transaction/remove", [checks.verifyRiderToken, checks.isRider, rider_transaction_rules.forFindingRiderTransaction], removeTransaction);
     app.put("/riders/transaction/restore", [checks.verifyRiderToken, checks.isRider, rider_transaction_rules.forFindingRiderTransactionFalsy], restoreTransaction);

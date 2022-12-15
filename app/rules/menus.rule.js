@@ -146,7 +146,7 @@ export const menu_rules = {
             .bail()
             .custom(start_time => {
                 const later = moment(start_time, "HH:mm", true);
-                return later.isValid();
+                return later.isValid() || start_time === null;
             })
             .withMessage("Invalid start time format (HH:mm)"),
         check('end_time')
@@ -154,7 +154,7 @@ export const menu_rules = {
             .bail()
             .custom(end_time => {
                 const later = moment(end_time, "HH:mm", true);
-                return later.isValid();
+                return later.isValid() || end_time === null;
             })
             .withMessage("Invalid end time format (HH:mm)"),
     ]

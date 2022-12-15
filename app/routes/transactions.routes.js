@@ -18,22 +18,22 @@ export default function (app) {
     app.get("/vendors/transactions", [checks.verifyVendorUserToken, checks.isVendorUser], getTransactions);
     app.get("/vendors/transaction", [checks.verifyVendorUserToken, checks.isVendorUser, transaction_rules.forFindingTransaction], getTransaction);
 
-    // app.post("/vendors/transaction", [checks.verifyVendorUserToken, checks.isVendorUser, transaction_rules.forAdding], addTransaction); // Will use later, maybe
-    app.post("/vendors/transaction/payment/service/charge", [checks.verifyVendorUserToken, checks.isVendorUser, vendor_rules.forFindingVendorAlt, transaction_rules.forServiceChargePayment], addServiceChargePayment);
-    app.post("/vendors/transaction/payment/service/charge/externally", [vendor_rules.forFindingVendorAlt, transaction_rules.forServiceChargePayment], addServiceChargePaymentExternally);
-    app.post("/vendors/transaction/payment/withdrawal", [checks.verifyVendorUserToken, checks.isVendorUser, vendor_rules.forFindingVendorAlt, transaction_rules.forWithdrawal], addWithdrawal);
-    app.post("/vendors/transaction/payment/withdrawal/externally", [vendor_rules.forFindingVendorAlt, transaction_rules.forWithdrawal], addWithdrawalExternally);
-    app.post("/vendors/transaction/cancel/service/charge", [checks.verifyVendorUserToken, checks.isVendorUser, vendor_rules.forFindingVendorAlt, transaction_rules.forFindingTransaction], cancelServiceChargePayment);
-    app.post("/vendors/transaction/cancel/service/charge/externally", [vendor_rules.forFindingVendorAlt, transaction_rules.forFindingTransaction], cancelServiceChargePaymentExternally);
-    app.post("/vendors/transaction/cancel/withdrawal", [checks.verifyVendorUserToken, checks.isVendorUser, vendor_rules.forFindingVendorAlt, transaction_rules.forFindingTransaction], cancelWithdrawal);
-    app.post("/vendors/transaction/cancel/withdrawal/externally", [vendor_rules.forFindingVendorAlt, transaction_rules.forFindingTransaction], cancelWithdrawalExternally);
-    app.post("/vendors/transaction/complete/service/charge/externally", [vendor_rules.forFindingVendorAlt, transaction_rules.forFindingTransaction], completeServiceChargePayment);
-    app.post("/vendors/transaction/complete/withdrawal/externally", [vendor_rules.forFindingVendorAlt, transaction_rules.forFindingTransaction], completeWithdrawal);
+    // app.post("/vendors/transaction", [checks.verifyKey, checks.isInternalKey, checks.verifyVendorUserToken, checks.isVendorUser, transaction_rules.forAdding], addTransaction); // Will use later, maybe
+    app.post("/vendors/transaction/payment/service/charge", [checks.verifyKey, checks.isInternalKey, checks.verifyVendorUserToken, checks.isVendorUser, vendor_rules.forFindingVendorAlt, transaction_rules.forServiceChargePayment], addServiceChargePayment);
+    app.post("/vendors/transaction/payment/service/charge/externally", [checks.verifyKey, checks.isInternalKey, vendor_rules.forFindingVendorAlt, transaction_rules.forServiceChargePayment], addServiceChargePaymentExternally);
+    app.post("/vendors/transaction/payment/withdrawal", [checks.verifyKey, checks.isInternalKey, checks.verifyVendorUserToken, checks.isVendorUser, vendor_rules.forFindingVendorAlt, transaction_rules.forWithdrawal], addWithdrawal);
+    app.post("/vendors/transaction/payment/withdrawal/externally", [checks.verifyKey, checks.isInternalKey, vendor_rules.forFindingVendorAlt, transaction_rules.forWithdrawal], addWithdrawalExternally);
+    app.post("/vendors/transaction/cancel/service/charge", [checks.verifyKey, checks.isInternalKey, checks.verifyVendorUserToken, checks.isVendorUser, vendor_rules.forFindingVendorAlt, transaction_rules.forFindingTransaction], cancelServiceChargePayment);
+    app.post("/vendors/transaction/cancel/service/charge/externally", [checks.verifyKey, checks.isInternalKey, vendor_rules.forFindingVendorAlt, transaction_rules.forFindingTransaction], cancelServiceChargePaymentExternally);
+    app.post("/vendors/transaction/cancel/withdrawal", [checks.verifyKey, checks.isInternalKey, checks.verifyVendorUserToken, checks.isVendorUser, vendor_rules.forFindingVendorAlt, transaction_rules.forFindingTransaction], cancelWithdrawal);
+    app.post("/vendors/transaction/cancel/withdrawal/externally", [checks.verifyKey, checks.isInternalKey, vendor_rules.forFindingVendorAlt, transaction_rules.forFindingTransaction], cancelWithdrawalExternally);
+    app.post("/vendors/transaction/complete/service/charge/externally", [checks.verifyKey, checks.isInternalKey, vendor_rules.forFindingVendorAlt, transaction_rules.forFindingTransaction], completeServiceChargePayment);
+    app.post("/vendors/transaction/complete/withdrawal/externally", [checks.verifyKey, checks.isInternalKey, vendor_rules.forFindingVendorAlt, transaction_rules.forFindingTransaction], completeWithdrawal);
 
-    // app.put("/vendors/transaction/details", [checks.verifyVendorUserToken, checks.isVendorUser, transaction_rules.forFindingTransaction, transaction_rules.forUpdatingDetails], updateTransaction); // Will use later, maybe
-    // app.put("/vendors/transaction/status", [checks.verifyVendorUserToken, checks.isVendorUser, transaction_rules.forFindingTransaction, transaction_rules.forUpdatingStatus], updateTransaction); // Will use later, maybe
-    // app.put("/vendors/transaction/details/externally", [transaction_rules.forFindingTransaction, transaction_rules.forUpdatingDetails], updateTransaction); // Will use later, maybe
-    // app.put("/vendors/transaction/status/externally", [transaction_rules.forFindingTransaction, transaction_rules.forUpdatingStatus], updateTransaction); // Will use later, maybe
+    // app.put("/vendors/transaction/details", [checks.verifyKey, checks.isInternalKey, checks.verifyVendorUserToken, checks.isVendorUser, transaction_rules.forFindingTransaction, transaction_rules.forUpdatingDetails], updateTransaction); // Will use later, maybe
+    // app.put("/vendors/transaction/status", [checks.verifyKey, checks.isInternalKey, checks.verifyVendorUserToken, checks.isVendorUser, transaction_rules.forFindingTransaction, transaction_rules.forUpdatingStatus], updateTransaction); // Will use later, maybe
+    // app.put("/vendors/transaction/details/externally", [checks.verifyKey, checks.isInternalKey, transaction_rules.forFindingTransaction, transaction_rules.forUpdatingDetails], updateTransaction); // Will use later, maybe
+    // app.put("/vendors/transaction/status/externally", [checks.verifyKey, checks.isInternalKey, transaction_rules.forFindingTransaction, transaction_rules.forUpdatingStatus], updateTransaction); // Will use later, maybe
 
     app.put("/vendors/transaction/remove", [checks.verifyVendorUserToken, checks.isVendorUser, transaction_rules.forFindingTransaction], removeTransaction);
     app.put("/vendors/transaction/restore", [checks.verifyVendorUserToken, checks.isVendorUser, transaction_rules.forFindingTransactionFalsy], restoreTransaction);
