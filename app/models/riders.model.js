@@ -1,4 +1,8 @@
+import vendorsModel from "./vendors.model.js";
+
 export default (sequelize, Sequelize) => {
+
+    const vendors = vendorsModel(sequelize, Sequelize);
 
     const riders = sequelize.define("rider", {
         id: {
@@ -11,6 +15,14 @@ export default (sequelize, Sequelize) => {
             type: Sequelize.STRING(40),
             allowNull: false,
             unique: true
+        },
+        vendor_unique_id: {
+            type: Sequelize.STRING(40),
+            allowNull: true,
+            references: {
+                model: vendors,
+                key: "unique_id"
+            }
         },
         method: {
             type: Sequelize.STRING(20),

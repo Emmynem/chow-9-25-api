@@ -4,7 +4,7 @@ export default (sequelize, Sequelize) => {
 
     const riders = ridersModel(sequelize, Sequelize);
 
-    const riderShipping = sequelize.define("address", {
+    const riderShipping = sequelize.define("rider_shipping", {
         id: {
             type: Sequelize.BIGINT,
             allowNull: false,
@@ -36,15 +36,27 @@ export default (sequelize, Sequelize) => {
             type: Sequelize.FLOAT,
             allowNull: false,
         },
-        city: {
+        from_city: {
             type: Sequelize.STRING(50),
             allowNull: false,
         },
-        state: {
+        from_state: {
             type: Sequelize.STRING(50),
             allowNull: false,
         },
-        country: {
+        from_country: {
+            type: Sequelize.STRING(50),
+            allowNull: false,
+        },
+        to_city: {
+            type: Sequelize.STRING(50),
+            allowNull: false,
+        },
+        to_state: {
+            type: Sequelize.STRING(50),
+            allowNull: false,
+        },
+        to_country: {
             type: Sequelize.STRING(50),
             allowNull: false,
         },

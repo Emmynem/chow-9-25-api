@@ -123,6 +123,10 @@ db.vendors.belongsTo(db.otps, { foreignKey: 'unique_id', targetKey: 'vendor_uniq
 db.otps.hasOne(db.vendor_users, { foreignKey: 'unique_id', sourceKey: 'origin' });
 db.vendor_users.belongsTo(db.otps, { foreignKey: 'unique_id', targetKey: 'origin' });
 
+//    - Riders Associations
+db.riders.hasOne(db.vendors, { foreignKey: 'unique_id', sourceKey: 'vendor_unique_id' });
+db.vendors.belongsTo(db.riders, { foreignKey: 'unique_id', targetKey: 'vendor_unique_id' });
+
 //    - Products Associations
 db.products.hasOne(db.vendors, { foreignKey: 'unique_id', sourceKey: 'vendor_unique_id' });
 db.vendors.belongsTo(db.products, { foreignKey: 'unique_id', targetKey: 'vendor_unique_id' });
