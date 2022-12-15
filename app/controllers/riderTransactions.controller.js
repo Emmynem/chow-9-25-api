@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { ServerError, SuccessResponse, ValidationError, OtherSuccessResponse, NotFoundError, CreationSuccessResponse, BadRequestError, logger } from '../common/index.js';
 import {
     default_delete_status, default_status, tag_admin, true_status, false_status, debt, processing, vendor_payment_methods, 
-    currency, withdrawal, max_debt, cancelled, completed
+    currency, withdrawal, max_debt, cancelled, completed, anonymous
 } from '../config/config.js';
 import db from "../models/index.js";
 
@@ -14,7 +14,7 @@ const RIDER_BANK_ACCOUNTS = db.rider_bank_accounts;
 const APP_DEFAULTS = db.app_defaults;
 const Op = db.Sequelize.Op;
 
-export function rootGetRiderTransactions(req, res) {
+export function rootGetRidersTransactions(req, res) {
     RIDER_TRANSACTIONS.findAndCountAll({
         attributes: { exclude: ['id'] },
         order: [
@@ -47,7 +47,7 @@ export function rootGetRiderTransaction(req, res) {
         RIDER_TRANSACTIONS.findOne({
             attributes: { exclude: ['id'] },
             where: {
-                unique_id: payload.transaction_unique_id,
+                ...payload
             },
             include: [
                 {
@@ -60,6 +60,39 @@ export function rootGetRiderTransaction(req, res) {
                 NotFoundError(res, { unique_id: tag_admin, text: "Transaction not found" }, null);
             } else {
                 SuccessResponse(res, { unique_id: tag_admin, text: "Transaction loaded" }, rider_transaction);
+            }
+        }).catch(err => {
+            ServerError(res, { unique_id: tag_admin, text: err.message }, null);
+        });
+    }
+};
+
+export function rootGetRidersTransactionsSpecifically(req, res) {
+    const errors = validationResult(req);
+    const payload = matchedData(req);
+
+    if (!errors.isEmpty()) {
+        ValidationError(res, { unique_id: tag_admin, text: "Validation Error Occured" }, errors.array())
+    } else {
+        RIDER_TRANSACTIONS.findAndCountAll({
+            attributes: { exclude: ['id'] },
+            where: {
+                ...payload
+            },
+            order: [
+                ['createdAt', 'DESC']
+            ],
+            include: [
+                {
+                    model: RIDERS,
+                    attributes: ['firstname', 'middlename', 'lastname', 'email', 'mobile_number', 'profile_image', 'verification', 'availability']
+                }
+            ]
+        }).then(rider_transactions => {
+            if (!rider_transactions || rider_transactions.length == 0) {
+                SuccessResponse(res, { unique_id: tag_admin, text: "Transactions Not found" }, []);
+            } else {
+                SuccessResponse(res, { unique_id: tag_admin, text: "Transactions loaded" }, rider_transactions);
             }
         }).catch(err => {
             ServerError(res, { unique_id: tag_admin, text: err.message }, null);
@@ -976,7 +1009,6 @@ export async function updateTransaction(req, res) {
                 const rider_transaction = await RIDER_TRANSACTIONS.update(
                     {
                         ...payload,
-                        rider_user_unique_id,
                     }, {
                         where: {
                             unique_id: payload.unique_id,
@@ -995,6 +1027,40 @@ export async function updateTransaction(req, res) {
             });
         } catch (err) {
             ServerError(res, { unique_id: rider_unique_id, text: err.message }, null);
+        }
+    }
+};
+
+export async function updateTransactionExternally(req, res) {
+    const errors = validationResult(req);
+    const payload = matchedData(req);
+
+    if (!errors.isEmpty()) {
+        ValidationError(res, { unique_id: payload.rider_unique_id || anonymous, text: "Validation Error Occured" }, errors.array())
+    } else {
+        try {
+            await db.sequelize.transaction(async (transaction) => {
+                const rider_transaction = await RIDER_TRANSACTIONS.update(
+                    {
+                        ...payload,
+                    }, {
+                        where: {
+                            unique_id: payload.unique_id,
+                            rider_unique_id: payload.rider_unique_id,
+                            status: default_status
+                        },
+                        transaction
+                    }
+                );
+
+                if (rider_transaction > 0) {
+                    OtherSuccessResponse(res, { unique_id: payload.rider_unique_id, text: "Transaction was updated successfully!" });
+                } else {
+                    throw new Error("Error updating transaction!");
+                }
+            });
+        } catch (err) {
+            ServerError(res, { unique_id: payload.rider_unique_id, text: err.message }, null);
         }
     }
 };

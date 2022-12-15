@@ -144,5 +144,19 @@ export const rider_transaction_rules = {
                 else return true;
             })
             .withMessage("Amount invalid")
+    ],
+    forFindingViaType: [
+        check('type', "Type is required")
+            .exists({ checkNull: true, checkFalsy: true })
+            .bail()
+            .isString().isLength({ min: 3, max: 50 })
+            .withMessage("Invalid length (3 - 50) characters")
+    ],
+    forFindingViaTransactionStatus: [
+        check('transaction_status', "Transaction Status is required")
+            .exists({ checkNull: true, checkFalsy: true })
+            .bail()
+            .isString().isLength({ min: 3, max: 50 })
+            .withMessage("Invalid length (3 - 50) characters")
     ]
 };  
