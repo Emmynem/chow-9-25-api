@@ -5,9 +5,11 @@ import bycrypt from "bcryptjs";
 import fs from "fs";
 import { v4 as uuidv4 } from 'uuid';
 import { ServerError, SuccessResponse, CreationSuccessResponse, ValidationError, UnauthorizedError, ForbiddenError, NotFoundError, BadRequestError } from '../common/index.js';
-import { access_granted, access_revoked, access_suspended, secret, default_status, false_status, default_profile_image, user_documents_path, platform_documents_path, unverified_status, strip_text, 
+import { 
+    access_granted, access_revoked, access_suspended, secret, default_status, false_status, default_profile_image, user_documents_path, platform_documents_path, unverified_status, strip_text, 
     random_uuid, vendor_access_url, api_key_start, save_document_domain, default_platform_image, super_admin_routes, random_numbers, true_status, validate_future_end_date, save_image_dir, default_cover_image, 
-    user_refferal_access_url, zero} from '../config/config.js';
+    user_refferal_access_url, zero, url_path_without_limits, check_user_route
+} from '../config/config.js';
 import db from "../models/index.js";
 import { addUserNotification } from './notifications.controller.js';
 
@@ -841,6 +843,76 @@ export async function vendorUserVerifyOtp(req, res) {
         }
     } else {
         ValidationError(res, "Valid email or mobile number is required", null)
+    }
+};
+
+export async function vendorAddRider(req, res) {
+    const vendor_unique_id = req.VENDOR_UNIQUE_ID;
+    const vendor_user_unique_id = req.VENDOR_USER_UNIQUE_ID;
+
+    const vendor_user_routes = await VENDOR_USERS.findOne({
+        where: {
+            unique_id: vendor_user_unique_id,
+            vendor_unique_id,
+            status: default_status
+        }
+    });
+
+    if (!check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
+        BadRequestError(res, { unique_id: vendor_unique_id, text: "You don't have access to perform this action!" }, null);
+    } else {
+        const errors = validationResult(req);
+        const payload = matchedData(req);
+    
+        if (!errors.isEmpty()) {
+            ValidationError(res, { unique_id: payload.email, text: "Validation Error Occured" }, errors.array())
+        } else {
+            try {
+                await db.sequelize.transaction(async (transaction) => {
+    
+                    const riders = await RIDERS.create(
+                        {
+                            unique_id: uuidv4(),
+                            ...payload,
+                            method: "Vendor",
+                            vendor_unique_id,
+                            email_verification: false_status,
+                            mobile_number_verification: false_status,
+                            rider_private: hashSync(payload.password, 8),
+                            profile_image_base_url: save_document_domain,
+                            profile_image_dir: save_image_dir,
+                            profile_image: default_profile_image,
+                            availability: false_status,
+                            verification: unverified_status,
+                            access: access_granted,
+                            status: default_status
+                        }, { transaction }
+                    );
+    
+                    const rider_account = await RIDER_ACCOUNT.create(
+                        {
+                            unique_id: uuidv4(),
+                            rider_unique_id: riders.unique_id,
+                            balance: zero,
+                            service_charge: zero,
+                            status: default_status
+                        }, { transaction }
+                    );
+    
+                    if (riders && rider_account) {
+                        const folder_name = user_documents_path + riders.unique_id;
+                        if (!existsSync(folder_name)) mkdirSync(folder_name);
+                        if (existsSync(folder_name)) {
+                            CreationSuccessResponse(res, { unique_id: riders.unique_id, text: "Rider signed up successfully!" });
+                        }
+                    } else {
+                        throw new Error("Error signing up");
+                    }
+                });
+            } catch (err) {
+                ServerError(res, { unique_id: payload.email, text: err.message }, null);
+            }
+        }
     }
 };
 

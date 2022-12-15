@@ -267,7 +267,7 @@ export function getRiderOrdersCompleted(req, res) {
     ORDERS_COMPLETED.findAndCountAll({
         attributes: { exclude: ['id', 'createdAt', 'updatedAt'] },
         where: {
-            '$Shipping.rider_unique_id$': rider_unique_id
+            '$rider_shipping.rider_unique_id$': rider_unique_id
         },
         order: [
             ['createdAt', 'DESC']
@@ -297,7 +297,7 @@ export function getRiderOrdersCompleted(req, res) {
                     },
                     {
                         model: RIDER_SHIPPING,
-                        as: 'Shipping',
+                        as: 'rider_shipping',
                         required: true,
                         attributes: ['rider_unique_id', 'min_weight', 'max_weight', 'price', 'city', 'state', 'country']
                     }

@@ -6,7 +6,7 @@ import { ServerError, SuccessResponse, ValidationError, OtherSuccessResponse, No
 import { 
     default_delete_status, default_status, tag_admin, image_rename_document, category_image_document_name, save_image_document_path,
     save_document_domain, save_image_dir, image_join_path_and_file, image_remove_unwanted_file, image_remove_file, image_documents_path_alt, 
-    strip_text, file_length_5Mb
+    strip_text, file_length_5Mb, anonymous
 } from '../config/config.js';
 import db from "../models/index.js";
 
@@ -72,12 +72,12 @@ export function getCategoriesForUsers(req, res) {
         ]
     }).then(categories => {
         if (!categories || categories.length == 0) {
-            SuccessResponse(res, { unique_id: user_unique_id, text: "Categories Not found" }, []);
+            SuccessResponse(res, { unique_id: user_unique_id || anonymous, text: "Categories Not found" }, []);
         } else {
-            SuccessResponse(res, { unique_id: user_unique_id, text: "Categories loaded" }, categories);
+            SuccessResponse(res, { unique_id: user_unique_id || anonymous, text: "Categories loaded" }, categories);
         }
     }).catch(err => {
-        ServerError(res, { unique_id: user_unique_id, text: err.message }, null);
+        ServerError(res, { unique_id: user_unique_id || anonymous, text: err.message }, null);
     });
 };
 
