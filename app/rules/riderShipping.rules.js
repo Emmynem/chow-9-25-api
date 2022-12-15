@@ -1,6 +1,6 @@
 import { check } from 'express-validator';
 import db from "../models/index.js";
-import { default_status, default_delete_status } from '../config/config.js';
+import { default_status, default_delete_status, validate_shipping } from '../config/config.js';
 
 const RIDERS = db.riders;
 const RIDER_SHIPPING = db.rider_shipping;
@@ -78,8 +78,7 @@ export const rider_shipping_rules = {
             .bail()
             .isFloat()
             .custom(min_weight => {
-                if (min_weight === 0) return false;
-                else if (min_weight < 0) return false;
+                if (min_weight < 0) return false;
                 else return true;
             })
             .withMessage("Min Weight invalid"),
@@ -88,9 +87,8 @@ export const rider_shipping_rules = {
             .bail()
             .isFloat()
             .custom((max_weight, { req }) => {
-                if (max_weight === 0) return false;
+                if (max_weight < 0) return false;
                 else if (req.body.min_weight > max_weight || req.query.min_weight > max_weight) return false;
-                else if (max_weight < 0) return false;
                 else return true;
             })
             .withMessage("Max Weight invalid"),
@@ -104,21 +102,44 @@ export const rider_shipping_rules = {
                 else return true;
             })
             .withMessage("Price invalid"),
-        check('city', "City is required")
+        check('from_city', "From-City is required")
             .exists({ checkNull: true, checkFalsy: true })
             .bail()
             .isString().isLength({ min: 3, max: 50 })
             .withMessage("Invalid length (3 - 50) characters"),
-        check('state', "State is required")
+        check('from_state', "From-State is required")
             .exists({ checkNull: true, checkFalsy: true })
             .bail()
             .isString().isLength({ min: 3, max: 50 })
             .withMessage("Invalid length (3 - 50) characters"),
-        check('country', "Country is required")
+        check('from_country', "From-Country is required")
+            .exists({ checkNull: true, checkFalsy: true })
+            .bail()
+            .isString().isLength({ min: 3, max: 50 })
+            .withMessage("Invalid length (3 - 50) characters"),
+        check('to_city', "To-City is required")
+            .exists({ checkNull: true, checkFalsy: true })
+            .bail()
+            .isString().isLength({ min: 3, max: 50 })
+            .withMessage("Invalid length (3 - 50) characters"),
+        check('to_state', "To-State is required")
+            .exists({ checkNull: true, checkFalsy: true })
+            .bail()
+            .isString().isLength({ min: 3, max: 50 })
+            .withMessage("Invalid length (3 - 50) characters"),
+        check('to_country', "To-Country is required")
             .exists({ checkNull: true, checkFalsy: true })
             .bail()
             .isString().isLength({ min: 3, max: 50 })
             .withMessage("Invalid length (3 - 50) characters")
+    ],
+    forAddingMultiple: [
+        check('shipping', "Shipping is required")
+            .exists({ checkNull: true, checkFalsy: true })
+            .bail()
+            .isArray().notEmpty().withMessage("Array required (not empty)")
+            .bail()
+            .custom(shipping => !!validate_shipping(shipping)).withMessage(`Invalid shipping, accepts an array(not empty), each object in array must contain keys - min_weight, max_weight, price, from_city, from_state, from_country, to_city, to_state, to_country`)
     ],
     forUpdatingCriteria: [
         check('min_weight', "Min Weight is required")
@@ -126,8 +147,7 @@ export const rider_shipping_rules = {
             .bail()
             .isFloat()
             .custom(min_weight => {
-                if (min_weight === 0) return false;
-                else if (min_weight < 0) return false;
+                if (min_weight < 0) return false;
                 else return true;
             })
             .withMessage("Min Weight invalid"),
@@ -136,9 +156,8 @@ export const rider_shipping_rules = {
             .bail()
             .isFloat()
             .custom((max_weight, { req }) => {
-                if (max_weight === 0) return false;
+                if (max_weight < 0) return false;
                 else if (req.body.min_weight > max_weight || req.query.min_weight > max_weight) return false;
-                else if (max_weight < 0) return false;
                 else return true;
             })
             .withMessage("Max Weight invalid"),
@@ -154,17 +173,32 @@ export const rider_shipping_rules = {
             .withMessage("Price invalid")
     ],
     forUpdatingLocation: [
-        check('city', "City is required")
+        check('from_city', "City is required")
             .exists({ checkNull: true, checkFalsy: true })
             .bail()
             .isString().isLength({ min: 3, max: 50 })
             .withMessage("Invalid length (3 - 50) characters"),
-        check('state', "State is required")
+        check('from_state', "State is required")
             .exists({ checkNull: true, checkFalsy: true })
             .bail()
             .isString().isLength({ min: 3, max: 50 })
             .withMessage("Invalid length (3 - 50) characters"),
-        check('country', "Country is required")
+        check('from_country', "Country is required")
+            .exists({ checkNull: true, checkFalsy: true })
+            .bail()
+            .isString().isLength({ min: 3, max: 50 })
+            .withMessage("Invalid length (3 - 50) characters"),
+        check('to_city', "City is required")
+            .exists({ checkNull: true, checkFalsy: true })
+            .bail()
+            .isString().isLength({ min: 3, max: 50 })
+            .withMessage("Invalid length (3 - 50) characters"),
+        check('to_state', "State is required")
+            .exists({ checkNull: true, checkFalsy: true })
+            .bail()
+            .isString().isLength({ min: 3, max: 50 })
+            .withMessage("Invalid length (3 - 50) characters"),
+        check('to_country', "Country is required")
             .exists({ checkNull: true, checkFalsy: true })
             .bail()
             .isString().isLength({ min: 3, max: 50 })
