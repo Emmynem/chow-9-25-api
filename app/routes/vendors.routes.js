@@ -37,5 +37,5 @@ export default function (app) {
     app.put("/root/vendor/remove", [checks.verifyKey, checks.isAdministratorKey, vendor_rules.forFindingVendor], removeVendor);
     app.put("/root/vendor/restore", [checks.verifyKey, checks.isAdministratorKey, vendor_rules.forFindingVendorFalsy], restoreVendor);
 
-    app.delete("/root/vendor/delete", [checks.verifyKey, checks.isAdministratorKey, vendor_rules.forFindingVendor], removeVendorPermanently);
+    // app.delete("/root/vendor/delete", [checks.verifyKey, checks.isAdministratorKey, vendor_rules.forFindingVendor], removeVendorPermanently);
 };

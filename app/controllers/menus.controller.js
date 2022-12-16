@@ -1,7 +1,7 @@
 import { validationResult, matchedData } from 'express-validator';
 import { v4 as uuidv4 } from 'uuid';
 import { ServerError, SuccessResponse, ValidationError, OtherSuccessResponse, NotFoundError, CreationSuccessResponse, BadRequestError, logger } from '../common/index.js';
-import { default_delete_status, default_status, tag_admin, url_path_without_limits, check_user_route, true_status, false_status } from '../config/config.js';
+import { default_delete_status, default_status, tag_admin, url_path_without_limits, check_user_route, true_status, false_status, strip_text } from '../config/config.js';
 import db from "../models/index.js";
 
 const MENUS = db.menus;
@@ -366,6 +366,18 @@ export async function deleteMenu(req, res) {
             try {
                 await db.sequelize.transaction(async (transaction) => {
                     
+                    const products = await PRODUCTS.update(
+                        {
+                            menu_unique_id: null
+                        }, {
+                            where: {
+                                menu_unique_id: payload.unique_id,
+                                vendor_unique_id
+                            },
+                            transaction
+                        }
+                    );
+
                     const menu = await MENUS.destroy(
                         {
                             where: {
@@ -376,19 +388,8 @@ export async function deleteMenu(req, res) {
                             transaction
                         }
                     );
-    
+                    
                     if (menu > 0) {
-                        const products = await PRODUCTS.update(
-                            {
-                                menu_unique_id: null
-                            }, {
-                                where: {
-                                    menu_unique_id: payload.unique_id,
-                                    vendor_unique_id
-                                }, 
-                                transaction
-                            }
-                        );
                         OtherSuccessResponse(res, { unique_id: vendor_unique_id, text: "Menu was deleted successfully!" });
                     } else {
                         throw new Error("Error deleting menu");

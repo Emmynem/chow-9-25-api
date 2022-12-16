@@ -233,19 +233,6 @@ db.products.belongsTo(db.carts, { foreignKey: 'unique_id', targetKey: 'product_u
 db.carts.hasOne(db.rider_shipping, { foreignKey: 'unique_id', sourceKey: 'shipping_fee_unique_id' });
 db.rider_shipping.belongsTo(db.carts, { foreignKey: 'unique_id', targetKey: 'shipping_fee_unique_id' });
 
-//    - Carts Associations
-db.carts.hasOne(db.users, { foreignKey: 'unique_id', sourceKey: 'user_unique_id' });
-db.users.belongsTo(db.carts, { foreignKey: 'unique_id', targetKey: 'user_unique_id' });
-
-db.carts.hasOne(db.vendors, { foreignKey: 'unique_id', sourceKey: 'vendor_unique_id' });
-db.vendors.belongsTo(db.carts, { foreignKey: 'unique_id', targetKey: 'vendor_unique_id' });
-
-db.carts.hasOne(db.products, { foreignKey: 'unique_id', sourceKey: 'product_unique_id' });
-db.products.belongsTo(db.carts, { foreignKey: 'unique_id', targetKey: 'product_unique_id' });
-
-db.carts.hasOne(db.rider_shipping, { foreignKey: 'unique_id', sourceKey: 'shipping_fee_unique_id' });
-db.rider_shipping.belongsTo(db.carts, { foreignKey: 'unique_id', targetKey: 'shipping_fee_unique_id' });
-
 //    - Orders Associations
 db.orders.hasOne(db.users, { foreignKey: 'unique_id', sourceKey: 'user_unique_id' });
 db.users.belongsTo(db.orders, { foreignKey: 'unique_id', targetKey: 'user_unique_id' });

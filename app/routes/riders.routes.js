@@ -38,6 +38,6 @@ export default function (app) {
     app.put("/vendors/rider/remove", [checks.verifyVendorUserToken, checks.isVendorUser, rider_rules.forFindingRiderViaVendor], removeRiderViaVendor);
     app.put("/vendors/rider/restore", [checks.verifyVendorUserToken, checks.isVendorUser, rider_rules.forFindingRiderViaVendorFalsy], restoreRiderViaVendor);
 
-    app.delete("/root/rider/delete", [checks.verifyKey, checks.isAdministratorKey, rider_rules.forFindingRider], removeRiderPermanently);
-    app.delete("/vendors/rider/delete", [checks.verifyVendorUserToken, checks.isVendorUser, rider_rules.forFindingRiderViaVendor], removeRiderPermanentlyViaVendor);
+    // app.delete("/root/rider/delete", [checks.verifyKey, checks.isAdministratorKey, rider_rules.forFindingRider], removeRiderPermanently);
+    // app.delete("/vendors/rider/delete", [checks.verifyVendorUserToken, checks.isVendorUser, rider_rules.forFindingRiderViaVendor], removeRiderPermanentlyViaVendor);
 };

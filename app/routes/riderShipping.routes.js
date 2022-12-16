@@ -24,5 +24,5 @@ export default function (app) {
     app.put("/riders/shipping/criteria", [checks.verifyRiderToken, checks.isRider, rider_shipping_rules.forFindingRiderShipping, rider_shipping_rules.forUpdatingCriteria], updateRiderShipping);
     app.put("/riders/shipping/location", [checks.verifyRiderToken, checks.isRider, rider_shipping_rules.forFindingRiderShipping, rider_shipping_rules.forUpdatingLocation], updateRiderShipping);
 
-    app.delete("/riders/shipping", [checks.verifyRiderToken, checks.isRider, rider_shipping_rules.forFindingRiderShipping], deleteRiderShipping);
+    // app.delete("/riders/shipping", [checks.verifyRiderToken, checks.isRider, rider_shipping_rules.forFindingRiderShipping], deleteRiderShipping);
 };

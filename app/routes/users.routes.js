@@ -25,5 +25,5 @@ export default function (app) {
     app.put("/root/user/remove", [checks.verifyKey, checks.isAdministratorKey, user_rules.forFindingUser], removeUser);
     app.put("/root/user/restore", [checks.verifyKey, checks.isAdministratorKey, user_rules.forFindingUserFalsy], restoreUser);
 
-    app.delete("/root/user/delete", [checks.verifyKey, checks.isAdministratorKey, user_rules.forFindingUser], removeUserPermanently);
+    // app.delete("/root/user/delete", [checks.verifyKey, checks.isAdministratorKey, user_rules.forFindingUser], removeUserPermanently);
 };
