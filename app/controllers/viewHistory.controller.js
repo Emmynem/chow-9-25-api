@@ -14,7 +14,7 @@ export function rootGetViewHistories(req, res) {
     VIEW_HISTORY.findAndCountAll({
         attributes: { exclude: ['id'] },
         order: [
-            ['createdAt', 'DESC']
+            ['updatedAt', 'DESC']
         ],
         include: [
             {
@@ -43,19 +43,21 @@ export function rootGetViewHistories(req, res) {
     });
 };
 
-export function rootGetViewHistory(req, res) {
+export function rootGetViewHistorySpecifically(req, res) {
     const errors = validationResult(req);
     const payload = matchedData(req);
 
     if (!errors.isEmpty()) {
         ValidationError(res, { unique_id: tag_admin, text: "Validation Error Occured" }, errors.array())
-    }
-    else {
-        VIEW_HISTORY.findOne({
+    } else {
+        VIEW_HISTORY.findAndCountAll({
             attributes: { exclude: ['id'] },
             where: {
-                unique_id: payload.view_history_unique_id,
+                ...payload
             },
+            order: [
+                ['updatedAt', 'DESC']
+            ],
             include: [
                 {
                     model: USERS,
@@ -72,11 +74,11 @@ export function rootGetViewHistory(req, res) {
                     ]
                 }
             ]
-        }).then(view_history => {
-            if (!view_history) {
-                NotFoundError(res, { unique_id: tag_admin, text: "View hisitory not found" }, null);
+        }).then(view_histories => {
+            if (!view_histories || view_histories.length == 0) {
+                SuccessResponse(res, { unique_id: tag_admin, text: "View histories Not found" }, []);
             } else {
-                SuccessResponse(res, { unique_id: tag_admin, text: "View hisitory loaded" }, view_history);
+                SuccessResponse(res, { unique_id: tag_admin, text: "View histories loaded" }, view_histories);
             }
         }).catch(err => {
             ServerError(res, { unique_id: tag_admin, text: err.message }, null);
@@ -118,7 +120,7 @@ export function getViewHistories(req, res) {
     });
 };
 
-export async function addViewHistory(req, res, data, transaction) {
+export async function addViewHistory(req, res, data) {
 
     let msg;
     let param;
@@ -133,11 +135,10 @@ export async function addViewHistory(req, res, data, transaction) {
         try {   
             const last_view_history = await VIEW_HISTORY.findOne({
                 where: {
-                    user_unique_id: data.user_unique_id,
+                    user_unique_id: data.user_unique_id || null,
                     product_unique_id: data.product_unique_id,
                     status: default_status
-                },
-                transaction
+                }
             });
 
             if (last_view_history) {
@@ -146,11 +147,10 @@ export async function addViewHistory(req, res, data, transaction) {
                         status: default_status,
                     }, {
                         where: {
-                            user_unique_id: data.user_unique_id,
+                            user_unique_id: data.user_unique_id || null,
                             product_unique_id: data.product_unique_id,
                             status: default_status
-                        }, 
-                        transaction
+                        }
                     }
                 );
 
@@ -168,7 +168,7 @@ export async function addViewHistory(req, res, data, transaction) {
                         ...data,
                         unique_id: uuidv4(),
                         status: default_status
-                    }, { transaction }
+                    }
                 );
 
                 if (view_history) {
