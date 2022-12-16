@@ -9,6 +9,7 @@ import {
     platform_remove_unwanted_file, platform_remove_file, platform_documents_path_alt, file_length_5Mb, anonymous
 } from '../config/config.js';
 import db from "../models/index.js";
+import { addViewHistory } from "./viewHistory.controller.js";
 
 const PRODUCTS = db.products;
 const VENDORS = db.vendors;
@@ -496,15 +497,17 @@ export async function getProductsByCategoryGenerally(req, res) {
 };
 
 export async function getProductGenerally(req, res) {
+    const user_unique_id = req.UNIQUE_ID;
+
     const vendors = await VENDORS.findOne({ where: { stripped: req.params.vendor_stripped, status: default_status } });
 
     if (!vendors) {
-        BadRequestError(res, { unique_id: anonymous, text: "Vendor not found!" }, null);
+        BadRequestError(res, { unique_id: user_unique_id || anonymous, text: "Vendor not found!" }, null);
     } else {
         const vendor_product = await PRODUCTS.findOne({ where: { vendor_unique_id: vendors.unique_id, stripped: req.params.stripped, status: default_status } });
 
         if (!vendor_product) {
-            BadRequestError(res, { unique_id: anonymous, text: "Vendor Product not found!" }, null);
+            BadRequestError(res, { unique_id: user_unique_id || anonymous, text: "Vendor Product not found!" }, null);
         } else {
             PRODUCTS.findOne({
                 attributes: { exclude: ['id', 'vendor_user_unique_id', 'status', 'createdAt', 'updatedAt'] },
@@ -533,13 +536,14 @@ export async function getProductGenerally(req, res) {
                 ]
             }).then(async product => {
                 if (!product) {
-                    NotFoundError(res, { unique_id: anonymous, text: "Product not found" }, null);
+                    NotFoundError(res, { unique_id: user_unique_id || anonymous, text: "Product not found" }, null);
                 } else {
-                    const product_favorites = await PRODUCTS.increment({ views: 1 }, { where: { stripped: req.params.stripped } });
-                    SuccessResponse(res, { unique_id: anonymous, text: "Product loaded" }, product);
+                    const product_views = await PRODUCTS.increment({ views: 1 }, { where: { stripped: req.params.stripped } });
+                    addViewHistory(req, res, { product_unique_id: product.unique_id, user_unique_id});
+                    SuccessResponse(res, { unique_id: user_unique_id || anonymous, text: "Product loaded" }, product);
                 }
             }).catch(err => {
-                ServerError(res, { unique_id: anonymous, text: err.message }, null);
+                ServerError(res, { unique_id: user_unique_id || anonymous, text: err.message }, null);
             });
         }
     }

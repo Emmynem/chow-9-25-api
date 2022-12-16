@@ -308,7 +308,7 @@ export const product_rules = {
                         status: default_status
                     }
                 }).then(data => {
-                    if (!data) return Promise.reject('Menu not found!');
+                    if (menu_unique_id !== null && !data) return Promise.reject('Menu not found!');
                 });
             }),
     ],

@@ -27,7 +27,8 @@ export default function (app) {
     app.get("/products/via/vendor/menu/:vendor_stripped/:menu_stripped", getProductsByVendorMenuGenerally);
     app.get("/products/via/vendor/category/:vendor_stripped/:category_stripped", getProductsByVendorCategoryGenerally);
     app.get("/products/via/category/:stripped", getProductsByCategoryGenerally);
-    app.get("/product/:vendor_stripped/:stripped", getProductGenerally);
+    app.get("/public/product/:vendor_stripped/:stripped", getProductGenerally);
+    app.get("/product/:vendor_stripped/:stripped", [checks.verifyToken, checks.isUser], getProductGenerally);
 
     app.get("/vendors/products", [checks.verifyVendorUserToken, checks.isVendorUser], getProducts);
     app.get("/vendors/product", [checks.verifyVendorUserToken, checks.isVendorUser, product_rules.forFindingProduct], getProduct);
