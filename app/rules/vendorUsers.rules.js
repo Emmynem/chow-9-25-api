@@ -207,5 +207,12 @@ export const vendor_user_rules = {
             .custom(routes => !!validate_platform_user_route(routes)).withMessage(`Invalid route, accepts an array(not empty)`)
             .bail()
             .custom(routes => !!validate_platform_user_route_max_length(routes)).withMessage(`Max length reached`)
+    ],
+    forSearching: [
+        check('search', "Search is required")
+            .exists({ checkNull: true, checkFalsy: true })
+            .bail()
+            .isString().isLength({ min: 2, max: 200 })
+            .withMessage("Invalid length (2 - 200) characters"),
     ]
 };  

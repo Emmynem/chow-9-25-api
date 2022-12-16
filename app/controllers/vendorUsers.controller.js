@@ -20,7 +20,7 @@ export function rootGetVendorUsers(req, res) {
         include: [
             {
                 model: VENDORS,
-                attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'pro']
+                attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'pro', 'verification']
             }
         ]
     }).then(vendor_users => {
@@ -40,17 +40,16 @@ export function rootGetVendorUser(req, res) {
 
     if (!errors.isEmpty()) {
         ValidationError(res, { unique_id: tag_admin, text: "Validation Error Occured" }, errors.array())
-    }
-    else {
+    } else {
         VENDOR_USERS.findOne({
             attributes: { exclude: ['id'] },
             where: {
-                unique_id: payload.vendor_user_unique_id
+                ...payload
             },
             include: [
                 {
                     model: VENDORS,
-                    attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'pro']
+                    attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'pro', 'verification']
                 }
             ]
         }).then(vendor_user => {
@@ -58,6 +57,100 @@ export function rootGetVendorUser(req, res) {
                 NotFoundError(res, { unique_id: tag_admin, text: "Vendor User not found" }, null);
             } else {
                 SuccessResponse(res, { unique_id: tag_admin, text: "Vendor User loaded" }, vendor_user);
+            }
+        }).catch(err => {
+            ServerError(res, { unique_id: tag_admin, text: err.message }, null);
+        });
+    }
+};
+
+export function rootSearchVendorUsers(req, res) {
+    const errors = validationResult(req);
+    const payload = matchedData(req);
+
+    if (!errors.isEmpty()) {
+        ValidationError(res, { unique_id: tag_admin, text: "Validation Error Occured" }, errors.array())
+    } else {
+        VENDOR_USERS.findAndCountAll({
+            attributes: { exclude: ['id'] },
+            where: {
+                [Op.or]: [
+                    {
+                        firstname: {
+                            [Op.or]: {
+                                [Op.like]: `%${payload.search}`,
+                                [Op.startsWith]: `${payload.search}`,
+                                [Op.endsWith]: `${payload.search}`,
+                                [Op.substring]: `${payload.search}`,
+                            }
+                        }
+                    },
+                    {
+                        lastname: {
+                            [Op.or]: {
+                                [Op.like]: `%${payload.search}`,
+                                [Op.startsWith]: `${payload.search}`,
+                                [Op.endsWith]: `${payload.search}`,
+                                [Op.substring]: `${payload.search}`,
+                            }
+                        }
+                    },
+                    {
+                        middlename: {
+                            [Op.or]: {
+                                [Op.like]: `%${payload.search}`,
+                                [Op.startsWith]: `${payload.search}`,
+                                [Op.endsWith]: `${payload.search}`,
+                                [Op.substring]: `${payload.search}`,
+                            }
+                        }
+                    },
+                    {
+                        email: {
+                            [Op.or]: {
+                                [Op.like]: `%${payload.search}`,
+                                [Op.startsWith]: `${payload.search}`,
+                                [Op.endsWith]: `${payload.search}`,
+                                [Op.substring]: `${payload.search}`,
+                            }
+                        }
+                    },
+                    {
+                        mobile_number: {
+                            [Op.or]: {
+                                [Op.like]: `%${payload.search}`,
+                                [Op.startsWith]: `${payload.search}`,
+                                [Op.endsWith]: `${payload.search}`,
+                                [Op.substring]: `${payload.search}`,
+                            }
+                        }
+                    },
+                    {
+                        gender: {
+                            [Op.or]: {
+                                [Op.like]: `%${payload.search}`,
+                                [Op.startsWith]: `${payload.search}`,
+                                [Op.endsWith]: `${payload.search}`,
+                                [Op.substring]: `${payload.search}`,
+                            }
+                        }
+                    }
+                ]
+            },
+            order: [
+                ['createdAt', 'DESC']
+            ],
+            include: [
+                {
+                    model: VENDORS,
+                    attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'pro', 'verification']
+                }
+            ]
+        }).then(vendor_users => {
+            if (!vendor_users || vendor_users.length == 0) {
+                SuccessResponse(res, { unique_id: tag_admin, text: "Vendor Users Not found" }, []);
+            } else {
+                SuccessResponse(res, { unique_id: tag_admin, text: "Vendor Users loaded" }, vendor_users);
             }
         }).catch(err => {
             ServerError(res, { unique_id: tag_admin, text: err.message }, null);
@@ -158,7 +251,7 @@ export function getVendorUserDetails(req, res) {
     const vendor_user_unique_id = req.VENDOR_USER_UNIQUE_ID;
 
     VENDOR_USERS.findOne({
-        attributes: { exclude: ['unique_id', 'id', 'access'] },
+        attributes: { exclude: ['unique_id', 'id', 'access', 'status', 'createdAt', 'updatedAt'] },
         where: {
             vendor_unique_id,
             unique_id: vendor_user_unique_id,
@@ -293,6 +386,9 @@ export async function updateVendorUserDetails(req, res) {
                                 where: {
                                     vendor_unique_id,
                                     unique_id: payload.unique_id,
+                                    routes: {
+                                        [Op.ne]: super_admin_routes
+                                    },
                                     status: default_status
                                 }, 
                                 transaction
