@@ -127,7 +127,7 @@ export function rootGetCart(req, res) {
         CARTS.findOne({
             attributes: { exclude: ['id'] },
             where: {
-                unique_id: payload.cart_unique_id,
+                ...payload
             },
             include: [
                 {
