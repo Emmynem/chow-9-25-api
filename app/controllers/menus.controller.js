@@ -1,7 +1,7 @@
 import { validationResult, matchedData } from 'express-validator';
 import { v4 as uuidv4 } from 'uuid';
 import { ServerError, SuccessResponse, ValidationError, OtherSuccessResponse, NotFoundError, CreationSuccessResponse, BadRequestError, logger } from '../common/index.js';
-import { default_delete_status, default_status, tag_admin, url_path_without_limits, check_user_route, true_status, false_status, strip_text } from '../config/config.js';
+import { default_delete_status, default_status, tag_admin, url_path_without_limits, check_user_route, true_status, false_status, strip_text, anonymous } from '../config/config.js';
 import db from "../models/index.js";
 
 const MENUS = db.menus;
@@ -19,7 +19,7 @@ export function rootGetMenus(req, res) {
         include: [
             {
                 model: VENDORS,
-                attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'pro']
+                attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'pro', 'verification']
             },
             {
                 model: VENDOR_USERS,
@@ -52,7 +52,7 @@ export function rootGetMenu(req, res) {
             include: [
                 {
                     model: VENDORS,
-                    attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'pro']
+                    attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'pro', 'verification']
                 },
                 {
                     model: VENDOR_USERS,
@@ -89,7 +89,7 @@ export function rootGetMenusSpecifically(req, res) {
             include: [
                 {
                     model: VENDORS,
-                    attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'pro']
+                    attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'pro', 'verification']
                 },
                 {
                     model: VENDOR_USERS,
@@ -105,6 +105,46 @@ export function rootGetMenusSpecifically(req, res) {
         }).catch(err => {
             ServerError(res, { unique_id: tag_admin, text: err.message }, null);
         });
+    }
+};
+
+export async function getMenusByVendorGenerally(req, res) {
+
+    const vendors = await VENDORS.findOne({ where: { stripped: req.params.stripped, status: default_status } });
+
+    if (!vendors) {
+        BadRequestError(res, { unique_id: anonymous, text: "Vendor not found!" }, null);
+    } else {
+        const vendor_menus = await MENUS.findOne({ where: { vendor_unique_id: vendors.unique_id, status: default_status } });
+
+        if (!vendor_menus) {
+            BadRequestError(res, { unique_id: anonymous, text: "Vendor Menus not found!" }, null);
+        } else {
+            MENUS.findAndCountAll({
+                attributes: { exclude: ['id', 'vendor_user_unique_id', 'status', 'createdAt', 'updatedAt'] },
+                where: {
+                    vendor_unique_id: vendors.unique_id,
+                    status: default_status
+                },
+                order: [
+                    ['name', 'ASC']
+                ],
+                include: [
+                    {
+                        model: VENDORS,
+                        attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'verification']
+                    }
+                ]
+            }).then(menus => {
+                if (!menus || menus.length == 0) {
+                    SuccessResponse(res, { unique_id: anonymous, text: "Menus Not found" }, []);
+                } else {
+                    SuccessResponse(res, { unique_id: anonymous, text: "Menus loaded" }, menus);
+                }
+            }).catch(err => {
+                ServerError(res, { unique_id: anonymous, text: err.message }, null);
+            });
+        }
     }
 };
 
