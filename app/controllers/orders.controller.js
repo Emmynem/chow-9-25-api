@@ -27,6 +27,7 @@ const RIDER_SHIPPING = db.rider_shipping;
 const RIDERS = db.riders;
 const RIDER_ACCOUNT = db.rider_account;
 const VENDORS = db.vendors;
+const VENDOR_USERS = db.vendor_users;
 const VENDOR_ACCOUNT = db.vendor_account;
 const Op = db.Sequelize.Op;
 
@@ -191,11 +192,246 @@ export function rootGetOrder(req, res) {
     }
 };
 
+export function getVendorOrders(req, res) {
+    const vendor_unique_id = req.VENDOR_UNIQUE_ID;
+    const vendor_user_unique_id = req.VENDOR_USER_UNIQUE_ID;
+
+    const vendor_user_routes = await VENDOR_USERS.findOne({
+        where: {
+            unique_id: vendor_user_unique_id,
+            vendor_unique_id,
+            status: default_status
+        }
+    });
+
+    if (!check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
+        BadRequestError(res, { unique_id: vendor_unique_id, text: "You don't have access to perform this action!" }, null);
+    } else {
+        ORDERS.findAndCountAll({
+            attributes: ['unique_id', 'user_unique_id', 'product_unique_id', 'tracking_number', 'shipping_fee_unique_id', 'quantity', 'amount', 'shipping_fee', 'credit', 'service_charge', 'payment_method', 'paid', 'shipped', 'disputed', 'delivery_status', 'updatedAt'],
+            where: {
+                vendor_unique_id
+            },
+            order: [
+                ['createdAt', 'DESC']
+            ],
+            include: [
+                {
+                    model: USERS,
+                    attributes: ['firstname', 'middlename', 'lastname', 'email', 'mobile_number', 'profile_image']
+                },
+                {
+                    model: PRODUCTS,
+                    attributes: ['name', 'stripped', 'duration', 'weight', 'price', 'sales_price', 'views', 'favorites', 'good_rating', 'bad_rating'],
+                    include: [
+                        {
+                            model: PRODUCT_IMAGES,
+                            attributes: ['image']
+                        }
+                    ]
+                },
+                {
+                    model: RIDER_SHIPPING,
+                    attributes: ['min_weight', 'max_weight', 'price', 'from_city', 'from_state', 'from_country', 'to_city', 'to_state', 'to_country'],
+                    include: [
+                        {
+                            model: RIDERS,
+                            attributes: ['firstname', 'middlename', 'lastname', 'email', 'mobile_number', 'profile_image', 'verification']
+                        }
+                    ]
+                }
+            ]
+        }).then(orders => {
+            if (!orders || orders.length == 0) {
+                SuccessResponse(res, { unique_id: vendor_unique_id, text: "Orders Not found" }, []);
+            } else {
+                SuccessResponse(res, { unique_id: vendor_unique_id, text: "Orders loaded" }, orders);
+            }
+        }).catch(err => {
+            ServerError(res, { unique_id: vendor_unique_id, text: err.message }, null);
+        });
+    }
+
+};
+
+export function getVendorOrdersSpecifically(req, res) {
+    const vendor_unique_id = req.VENDOR_UNIQUE_ID;
+    const vendor_user_unique_id = req.VENDOR_USER_UNIQUE_ID;
+
+    const vendor_user_routes = await VENDOR_USERS.findOne({
+        where: {
+            unique_id: vendor_user_unique_id,
+            vendor_unique_id,
+            status: default_status
+        }
+    });
+
+    if (!check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
+        BadRequestError(res, { unique_id: vendor_unique_id, text: "You don't have access to perform this action!" }, null);
+    } else {
+        const errors = validationResult(req);
+        const payload = matchedData(req);
+
+        if (!errors.isEmpty()) {
+            ValidationError(res, { unique_id: vendor_unique_id, text: "Validation Error Occured" }, errors.array())
+        } else {
+            ORDERS.findAndCountAll({
+                attributes: ['unique_id', 'user_unique_id', 'product_unique_id', 'tracking_number', 'shipping_fee_unique_id', 'quantity', 'amount', 'shipping_fee', 'credit', 'service_charge', 'payment_method', 'paid', 'shipped', 'disputed', 'delivery_status', 'updatedAt'],
+                where: {
+                    vendor_unique_id,
+                    ...payload
+                },
+                order: [
+                    ['createdAt', 'DESC']
+                ],
+                include: [
+                    {
+                        model: USERS,
+                        attributes: ['firstname', 'middlename', 'lastname', 'email', 'mobile_number', 'profile_image']
+                    },
+                    {
+                        model: PRODUCTS,
+                        attributes: ['name', 'stripped', 'duration', 'weight', 'price', 'sales_price', 'views', 'favorites', 'good_rating', 'bad_rating'],
+                        include: [
+                            {
+                                model: PRODUCT_IMAGES,
+                                attributes: ['image']
+                            }
+                        ]
+                    },
+                    {
+                        model: RIDER_SHIPPING,
+                        attributes: ['min_weight', 'max_weight', 'price', 'from_city', 'from_state', 'from_country', 'to_city', 'to_state', 'to_country'],
+                        include: [
+                            {
+                                model: RIDERS,
+                                attributes: ['firstname', 'middlename', 'lastname', 'email', 'mobile_number', 'profile_image', 'verification']
+                            }
+                        ]
+                    }
+                ]
+            }).then(orders => {
+                if (!orders || orders.length == 0) {
+                    SuccessResponse(res, { unique_id: vendor_unique_id, text: "Orders Not found" }, []);
+                } else {
+                    SuccessResponse(res, { unique_id: vendor_unique_id, text: "Orders loaded" }, orders);
+                }
+            }).catch(err => {
+                ServerError(res, { unique_id: vendor_unique_id, text: err.message }, null);
+            });
+        }
+    }
+
+};
+
+export function getRiderOrders(req, res) {
+    const rider_unique_id = req.RIDER_UNIQUE_ID;
+
+    ORDERS.findAndCountAll({
+        attributes: ['unique_id', 'user_unique_id', 'vendor_unique_id', 'product_unique_id', 'tracking_number', 'shipping_fee_unique_id', 'quantity', 'amount', 'shipping_fee', 'rider_credit', 'rider_service_charge', 'payment_method', 'paid', 'shipped', 'disputed', 'delivery_status', 'updatedAt'],
+        where: {
+            '$rider_shipping.rider_unique_id$': rider_unique_id
+        },
+        order: [
+            ['createdAt', 'DESC']
+        ],
+        include: [
+            {
+                model: USERS,
+                attributes: ['firstname', 'middlename', 'lastname', 'email', 'mobile_number', 'profile_image']
+            },
+            {
+                model: VENDORS,
+                attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'verification']
+            },
+            {
+                model: PRODUCTS,
+                attributes: ['name', 'stripped', 'duration', 'weight', 'price', 'sales_price', 'views', 'favorites', 'good_rating', 'bad_rating'],
+                include: [
+                    {
+                        model: PRODUCT_IMAGES,
+                        attributes: ['image']
+                    }
+                ]
+            },
+            {
+                model: RIDER_SHIPPING,
+                as: 'rider_shipping',
+                required: true,
+                attributes: ['min_weight', 'max_weight', 'price', 'from_city', 'from_state', 'from_country', 'to_city', 'to_state', 'to_country']
+            }
+        ]
+    }).then(orders => {
+        if (!orders || orders.length == 0) {
+            SuccessResponse(res, { unique_id: rider_unique_id, text: "Orders Not found" }, []);
+        } else {
+            SuccessResponse(res, { unique_id: rider_unique_id, text: "Orders loaded" }, orders);
+        }
+    }).catch(err => {
+        ServerError(res, { unique_id: rider_unique_id, text: err.message }, null);
+    });
+};
+
+export function getRiderOrdersSpecifically(req, res) {
+    const rider_unique_id = req.RIDER_UNIQUE_ID;
+    const errors = validationResult(req);
+    const payload = matchedData(req);
+
+    if (!errors.isEmpty()) {
+        ValidationError(res, { unique_id: rider_unique_id, text: "Validation Error Occured" }, errors.array())
+    } else {
+        ORDERS.findAndCountAll({
+            attributes: ['unique_id', 'user_unique_id', 'vendor_unique_id', 'product_unique_id', 'tracking_number', 'shipping_fee_unique_id', 'quantity', 'amount', 'shipping_fee', 'rider_credit', 'rider_service_charge', 'payment_method', 'paid', 'shipped', 'disputed', 'delivery_status', 'updatedAt'],
+            where: {
+                ...payload,
+                '$rider_shipping.rider_unique_id$': rider_unique_id
+            },
+            order: [
+                ['createdAt', 'DESC']
+            ],
+            include: [
+                {
+                    model: USERS,
+                    attributes: ['firstname', 'middlename', 'lastname', 'email', 'mobile_number', 'profile_image']
+                },
+                {
+                    model: VENDORS,
+                    attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'verification']
+                },
+                {
+                    model: PRODUCTS,
+                    attributes: ['name', 'stripped', 'duration', 'weight', 'price', 'sales_price', 'views', 'favorites', 'good_rating', 'bad_rating'],
+                    include: [
+                        {
+                            model: PRODUCT_IMAGES,
+                            attributes: ['image']
+                        }
+                    ]
+                },
+                {
+                    model: RIDER_SHIPPING,
+                    as: 'rider_shipping',
+                    required: true,
+                    attributes: ['min_weight', 'max_weight', 'price', 'from_city', 'from_state', 'from_country', 'to_city', 'to_state', 'to_country']
+                }
+            ]
+        }).then(orders => {
+            if (!orders || orders.length == 0) {
+                SuccessResponse(res, { unique_id: rider_unique_id, text: "Orders Not found" }, []);
+            } else {
+                SuccessResponse(res, { unique_id: rider_unique_id, text: "Orders loaded" }, orders);
+            }
+        }).catch(err => {
+            ServerError(res, { unique_id: rider_unique_id, text: err.message }, null);
+        });
+    }
+};
+
 export function getUserOrders(req, res) {
     const user_unique_id = req.UNIQUE_ID;
 
     ORDERS.findAndCountAll({
-        attributes: { exclude: ['user_unique_id', 'id'] },
+        attributes: ['unique_id', 'vendor_unique_id', 'product_unique_id', 'tracking_number', 'shipping_fee_unique_id', 'quantity', 'amount', 'shipping_fee', 'payment_method', 'paid', 'shipped', 'disputed', 'delivery_status', 'updatedAt'],
         where: {
             user_unique_id
         },
@@ -248,7 +484,7 @@ export function getUserOrdersSpecifically(req, res) {
         ValidationError(res, { unique_id: user_unique_id, text: "Validation Error Occured" }, errors.array())
     } else {
         ORDERS.findAndCountAll({
-            attributes: { exclude: ['id'] },
+            attributes: ['unique_id', 'vendor_unique_id', 'product_unique_id', 'tracking_number', 'shipping_fee_unique_id', 'quantity', 'amount', 'shipping_fee', 'payment_method', 'paid', 'shipped', 'disputed', 'delivery_status', 'updatedAt'],
             where: {
                 ...payload,
                 user_unique_id
@@ -307,7 +543,7 @@ export function getUserOrder(req, res) {
         ValidationError(res, { unique_id: user_unique_id, text: "Validation Error Occured" }, errors.array())
     } else {
         ORDERS.findOne({
-            attributes: { exclude: ['id'] },
+            attributes: ['unique_id', 'vendor_unique_id', 'product_unique_id', 'tracking_number', 'shipping_fee_unique_id', 'quantity', 'amount', 'shipping_fee', 'payment_method', 'paid', 'shipped', 'disputed', 'delivery_status', 'updatedAt'],
             where: {
                 ...payload,
                 user_unique_id
@@ -654,6 +890,110 @@ export async function checkOrderStatusForPayment(req, res) {
     }
 };
 
+export async function updateOrderPaymentMethod(req, res) {
+    const user_unique_id = req.UNIQUE_ID;
+    const errors = validationResult(req);
+    const payload = matchedData(req);
+
+    if (!errors.isEmpty()) {
+        ValidationError(res, { unique_id: user_unique_id, text: "Validation Error Occured" }, errors.array())
+    } else {
+        try {
+            await db.sequelize.transaction(async (transaction) => {
+
+                const user_account = await USER_ACCOUNT.findOne({
+                    where: {
+                        user_unique_id,
+                        status: default_status
+                    },
+                    transaction
+                });
+
+                const tracking_number_orders = await ORDERS.findAll({
+                    attributes: ['unique_id'],
+                    where: {
+                        user_unique_id,
+                        tracking_number: payload.tracking_number,
+                        status: default_status
+                    },
+                    transaction
+                });
+
+                let total_order_amount = 0;
+                let order_payment_method;
+
+                let count_paid_errors = 0;
+                let count_product_errors = 0;
+                let count_stock_errors = 0;
+
+                tracking_number_orders.forEach(async element => {
+                    const order_unique_id = element.unique_id;
+
+                    const current_order = await ORDERS.findOne({
+                        where: {
+                            unique_id: order_unique_id,
+                            user_unique_id,
+                            tracking_number: payload.tracking_number,
+                            paid: false_status
+                        },
+                        transaction
+                    });
+
+                    total_order_amount += current_order.amount;
+                    if (!order_payment_method) order_payment_method = current_order.payment_method;
+
+                    if (current_order) {
+                        const product = await PRODUCTS.findOne({
+                            where: {
+                                unique_id: current_order.product_unique_id,
+                                vendor_unique_id: current_order.vendor_unique_id,
+                                status: default_status
+                            },
+                            transaction
+                        });
+
+                        if (!product) count_product_errors += 1;
+                        if (product.remaining < current_order.quantity) count_stock_errors += 1;
+                    } else {
+                        count_paid_errors += 1;
+                    }
+                });
+
+                if (count_paid_errors != 0 || count_product_errors != 0 || count_stock_errors != 0) {
+                    const err_arr = [
+                        `${count_paid_errors} item${count_paid_errors === 1 ? "" : "s"} already paid`,
+                        `${count_product_errors} item${count_product_errors === 1 ? "" : "s"} product not found`,
+                        `${count_stock_errors} item${count_stock_errors === 1 ? "" : "s"} ${count_stock_errors === 1 ? "is" : "are"} out of stock`
+                    ];
+                    BadRequestError(res, { unique_id: user_unique_id, text: "Payment method update failed" }, { errors: err_arr });
+                } else if (!user_account) {
+                    BadRequestError(res, { unique_id: user_unique_id, text: "User Account not found" }, null);
+                } else {
+                    const order = await ORDERS.update(
+                        {
+                            payment_method: payload.payment_method
+                        }, {
+                            where: {
+                                user_unique_id,
+                                tracking_number: payload.tracking_number,
+                            },
+                            transaction
+                        }
+                    );
+
+                    if (order > 0) {
+                        SuccessResponse(res, { unique_id: user_unique_id, text: "Order payment method updated successfully!" }, null);
+                    } else {
+                        throw new Error("Error updating order payment method");
+                    }
+                }
+            });
+        } catch (err) {
+            ServerError(res, { unique_id: user_unique_id, text: err.message }, null);
+        }
+    }
+};
+
 export async function updateOrderPaid(req, res) {
     const user_unique_id = req.UNIQUE_ID;
     const errors = validationResult(req);
@@ -790,14 +1130,14 @@ export async function updateOrderPaid(req, res) {
                                 paid: true_status,
                                 delivery_status: paid
                             }, {
-                            where: {
-                                unique_id: current_order.unique_id,
-                                user_unique_id,
-                                tracking_number: current_order.tracking_number,
-                                vendor_unique_id: current_order.vendor_unique_id,
-                            },
-                            transaction
-                        }
+                                where: {
+                                    unique_id: current_order.unique_id,
+                                    user_unique_id,
+                                    tracking_number: current_order.tracking_number,
+                                    vendor_unique_id: current_order.vendor_unique_id,
+                                },
+                                transaction
+                            }
                         );
 
                         if (order > 0) {
@@ -817,12 +1157,12 @@ export async function updateOrderPaid(req, res) {
                                     {
                                         remaining: new_stock,
                                     }, {
-                                    where: {
-                                        unique_id: product.unique_id,
-                                        vendor_unique_id: product.vendor_unique_id,
-                                    },
-                                    transaction
-                                }
+                                        where: {
+                                            unique_id: product.unique_id,
+                                            vendor_unique_id: product.vendor_unique_id,
+                                        },
+                                        transaction
+                                    }
                                 );
 
                                 // const total_vendor_service_charge = vendor_account.service_charge + current_order.service_charge;
@@ -877,11 +1217,11 @@ export async function updateOrderPaid(req, res) {
                                             {
                                                 balance: new_user_balance,
                                             }, {
-                                            where: {
-                                                user_unique_id,
-                                            },
-                                            transaction
-                                        }
+                                                where: {
+                                                    user_unique_id,
+                                                },
+                                                transaction
+                                            }
                                         );
 
                                         if (update_user_balance > 0) {
@@ -890,11 +1230,11 @@ export async function updateOrderPaid(req, res) {
                                                     balance: new_vendor_card_balance,
                                                     // service_charge: new_vendor_service_charge // Add if payment method is cash or transfer 
                                                 }, {
-                                                where: {
-                                                    vendor_unique_id: current_order.vendor_unique_id,
-                                                },
-                                                transaction
-                                            }
+                                                    where: {
+                                                        vendor_unique_id: current_order.vendor_unique_id,
+                                                    },
+                                                    transaction
+                                                }
                                             );
 
                                             const update_rider_balance = await RIDER_ACCOUNT.update(
@@ -902,11 +1242,11 @@ export async function updateOrderPaid(req, res) {
                                                     balance: new_rider_card_balance,
                                                     // service_charge: new_rider_service_charge // Add if payment method is cash or transfer 
                                                 }, {
-                                                where: {
-                                                    rider_unique_id: rider_shipping.rider_unique_id,
-                                                },
-                                                transaction
-                                            }
+                                                    where: {
+                                                        rider_unique_id: rider_shipping.rider_unique_id,
+                                                    },
+                                                    transaction
+                                                }
                                             );
 
                                             if (update_vendor_balance > 0 && update_rider_balance > 0) {
@@ -928,27 +1268,29 @@ export async function updateOrderPaid(req, res) {
                                             throw new Error("Error updating user balance");
                                         }
                                     } else {
-                                        const update_vendor_balance = await VENDOR_ACCOUNT.update({
-                                            balance: new_vendor_card_balance,
-                                            // service_charge: new_vendor_service_charge // Add if payment method is cash or transfer 
-                                        }, {
-                                            where: {
-                                                vendor_unique_id: current_order.vendor_unique_id,
-                                            },
-                                            transaction
-                                        }
+                                        const update_vendor_balance = await VENDOR_ACCOUNT.update(
+                                            {
+                                                balance: new_vendor_card_balance,
+                                                // service_charge: new_vendor_service_charge // Add if payment method is cash or transfer 
+                                            }, {
+                                                where: {
+                                                    vendor_unique_id: current_order.vendor_unique_id,
+                                                },
+                                                transaction
+                                            }
                                         );
 
-                                        const update_rider_balance = await db.sequelize.transaction((t) => {
-                                            return RIDER_ACCOUNT.update({
+                                        const update_rider_balance = await RIDER_ACCOUNT.update(
+                                            {
                                                 balance: new_rider_card_balance,
                                                 // service_charge: new_rider_service_charge // Add if payment method is cash or transfer 
                                             }, {
                                                 where: {
                                                     rider_unique_id: rider_shipping.rider_unique_id,
-                                                }
-                                            }, { transaction: t });
-                                        });
+                                                },
+                                                transaction
+                                            }
+                                        );
 
                                         if (update_vendor_balance > 0 && update_rider_balance > 0) {
                                             if (index === (tracking_number_orders.length - 1)) {
@@ -1346,11 +1688,11 @@ export async function updateOrderCancelled(req, res) {
                                         {
                                             balance: new_user_balance,
                                         }, {
-                                        where: {
-                                            user_unique_id,
-                                        },
-                                        transaction
-                                    }
+                                            where: {
+                                                user_unique_id,
+                                            },
+                                            transaction
+                                        }
                                     );
 
                                     if (update_user_balance > 0) {
@@ -1360,11 +1702,11 @@ export async function updateOrderCancelled(req, res) {
                                                 // service_charge: new_vendor_service_charge // Add if payment method is cash or transfer 
                                                 service_charge: new_vendor_service_charge
                                             }, {
-                                            where: {
-                                                vendor_unique_id: current_order.vendor_unique_id,
-                                            },
-                                            transaction
-                                        }
+                                                where: {
+                                                    vendor_unique_id: current_order.vendor_unique_id,
+                                                },
+                                                transaction
+                                            }
                                         );
 
                                         const update_rider_balance = await RIDER_ACCOUNT.update(
@@ -1373,11 +1715,11 @@ export async function updateOrderCancelled(req, res) {
                                                 // service_charge: new_rider_service_charge // Add if payment method is cash or transfer 
                                                 service_charge: new_rider_service_charge
                                             }, {
-                                            where: {
-                                                rider_unique_id: rider_shipping.rider_unique_id,
-                                            },
-                                            transaction
-                                        }
+                                                where: {
+                                                    rider_unique_id: rider_shipping.rider_unique_id,
+                                                },
+                                                transaction
+                                            }
                                         );
 
                                         if (update_vendor_balance > 0 && update_rider_balance > 0) {
@@ -1764,7 +2106,8 @@ export async function updateOrderInTransit(req, res) {
 
                 const current_order = await ORDERS.findOne({
                     where: {
-                        ...payload,
+                        unique_id: payload.unique_id,
+                        shipping_fee_unique_id: payload.shipping_fee_unique_id,
                     },
                     transaction
                 });
@@ -1819,7 +2162,7 @@ export async function updateOrderInTransit(req, res) {
                             throw new Error("Error updating order in transit");
                         }
                     } else {
-                        BadRequestError(res, { unique_id: rider_unique_id, text: `Order is already ${current_order.delivery_status}` }, null);
+                        BadRequestError(res, { unique_id: rider_unique_id, text: `Order is already ${current_order.delivery_status.toLowerCase()}` }, null);
                     }
                 }
             });
@@ -1842,7 +2185,8 @@ export async function updateOrderShipped(req, res) {
 
                 const current_order = await ORDERS.findOne({
                     where: {
-                        ...payload,
+                        unique_id: payload.unique_id,
+                        shipping_fee_unique_id: payload.shipping_fee_unique_id,
                     },
                     transaction
                 });
@@ -1898,7 +2242,7 @@ export async function updateOrderShipped(req, res) {
                             throw new Error("Error updating shipped order");
                         }
                     } else {
-                        BadRequestError(res, { unique_id: rider_unique_id, text: `Order is already ${current_order.delivery_status}` }, null);
+                        BadRequestError(res, { unique_id: rider_unique_id, text: `Order is already ${current_order.delivery_status.toLowerCase()}` }, null);
                     }
                 }
             });
@@ -2042,7 +2386,7 @@ export async function updateOrderCompleted(req, res) {
                                 throw new Error("Error updating completed order");
                             }
                         } else {
-                            BadRequestError(res, { unique_id: vendor_unique_id, text: `Order is already ${current_order.delivery_status}` }, null);
+                            BadRequestError(res, { unique_id: vendor_unique_id, text: `Order is already ${current_order.delivery_status.toLowerCase()}` }, null);
                         }
                     }
                 });

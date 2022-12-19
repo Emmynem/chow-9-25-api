@@ -187,6 +187,20 @@ export const order_rules = {
                     if (!data) return Promise.reject('Rider not found!');
                 });
             }),
+        check('shipping_fee_unique_id')
+            .optional({ checkFalsy: false })
+            .bail()
+            .custom(shipping_fee_unique_id => {
+                return RIDER_SHIPPING.findOne({ 
+                    where: { 
+                        unique_id: shipping_fee_unique_id, 
+                        rider_unique_id: req.query.rider_unique_id || req.body.rider_unique_id || '',
+                        status: default_status 
+                    } 
+                }).then(data => {
+                    if (!data) return Promise.reject('Shipping Fee not found!');
+                });
+            }),
         check('unique_id', "Unique Id is required")
             .exists({ checkNull: true, checkFalsy: true })
             .bail()
