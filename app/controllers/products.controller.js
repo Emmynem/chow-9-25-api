@@ -192,8 +192,8 @@ export function searchProducts(req, res) {
                 ['good_rating', 'DESC'],
                 ['sales_price', 'ASC'],
                 ['favorites', 'DESC'],
-                ['remaining', 'DESC'],
                 ['views', 'DESC'],
+                ['remaining', 'DESC'],
             ],
             include: [
                 {
@@ -235,8 +235,8 @@ export function getProductsGenerally(req, res) {
             ['good_rating', 'DESC'],
             ['sales_price', 'ASC'],
             ['favorites', 'DESC'],
-            ['remaining', 'DESC'],
             ['views', 'DESC'],
+            ['remaining', 'DESC'],
         ],
         include: [
             {
@@ -289,8 +289,8 @@ export async function getProductsByVendorGenerally(req, res) {
                     ['good_rating', 'DESC'],
                     ['sales_price', 'ASC'],
                     ['favorites', 'DESC'],
-                    ['remaining', 'DESC'],
                     ['views', 'DESC'],
+                    ['remaining', 'DESC'],
                 ],
                 include: [
                     {
@@ -349,8 +349,8 @@ export async function getProductsByVendorCategoryGenerally(req, res) {
                     ['good_rating', 'DESC'],
                     ['sales_price', 'ASC'],
                     ['favorites', 'DESC'],
-                    ['remaining', 'DESC'],
                     ['views', 'DESC'],
+                    ['remaining', 'DESC'],
                 ],
                 include: [
                     {
@@ -411,8 +411,8 @@ export async function getProductsByVendorMenuGenerally(req, res) {
                         ['good_rating', 'DESC'],
                         ['sales_price', 'ASC'],
                         ['favorites', 'DESC'],
-                        ['remaining', 'DESC'],
                         ['views', 'DESC'],
+                        ['remaining', 'DESC'],
                     ],
                     include: [
                         {
@@ -463,8 +463,8 @@ export async function getProductsByCategoryGenerally(req, res) {
                 ['good_rating', 'DESC'],
                 ['sales_price', 'ASC'],
                 ['favorites', 'DESC'],
-                ['remaining', 'DESC'],
                 ['views', 'DESC'],
+                ['remaining', 'DESC'],
             ],
             include: [
                 {

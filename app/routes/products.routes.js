@@ -10,8 +10,9 @@ import {
     removeProduct, restoreProduct, rootGetProduct, rootGetProducts, rootGetProductsSpecifically, 
     updateProductName, updateProductOthers, getProductGenerally, getProductsGenerally,
     getProductsByCategoryGenerally, getProductsByVendorCategoryGenerally, getProductsByVendorGenerally, 
-    getProductsByVendorMenuGenerally, searchProducts
+    getProductsByVendorMenuGenerally
 } from "../controllers/products.controller.js";
+import { searchProducts } from "../controllers/searchHistory.controller.js";
 
 export default function (app) {
     app.get("/root/products", [checks.verifyKey, checks.isAdministratorKey], rootGetProducts);

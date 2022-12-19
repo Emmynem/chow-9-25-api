@@ -170,8 +170,7 @@ export const product_rules = {
             .bail()
             .isInt()
             .custom(quantity => {
-                if (quantity === 0) return false;
-                else if (quantity < 0) return false;
+                if (quantity < 1) return false;
                 else return true;
             })
             .withMessage("Quantity invalid"),
@@ -180,8 +179,7 @@ export const product_rules = {
             .bail()
             .isInt()
             .custom(remaining => {
-                if (remaining === 0) return false;
-                else if (remaining < 0) return false;
+                if (remaining < 1) return false;
                 else return true;
             })
             .withMessage("Remaining invalid"),
@@ -258,8 +256,7 @@ export const product_rules = {
             .bail()
             .isInt()
             .custom(quantity => {
-                if (quantity === 0) return false;
-                else if (quantity < 0) return false;
+                if (quantity < 1) return false;
                 else return true;
             })
             .withMessage("Quantity invalid"),
@@ -268,8 +265,7 @@ export const product_rules = {
             .bail()
             .isInt()
             .custom(remaining => {
-                if (remaining === 0) return false;
-                else if (remaining < 0) return false;
+                if (remaining < 1) return false;
                 else return true;
             })
             .withMessage("Remaining invalid")
