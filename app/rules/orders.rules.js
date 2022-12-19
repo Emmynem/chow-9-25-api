@@ -269,8 +269,7 @@ export const order_rules = {
             .bail()
             .isInt()
             .custom(quantity => {
-                if (quantity === 0) return false;
-                else if (quantity < 0) return false;
+                if (quantity < 1) return false;
                 else return true;
             })
             .withMessage("Quantity invalid"),

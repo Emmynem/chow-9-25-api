@@ -7,6 +7,7 @@ import db from "../models/index.js";
 const SEARCH_HISTORY = db.search_history;
 const USERS = db.users;
 const PRODUCTS = db.products;
+const PRODUCT_IMAGES = db.product_images;
 const VENDORS = db.vendors;
 const MENUS = db.menus;
 const CATEGORIES = db.categories;
@@ -122,28 +123,46 @@ export async function searchProducts(req, res) {
                 });
 
                 const products = await PRODUCTS.findAndCountAll({
-                    attributes: { exclude: ['id', 'vendor_unique_id', 'createdAt', 'updatedAt', 'status'] },
+                    attributes: { exclude: ['id', 'vendor_user_unique_id', 'status', 'createdAt', 'updatedAt'] },
                     where: {
-                        name: {
-                            [Op.or]: {
-                                [Op.like]: `%${payload.search}`,
-                                [Op.startsWith]: `${payload.search}`,
-                                [Op.endsWith]: `${payload.search}`,
-                                [Op.substring]: `${payload.search}`,
+                        [Op.or]: [
+                            {
+                                name: {
+                                    [Op.or]: {
+                                        [Op.like]: `%${payload.search}`,
+                                        [Op.startsWith]: `${payload.search}`,
+                                        [Op.endsWith]: `${payload.search}`,
+                                        [Op.substring]: `${payload.search}`,
+                                    }
+                                }
+
+                            },
+                            {
+                                description: {
+                                    [Op.or]: {
+                                        [Op.substring]: `${payload.search}`
+                                    }
+                                }
+
                             }
-                        }
+                        ],
+                        status: default_status
                     },
                     order: [
                         ['good_rating', 'DESC'],
                         ['sales_price', 'ASC'],
                         ['favorites', 'DESC'],
-                        ['remaining', 'DESC'],
                         ['views', 'DESC'],
+                        ['remaining', 'DESC'],
                     ],
                     include: [
                         {
+                            model: PRODUCT_IMAGES,
+                            attributes: ['image']
+                        },
+                        {
                             model: VENDORS,
-                            attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'pro']
+                            attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'verification']
                         },
                         {
                             model: MENUS,
