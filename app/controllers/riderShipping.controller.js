@@ -247,12 +247,24 @@ export async function getProductShipping(req, res) {
                     max_weight: {
                         [Op.gte]: product.weight
                     },
-                    from_city: product.vendor.vendor_address.city,
-                    from_state: product.vendor.vendor_address.state,
-                    from_country: product.vendor.vendor_address.country,
-                    to_city: address.city,
-                    to_state: address.state,
-                    to_country: address.country,
+                    [Op.or]: [
+                        {
+                            from_city: product.vendor.vendor_address.city,
+                            from_state: product.vendor.vendor_address.state,
+                            from_country: product.vendor.vendor_address.country,
+                            to_city: address.city,
+                            to_state: address.state,
+                            to_country: address.country,
+                        },
+                        {
+                            from_city: address.city,
+                            from_state: address.state,
+                            from_country: address.country,
+                            to_city: product.vendor.vendor_address.city,
+                            to_state: product.vendor.vendor_address.state,
+                            to_country: product.vendor.vendor_address.country,
+                        }
+                    ],
                     '$rider.vendor_unique_id$': product.vendor_unique_id,
                     '$rider.availability$': true_status
                 },
@@ -285,12 +297,24 @@ export async function getProductShipping(req, res) {
                     max_weight: {
                         [Op.gte]: product.weight
                     },
-                    from_city: product.vendor.vendor_address.city,
-                    from_state: product.vendor.vendor_address.state,
-                    from_country: product.vendor.vendor_address.country,
-                    to_city: address.city,
-                    to_state: address.state,
-                    to_country: address.country,
+                    [Op.or]: [
+                        {
+                            from_city: product.vendor.vendor_address.city,
+                            from_state: product.vendor.vendor_address.state,
+                            from_country: product.vendor.vendor_address.country,
+                            to_city: address.city,
+                            to_state: address.state,
+                            to_country: address.country,
+                        },
+                        {
+                            from_city: address.city,
+                            from_state: address.state,
+                            from_country: address.country,
+                            to_city: product.vendor.vendor_address.city,
+                            to_state: product.vendor.vendor_address.state,
+                            to_country: product.vendor.vendor_address.country,
+                        }
+                    ],
                     '$rider.vendor_unique_id$': null,
                     '$rider.availability$': true_status,
                 },

@@ -78,7 +78,7 @@ export const rider_shipping_rules = {
             .bail()
             .isFloat()
             .custom(min_weight => {
-                if (min_weight < 0) return false;
+                if (min_weight < 1) return false;
                 else return true;
             })
             .withMessage("Min Weight invalid, minimum of 1 gram"),
@@ -87,7 +87,7 @@ export const rider_shipping_rules = {
             .bail()
             .isFloat()
             .custom((max_weight, { req }) => {
-                if (max_weight < 0) return false;
+                if (max_weight < 1) return false;
                 else if (req.body.min_weight > max_weight || req.query.min_weight > max_weight) return false;
                 else return true;
             })
@@ -147,7 +147,7 @@ export const rider_shipping_rules = {
             .bail()
             .isFloat()
             .custom(min_weight => {
-                if (min_weight < 0) return false;
+                if (min_weight < 1) return false;
                 else return true;
             })
             .withMessage("Min Weight invalid, minimum of 1 gram"),
@@ -156,7 +156,7 @@ export const rider_shipping_rules = {
             .bail()
             .isFloat()
             .custom((max_weight, { req }) => {
-                if (max_weight < 0) return false;
+                if (max_weight < 1) return false;
                 else if (req.body.min_weight > max_weight || req.query.min_weight > max_weight) return false;
                 else return true;
             })
