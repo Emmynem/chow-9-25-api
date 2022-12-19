@@ -6,6 +6,7 @@ import db from "../models/index.js";
 
 const CARTS = db.carts;
 const USERS = db.users;
+const VENDORS = db.vendors;
 const ADDRESSESS = db.addressess;
 const PRODUCTS = db.products;
 const PRODUCT_IMAGES = db.product_images;
@@ -26,7 +27,7 @@ export function rootGetCarts(req, res) {
             },
             {
                 model: VENDORS,
-                attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'pro']
+                attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'pro', 'verification']
             },
             {
                 model: PRODUCTS,
@@ -40,7 +41,7 @@ export function rootGetCarts(req, res) {
             },
             {
                 model: RIDER_SHIPPING,
-                attributes: ['min_weight', 'max_weight', 'price', 'city', 'state', 'country'],
+                attributes: ['min_weight', 'max_weight', 'price', 'from_city', 'from_state', 'from_country', 'to_city', 'to_state', 'to_country'],
                 include: [
                     {
                         model: RIDERS,
@@ -82,7 +83,7 @@ export function rootGetCartsSpecifically(req, res) {
                 },
                 {
                     model: VENDORS,
-                    attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'pro']
+                    attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'pro', 'verification']
                 },
                 {
                     model: PRODUCTS,
@@ -96,7 +97,7 @@ export function rootGetCartsSpecifically(req, res) {
                 },
                 {
                     model: RIDER_SHIPPING,
-                    attributes: ['min_weight', 'max_weight', 'price', 'city', 'state', 'country'],
+                    attributes: ['min_weight', 'max_weight', 'price', 'from_city', 'from_state', 'from_country', 'to_city', 'to_state', 'to_country'],
                     include: [
                         {
                             model: RIDERS,
@@ -136,7 +137,7 @@ export function rootGetCart(req, res) {
                 },
                 {
                     model: VENDORS,
-                    attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'pro']
+                    attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'pro', 'verification']
                 },
                 {
                     model: PRODUCTS,
@@ -150,7 +151,7 @@ export function rootGetCart(req, res) {
                 },
                 {
                     model: RIDER_SHIPPING,
-                    attributes: ['min_weight', 'max_weight', 'price', 'city', 'state', 'country'],
+                    attributes: ['min_weight', 'max_weight', 'price', 'from_city', 'from_state', 'from_country', 'to_city', 'to_state', 'to_country'],
                     include: [
                         {
                             model: RIDERS,
@@ -175,7 +176,7 @@ export function getUserCarts(req, res) {
     const user_unique_id = req.UNIQUE_ID;
 
     CARTS.findAndCountAll({
-        attributes: { exclude: ['user_unique_id', 'id'] },
+        attributes: { exclude: ['user_unique_id', 'id', 'status', 'createdAt', 'updatedAt'] },
         where: {
             user_unique_id
         },
@@ -185,7 +186,7 @@ export function getUserCarts(req, res) {
         include: [
             {
                 model: VENDORS,
-                attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'pro']
+                attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'verification']
             },
             {
                 model: PRODUCTS,
@@ -199,7 +200,7 @@ export function getUserCarts(req, res) {
             },
             {
                 model: RIDER_SHIPPING,
-                attributes: ['min_weight', 'max_weight', 'price', 'city', 'state', 'country'],
+                attributes: ['min_weight', 'max_weight', 'price', 'from_city', 'from_state', 'from_country', 'to_city', 'to_state', 'to_country'],
                 include: [
                     {
                         model: RIDERS,
@@ -228,7 +229,7 @@ export function getUserCart(req, res) {
         ValidationError(res, { unique_id: user_unique_id, text: "Validation Error Occured" }, errors.array())
     } else {
         CARTS.findOne({
-            attributes: { exclude: ['id'] },
+            attributes: { exclude: ['user_unique_id', 'id', 'status', 'createdAt', 'updatedAt'] },
             where: {
                 ...payload,
                 user_unique_id
@@ -240,7 +241,7 @@ export function getUserCart(req, res) {
                 },
                 {
                     model: VENDORS,
-                    attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'pro']
+                    attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'verification']
                 },
                 {
                     model: PRODUCTS,
@@ -254,7 +255,7 @@ export function getUserCart(req, res) {
                 },
                 {
                     model: RIDER_SHIPPING,
-                    attributes: ['min_weight', 'max_weight', 'price', 'city', 'state', 'country'],
+                    attributes: ['min_weight', 'max_weight', 'price', 'from_city', 'from_state', 'from_country', 'to_city', 'to_state', 'to_country'],
                     include: [
                         {
                             model: RIDERS,

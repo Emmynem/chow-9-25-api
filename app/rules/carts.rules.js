@@ -87,7 +87,7 @@ export const cart_rules = {
         check('product_unique_id', "Product Unique Id is required")
             .exists({ checkNull: true, checkFalsy: true })
             .bail()
-            .custom(product_unique_id => {
+            .custom((product_unique_id, { req }) => {
                 return PRODUCTS.findOne({ 
                     where: { 
                         unique_id: product_unique_id, 
@@ -123,8 +123,7 @@ export const cart_rules = {
             .bail()
             .isInt()
             .custom(quantity => {
-                if (quantity === 0) return false;
-                else if (quantity < 0) return false;
+                if (quantity < 1) return false;
                 else return true;
             })
             .withMessage("Quantity invalid")
