@@ -45,7 +45,7 @@ export function rootGetDisputes(req, res) {
                     },
                     {
                         model: RIDER_SHIPPING,
-                        attributes: ['min_weight', 'max_weight', 'price', 'city', 'state', 'country'],
+                        attributes: ['min_weight', 'max_weight', 'price', 'from_city', 'from_state', 'from_country', 'to_city', 'to_state', 'to_country'],
                         include: [
                             {
                                 model: RIDERS,
@@ -104,7 +104,7 @@ export function rootGetDispute(req, res) {
                         },
                         {
                             model: RIDER_SHIPPING,
-                            attributes: ['min_weight', 'max_weight', 'price', 'city', 'state', 'country'],
+                            attributes: ['min_weight', 'max_weight', 'price', 'from_city', 'from_state', 'from_country', 'to_city', 'to_state', 'to_country'],
                             include: [
                                 {
                                     model: RIDERS,
@@ -167,7 +167,7 @@ export function rootGetDisputesSpecifically(req, res) {
                         },
                         {
                             model: RIDER_SHIPPING,
-                            attributes: ['min_weight', 'max_weight', 'price', 'city', 'state', 'country'],
+                            attributes: ['min_weight', 'max_weight', 'price', 'from_city', 'from_state', 'from_country', 'to_city', 'to_state', 'to_country'],
                             include: [
                                 {
                                     model: RIDERS,
@@ -222,7 +222,7 @@ export function getDisputes(req, res) {
                     },
                     {
                         model: RIDER_SHIPPING,
-                        attributes: ['min_weight', 'max_weight', 'price', 'city', 'state', 'country'],
+                        attributes: ['min_weight', 'max_weight', 'price', 'from_city', 'from_state', 'from_country', 'to_city', 'to_state', 'to_country'],
                         include: [
                             {
                                 model: RIDERS,
@@ -282,7 +282,7 @@ export function getDisputesSpecifically(req, res) {
                         },
                         {
                             model: RIDER_SHIPPING,
-                            attributes: ['min_weight', 'max_weight', 'price', 'city', 'state', 'country'],
+                            attributes: ['min_weight', 'max_weight', 'price', 'from_city', 'from_state', 'from_country', 'to_city', 'to_state', 'to_country'],
                             include: [
                                 {
                                     model: RIDERS,
@@ -340,7 +340,7 @@ export function getDispute(req, res) {
                         },
                         {
                             model: RIDER_SHIPPING,
-                            attributes: ['min_weight', 'max_weight', 'price', 'city', 'state', 'country'],
+                            attributes: ['min_weight', 'max_weight', 'price', 'from_city', 'from_state', 'from_country', 'to_city', 'to_state', 'to_country'],
                             include: [
                                 {
                                     model: RIDERS,

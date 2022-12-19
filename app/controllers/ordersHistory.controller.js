@@ -41,11 +41,11 @@ export function rootGetOrdersHistory(req, res) {
                     },
                     {
                         model: VENDORS,
-                        attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'pro']
+                        attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'pro', 'verification']
                     },
                     {
                         model: RIDER_SHIPPING,
-                        attributes: ['min_weight', 'max_weight', 'price', 'city', 'state', 'country'],
+                        attributes: ['min_weight', 'max_weight', 'price', 'from_city', 'from_state', 'from_country', 'to_city', 'to_state', 'to_country'],
                         include: [
                             {
                                 model: RIDERS,
@@ -100,11 +100,11 @@ export function rootGetOrderHistory(req, res) {
                         },
                         {
                             model: VENDORS,
-                            attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'pro']
+                            attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'pro', 'verification']
                         },
                         {
                             model: RIDER_SHIPPING,
-                            attributes: ['min_weight', 'max_weight', 'price', 'city', 'state', 'country'],
+                            attributes: ['min_weight', 'max_weight', 'price', 'from_city', 'from_state', 'from_country', 'to_city', 'to_state', 'to_country'],
                             include: [
                                 {
                                     model: RIDERS,
@@ -161,11 +161,11 @@ export function getOrderHistorySpecifically(req, res) {
                         },
                         {
                             model: VENDORS,
-                            attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image']
+                            attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'verification']
                         },
                         {
                             model: RIDER_SHIPPING,
-                            attributes: ['min_weight', 'max_weight', 'price', 'city', 'state', 'country'],
+                            attributes: ['min_weight', 'max_weight', 'price', 'from_city', 'from_state', 'from_country', 'to_city', 'to_state', 'to_country'],
                             include: [
                                 {
                                     model: RIDERS,

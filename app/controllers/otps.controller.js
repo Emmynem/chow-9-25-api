@@ -19,7 +19,7 @@ export function rootGetOtps(req, res) {
         include: [
             {
                 model: VENDORS,
-                attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'pro']
+                attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'pro', 'verification']
             },
             {
                 model: VENDOR_USERS,
@@ -56,7 +56,7 @@ export function rootGetVendorOtps(req, res) {
             include: [
                 {
                     model: VENDORS,
-                    attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'pro']
+                    attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'pro', 'verification']
                 },
                 {
                     model: VENDOR_USERS,
@@ -92,7 +92,7 @@ export function rootGetVendorOtpViaCode(req, res) {
             include: [
                 {
                     model: VENDORS,
-                    attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'pro']
+                    attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'pro', 'verification']
                 },
                 {
                     model: VENDOR_USERS,

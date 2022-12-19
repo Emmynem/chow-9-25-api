@@ -24,7 +24,7 @@ export function rootGetTransactions(req, res) {
         include: [
             {
                 model: VENDORS,
-                attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'pro']
+                attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'pro', 'verification']
             }
         ]
     }).then(transactions => {
@@ -53,7 +53,7 @@ export function rootGetTransaction(req, res) {
             include: [
                 {
                     model: VENDORS,
-                    attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'pro']
+                    attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'pro', 'verification']
                 }
             ]
         }).then(transaction => {
@@ -86,7 +86,7 @@ export function rootGetTransactionsSpecifically(req, res) {
             include: [
                 {
                     model: VENDORS,
-                    attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'pro']
+                    attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'pro', 'verification']
                 }
             ]
         }).then(transactions => {
