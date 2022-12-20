@@ -48,8 +48,7 @@ export default (sequelize, Sequelize) => {
         },
         tracking_number: {
             type: Sequelize.STRING(15),
-            allowNull: false,
-            unique: true
+            allowNull: false
         },
         shipping_fee_unique_id: {
             type: Sequelize.STRING(40),

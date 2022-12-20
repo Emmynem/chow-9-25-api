@@ -355,12 +355,12 @@ export const order_rules = {
             .isString().isLength({ min: 3, max: 20 })
             .withMessage("Invalid length (3 - 20) characters")
             .bail()
-            .custom(payment_method => !!validate_payment_method(payment_method)).withMessage(`Invalid payment method, accepted methods (${payment_methods.card, payment_methods.wallet})`),
+            .custom(payment_method => !!validate_payment_method(payment_method)).withMessage(`Invalid payment method, accepted methods (${payment_methods.card + ", " + payment_methods.wallet})`),
         check('cart_unique_ids', "Cart Unique IDs are required")
             .exists({ checkNull: true, checkFalsy: true })
             .bail()
-            .isArray().isEmpty()
-            .withMessage("Must be an array if objects (not empty)")
+            .isArray({min: 1})
+            .withMessage("Must be an array of objects (not empty)")
     ],
     forUpdatingPaymentMethod: [
         check('payment_method', "Payment Method is required")
@@ -369,7 +369,7 @@ export const order_rules = {
             .isString().isLength({ min: 3, max: 20 })
             .withMessage("Invalid length (3 - 20) characters")
             .bail()
-            .custom(payment_method => !!validate_payment_method(payment_method)).withMessage(`Invalid payment method, accepted methods (${payment_methods.card, payment_methods.wallet})`)
+            .custom(payment_method => !!validate_payment_method(payment_method)).withMessage(`Invalid payment method, accepted methods (${payment_methods.card + ", " + payment_methods.wallet})`)
     ],
     forDenyingRefund: [
         check('feedback', "Feedback is required")

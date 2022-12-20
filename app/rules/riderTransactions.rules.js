@@ -131,7 +131,7 @@ export const rider_transaction_rules = {
             .withMessage("Invalid length (3 - 20) characters")
             .bail()
             .custom(payment_method => !!validate_vendor_payment_method(payment_method))
-            .withMessage(`Invalid payment method, accepted methods (${vendor_payment_methods.card, vendor_payment_methods.wallet, vendor_payment_methods.transfer})`)
+            .withMessage(`Invalid payment method, accepted methods (${vendor_payment_methods.card + ", " + vendor_payment_methods.wallet + ", " + vendor_payment_methods.transfer})`)
     ],
     forWithdrawal: [
         check('amount', "Amount is required")
