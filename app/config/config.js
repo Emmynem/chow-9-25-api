@@ -703,3 +703,123 @@ export const validate_ratings = (rating) => {
     if (rating > min_max.max) return false;
     return true;
 };
+
+export const check_product_unique_id = (arr, unique_id, vendor_unique_id) => {
+    return arr.find(e => e.unique_id === unique_id && e.vendor_unique_id === vendor_unique_id) ? true : false;
+};
+
+export const get_product_unique_id_remaining = (arr, unique_id, vendor_unique_id) => {
+    const index = arr.findIndex(e => e.unique_id === unique_id && e.vendor_unique_id === vendor_unique_id);
+    return arr[index]['remaining'];
+};
+
+export const replace_product_remaining_value = (arr, unique_id, vendor_unique_id, obj, new_value) => {
+    const index = arr.findIndex(e => e.unique_id === unique_id && e.vendor_unique_id === vendor_unique_id);
+    if (index > -1) {
+        arr[index]['remaining'] = new_value;
+        return arr;
+    } else {
+        arr.push({ unique_id, vendor_unique_id, ...obj, remaining: new_value });
+        return arr;
+    }
+};
+
+export const replace_user_balance_value = (arr, user_unique_id, obj, new_value) => {
+    const index = arr.findIndex(e => e.user_unique_id === user_unique_id);
+    if (index > -1) {
+        arr[index]['balance'] = new_value;
+        return arr;
+    } else {
+        arr.push({ user_unique_id, ...obj, balance: new_value });
+        return arr;
+    }
+};
+
+export const check_user_balance_value = (arr, user_unique_id) => {
+    return arr.find(e => e.user_unique_id === user_unique_id) ? true : false;
+};
+
+export const get_user_balance_value = (arr, user_unique_id) => {
+    const index = arr.findIndex(e => e.user_unique_id === user_unique_id);
+    return arr[index]['balance'];
+};
+
+export const replace_vendor_balance_value = (arr, vendor_unique_id, obj, new_value) => {
+    const index = arr.findIndex(e => e.vendor_unique_id === vendor_unique_id);
+    if (index > -1) {
+        arr[index]['balance'] = new_value;
+        return arr;
+    } else {
+        arr.push({ vendor_unique_id, ...obj, balance: new_value });
+        return arr;
+    }
+};
+
+export const check_vendor_balance_value = (arr, vendor_unique_id) => {
+    return arr.find(e => e.vendor_unique_id === vendor_unique_id) ? true : false;
+};
+
+export const get_vendor_balance_value = (arr, vendor_unique_id) => {
+    const index = arr.findIndex(e => e.vendor_unique_id === vendor_unique_id);
+    return arr[index]['balance'];
+};
+
+export const replace_rider_balance_value = (arr, rider_unique_id, obj, new_value) => {
+    const index = arr.findIndex(e => e.rider_unique_id === rider_unique_id);
+    if (index > -1) {
+        arr[index]['balance'] = new_value;
+        return arr;
+    } else {
+        arr.push({ rider_unique_id, ...obj, balance: new_value });
+        return arr;
+    }
+};
+
+export const check_rider_balance_value = (arr, rider_unique_id) => {
+    return arr.find(e => e.rider_unique_id === rider_unique_id) ? true : false;
+};
+
+export const get_rider_balance_value = (arr, rider_unique_id) => {
+    const index = arr.findIndex(e => e.rider_unique_id === rider_unique_id);
+    return arr[index]['balance'];
+};
+
+export const replace_vendor_service_charge_value = (arr, vendor_unique_id, obj, new_value) => {
+    const index = arr.findIndex(e => e.vendor_unique_id === vendor_unique_id);
+    if (index > -1) {
+        arr[index]['service_charge'] = new_value;
+        return arr;
+    } else {
+        arr.push({ vendor_unique_id, ...obj, service_charge: new_value });
+        return arr;
+    }
+};
+
+export const check_vendor_service_charge_value = (arr, vendor_unique_id) => {
+    return arr.find(e => e.vendor_unique_id === vendor_unique_id) ? true : false;
+};
+
+export const get_vendor_service_charge_value = (arr, vendor_unique_id) => {
+    const index = arr.findIndex(e => e.vendor_unique_id === vendor_unique_id);
+    return arr[index]['service_charge'];
+};
+
+export const replace_rider_service_charge_value = (arr, rider_unique_id, obj, new_value) => {
+    const index = arr.findIndex(e => e.rider_unique_id === rider_unique_id);
+    if (index > -1) {
+        arr[index]['service_charge'] = new_value;
+        return arr;
+    } else {
+        arr.push({ rider_unique_id, ...obj, service_charge: new_value });
+        return arr;
+    }
+};
+
+export const check_rider_service_charge_value = (arr, rider_unique_id) => {
+    return arr.find(e => e.rider_unique_id === rider_unique_id) ? true : false;
+};
+
+export const get_rider_service_charge_value = (arr, rider_unique_id) => {
+    const index = arr.findIndex(e => e.rider_unique_id === rider_unique_id);
+    return arr[index]['service_charge'];
+};

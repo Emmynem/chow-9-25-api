@@ -1,4 +1,8 @@
-import { AuthenticationErrorResCode, InvalidAuthenticationErrorResCode, CreateSuccessResCode, NoContentSuccessResCode, NotFoundResCode, ServerErrorResCode, SuccessResCode, TooManyRequestsResCode, UserErrorResCode, UserValidationErrorResCode, ConflictResCode } from "../config/http.config.js";
+import { 
+    AuthenticationErrorResCode, InvalidAuthenticationErrorResCode, CreateSuccessResCode, NoContentSuccessResCode, 
+    NotFoundResCode, ServerErrorResCode, SuccessResCode, TooManyRequestsResCode, UserErrorResCode, UserValidationErrorResCode, 
+    ConflictResCode, ServiceUnavailableErrorResCode
+} from "../config/http.config.js";
 import logger from "./logger.js";
 
 export const SuccessResponse = (res, message, data) => {
@@ -94,6 +98,15 @@ export const TooManyRequestError = (res, message, data) => {
 export const ServerError = (res, message, data) => {
     logger.error(message);
     return res.status(ServerErrorResCode).send({
+        success: false,
+        message: message.text ? message.text : message,
+        data: !data ? null : data
+    });
+};
+
+export const ServiceUnavailableError = (res, message, data) => {
+    logger.error(message);
+    return res.status(ServiceUnavailableErrorResCode).send({
         success: false,
         message: message.text ? message.text : message,
         data: !data ? null : data

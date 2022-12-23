@@ -48,7 +48,8 @@ const sequelize = new Sequelize(
             max: _pool.max,
             min: _pool.min,
             acquire: _pool.acquire,
-            idle: _pool.idle
+            idle: _pool.idle,
+            evict: _pool.evict
         },
         dialectOptions: {
             // useUTC: _dialectOptions.useUTC, 

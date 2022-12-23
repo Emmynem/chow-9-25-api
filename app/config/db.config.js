@@ -5,10 +5,11 @@ export const DB = "chow_925";
 export const dialect = "mysql";
 export const logging = 0;
 export const pool = {
-    max: 5,
+    max: 100,
     min: 0,
-    acquire: 30000,
-    idle: 10000
+    acquire: 60000,
+    idle: 10000,
+    evict: 10000,
 };
 export const dialectOptions = {
     useUTC: false, //for reading from database

@@ -9,3 +9,4 @@ export const ConflictResCode = 409;
 export const UserValidationErrorResCode = 422;
 export const TooManyRequestsResCode = 429;
 export const ServerErrorResCode = 500;
+export const ServiceUnavailableErrorResCode = 503;
