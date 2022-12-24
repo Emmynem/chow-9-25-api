@@ -46,11 +46,7 @@ export default (sequelize, Sequelize) => {
         },
         tracking_number: {
             type: Sequelize.STRING(15),
-            allowNull: true,
-            references: {
-                model: orders,
-                key: "tracking_number"
-            }
+            allowNull: false,
         },
         quantity: {
             type: Sequelize.INTEGER,

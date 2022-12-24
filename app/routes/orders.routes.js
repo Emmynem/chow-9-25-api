@@ -15,6 +15,7 @@ export default function (app) {
     app.get("/root/orders/via/user", [checks.verifyKey, checks.isAdministratorKey, user_rules.forFindingUserAlt], rootGetOrdersSpecifically);
     app.get("/root/orders/via/vendor", [checks.verifyKey, checks.isAdministratorKey, vendor_rules.forFindingVendorAlt], rootGetOrdersSpecifically);
     app.get("/root/orders/via/product", [checks.verifyKey, checks.isAdministratorKey, product_rules.forFindingProductAlt], rootGetOrdersSpecifically);
+    app.get("/root/orders/via/delivery/status", [checks.verifyKey, checks.isAdministratorKey, order_rules.forFindingOrdersViaDeliveryStatus], rootGetOrdersSpecifically);
     app.get("/root/orders/paid", [checks.verifyKey, checks.isAdministratorKey, order_rules.forFindingPaidOrders], rootGetOrdersSpecifically);
     app.get("/root/orders/shipped", [checks.verifyKey, checks.isAdministratorKey, order_rules.forFindingShippedOrders], rootGetOrdersSpecifically);
     app.get("/root/orders/disputed", [checks.verifyKey, checks.isAdministratorKey, order_rules.forFindingDisputedOrders], rootGetOrdersSpecifically);
@@ -60,6 +61,6 @@ export default function (app) {
 
     app.post("/vendors/order/completed", [checks.verifyKey, checks.isInternalKey, checks.verifyVendorUserToken, checks.isVendorUser, order_rules.forFindingOrderByVendor], updateOrderCompleted);
 
-    app.put("/root/order/dispute/accept", [checks.verifyKey, checks.isAdministratorKey, order_rules.forFindingOrder], acceptRefundForOrder);
-    app.put("/root/order/dispute/deny", [checks.verifyKey, checks.isAdministratorKey, order_rules.forFindingOrder], denyRefundForOrder);
+    app.post("/root/order/dispute/accept", [checks.verifyKey, checks.isAdministratorKey, order_rules.forFindingOrder], acceptRefundForOrder);
+    app.post("/root/order/dispute/deny", [checks.verifyKey, checks.isAdministratorKey, order_rules.forFindingOrder], denyRefundForOrder);
 };

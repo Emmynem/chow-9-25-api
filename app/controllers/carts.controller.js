@@ -178,7 +178,8 @@ export function getUserCarts(req, res) {
     CARTS.findAndCountAll({
         attributes: { exclude: ['user_unique_id', 'id', 'status', 'createdAt', 'updatedAt'] },
         where: {
-            user_unique_id
+            user_unique_id,
+            status: default_status
         },
         order: [
             ['createdAt', 'DESC']
@@ -232,7 +233,8 @@ export function getUserCart(req, res) {
             attributes: { exclude: ['user_unique_id', 'id', 'status', 'createdAt', 'updatedAt'] },
             where: {
                 ...payload,
-                user_unique_id
+                user_unique_id,
+                status: default_status
             },
             include: [
                 {

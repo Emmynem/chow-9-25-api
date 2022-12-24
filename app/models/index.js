@@ -264,14 +264,11 @@ db.vendors.belongsTo(db.orders_completed, { foreignKey: 'unique_id', targetKey: 
 db.orders_completed.hasOne(db.orders, { foreignKey: 'unique_id', sourceKey: 'order_unique_id' });
 db.orders.belongsTo(db.orders_completed, { foreignKey: 'unique_id', targetKey: 'order_unique_id' });
 
-db.orders_completed.hasOne(db.orders, { foreignKey: 'tracking_number', sourceKey: 'tracking_number' });
-db.orders.belongsTo(db.orders_completed, { foreignKey: 'tracking_number', targetKey: 'tracking_number' });
-
 //    - Orders History Associations
-db.orders_completed.hasOne(db.users, { foreignKey: 'unique_id', sourceKey: 'user_unique_id' });
-db.users.belongsTo(db.orders_completed, { foreignKey: 'unique_id', targetKey: 'user_unique_id' });
+db.orders_history.hasOne(db.users, { foreignKey: 'unique_id', sourceKey: 'user_unique_id' });
+db.users.belongsTo(db.orders_history, { foreignKey: 'unique_id', targetKey: 'user_unique_id' });
 
-db.orders_completed.hasOne(db.orders, { foreignKey: 'unique_id', sourceKey: 'order_unique_id' });
-db.orders.belongsTo(db.orders_completed, { foreignKey: 'unique_id', targetKey: 'order_unique_id' });
+db.orders_history.hasOne(db.orders, { foreignKey: 'unique_id', sourceKey: 'order_unique_id' });
+db.orders.belongsTo(db.orders_history, { foreignKey: 'unique_id', targetKey: 'order_unique_id' });
 
 export default db;

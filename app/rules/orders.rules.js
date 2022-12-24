@@ -190,7 +190,7 @@ export const order_rules = {
         check('shipping_fee_unique_id')
             .optional({ checkFalsy: false })
             .bail()
-            .custom(shipping_fee_unique_id => {
+            .custom((shipping_fee_unique_id, { req }) => {
                 return RIDER_SHIPPING.findOne({ 
                     where: { 
                         unique_id: shipping_fee_unique_id, 
@@ -259,7 +259,7 @@ export const order_rules = {
         check('product_unique_id', "Product Unique Id is required")
             .exists({ checkNull: true, checkFalsy: true })
             .bail()
-            .custom(product_unique_id => {
+            .custom((product_unique_id, { req }) => {
                 return PRODUCTS.findOne({
                     where: {
                         unique_id: product_unique_id,
