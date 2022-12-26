@@ -9,7 +9,7 @@ import {
     rider_refund_percentage, replace_product_remaining_value, replace_rider_balance_value, replace_rider_service_charge_value, replace_user_balance_value,
     replace_vendor_balance_value, replace_vendor_service_charge_value, check_product_unique_id, get_product_unique_id_remaining, check_rider_balance_value,
     check_rider_service_charge_value, check_user_balance_value, check_vendor_balance_value, check_vendor_service_charge_value, get_rider_balance_value,
-    get_rider_service_charge_value, get_user_balance_value, get_vendor_balance_value, get_vendor_service_charge_value, currency, disputed
+    get_rider_service_charge_value, get_user_balance_value, get_vendor_balance_value, get_vendor_service_charge_value, currency, disputed, paginate
 } from '../config/config.js';
 import db from "../models/index.js";
 
@@ -430,16 +430,16 @@ export function getRiderOrdersSpecifically(req, res) {
     }
 };
 
-export function getUserOrders(req, res) {
+export async function getUserOrders(req, res) {
     const user_unique_id = req.UNIQUE_ID;
 
     ORDERS.findAndCountAll({
-        attributes: ['unique_id', 'vendor_unique_id', 'product_unique_id', 'tracking_number', 'shipping_fee_unique_id', 'quantity', 'amount', 'shipping_fee', 'payment_method', 'paid', 'shipped', 'disputed', 'delivery_status', 'updatedAt'],
+        attributes: ['unique_id', 'vendor_unique_id', 'product_unique_id', 'tracking_number', 'shipping_fee_unique_id', 'quantity', 'amount', 'shipping_fee', 'payment_method', 'paid', 'shipped', 'disputed', 'delivery_status', 'updatedAt', 'createdAt'],
         where: {
             user_unique_id
         },
         order: [
-            ['createdAt', 'DESC']
+            ['createdAt', 'ASC']
         ],
         include: [
             {
@@ -487,7 +487,7 @@ export function getUserOrdersSpecifically(req, res) {
         ValidationError(res, { unique_id: user_unique_id, text: "Validation Error Occured" }, errors.array())
     } else {
         ORDERS.findAndCountAll({
-            attributes: ['unique_id', 'vendor_unique_id', 'product_unique_id', 'tracking_number', 'shipping_fee_unique_id', 'quantity', 'amount', 'shipping_fee', 'payment_method', 'paid', 'shipped', 'disputed', 'delivery_status', 'updatedAt'],
+            attributes: ['unique_id', 'vendor_unique_id', 'product_unique_id', 'tracking_number', 'shipping_fee_unique_id', 'quantity', 'amount', 'shipping_fee', 'payment_method', 'paid', 'shipped', 'disputed', 'delivery_status', 'updatedAt', 'createdAt'],
             where: {
                 ...payload,
                 user_unique_id
@@ -546,7 +546,7 @@ export function getUserOrder(req, res) {
         ValidationError(res, { unique_id: user_unique_id, text: "Validation Error Occured" }, errors.array())
     } else {
         ORDERS.findOne({
-            attributes: ['unique_id', 'vendor_unique_id', 'product_unique_id', 'tracking_number', 'shipping_fee_unique_id', 'quantity', 'amount', 'shipping_fee', 'payment_method', 'paid', 'shipped', 'disputed', 'delivery_status', 'updatedAt'],
+            attributes: ['unique_id', 'vendor_unique_id', 'product_unique_id', 'tracking_number', 'shipping_fee_unique_id', 'quantity', 'amount', 'shipping_fee', 'payment_method', 'paid', 'shipped', 'disputed', 'delivery_status', 'updatedAt', 'createdAt'],
             where: {
                 ...payload,
                 user_unique_id
