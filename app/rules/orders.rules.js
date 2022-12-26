@@ -208,6 +208,7 @@ export const order_rules = {
                 return ORDERS.findOne({
                     where: {
                         unique_id,
+                        shipping_fee_unique_id: req.query.shipping_fee_unique_id || req.body.shipping_fee_unique_id || '',
                         status: default_status
                     }
                 }).then(data => {

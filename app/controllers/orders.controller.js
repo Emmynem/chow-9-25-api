@@ -1231,7 +1231,7 @@ export async function updateOrderPaid(req, res) {
 
                                             const paid_order_obj = {
                                                 id: current_order.unique_id,
-                                                tracker_number: current_order.tracking_number,
+                                                tracking_number: current_order.tracking_number,
                                                 status: paid
                                             };
 
@@ -1284,7 +1284,7 @@ export async function updateOrderPaid(req, res) {
                                         } else {
                                             const paid_order_obj = {
                                                 id: current_order.unique_id,
-                                                tracker_number: current_order.tracking_number,
+                                                tracking_number: current_order.tracking_number,
                                                 status: paid
                                             };
 
@@ -1647,7 +1647,7 @@ export async function updateOrderCancelled(req, res) {
 
                                     user_account_balance = user_account_balance + (current_order.amount - platform_cancellation_cut);
 
-                                    const dispute_message = `Order (${current_order.unique_id}) with tracking number [${current_order.tracker_number}] has been ${cancelled.toLowerCase()}`;
+                                    const dispute_message = `Order (${current_order.unique_id}) with tracking number [${current_order.tracking_number}] has been ${cancelled.toLowerCase()}`;
                                     const refund_transaction_details = `Payment on order (${current_order.unique_id}) has been ${refunded.toLowerCase()}`;
                                     const compensation_transaction_details = `${compensation} on order (${current_order.unique_id}) has been ${paid.toLowerCase()} successfully`;
     
@@ -1711,7 +1711,7 @@ export async function updateOrderCancelled(req, res) {
 
                                         const cancelled_order_obj = {
                                             id: current_order.unique_id,
-                                            tracker_number: current_order.tracking_number,
+                                            tracking_number: current_order.tracking_number,
                                             status: cancelled
                                         };
 
@@ -1988,7 +1988,7 @@ export async function updateEachOrderCancelled(req, res) {
                                 const new_rider_service_charge = current_order.rider_credit > total_rider_balance ? (rider_account.service_charge + (current_order.rider_credit - total_rider_balance)) : rider_account.service_charge;
         
                                 const new_user_balance = user_account.balance + (current_order.amount - platform_cancellation_cut);
-                                const dispute_message = `Order (${current_order.unique_id}) with tracking number [${current_order.tracker_number}] has been ${cancelled.toLowerCase()}`;
+                                const dispute_message = `Order (${current_order.unique_id}) with tracking number [${current_order.tracking_number}] has been ${cancelled.toLowerCase()}`;
                                 const refund_transaction_details = `Payment on order (${current_order.unique_id}) has been ${refunded.toLowerCase()}`;
                                 const compensation_transaction_details = `${compensation} on order (${current_order.unique_id}) has been ${paid.toLowerCase()} successfully`;
         
@@ -2091,7 +2091,7 @@ export async function updateEachOrderCancelled(req, res) {
                                             await transaction.commit();
                                             const cancelled_order_obj = {
                                                 id: current_order.unique_id,
-                                                tracker_number: current_order.tracking_number,
+                                                tracking_number: current_order.tracking_number,
                                                 status: cancelled
                                             };
                                             SuccessResponse(res, { unique_id: user_unique_id, text: "Order cancelled successfully!" }, { order: cancelled_order_obj });
@@ -2576,19 +2576,20 @@ export async function acceptRefundForOrder(req, res) {
                     ...payload,
                     user_unique_id: payload.user_unique_id,
                     paid: true_status,
-                    shipped: true_status,
-                    delivery_status: refund
+                    shipped: true_status
                 }
             });
 
             if (!user_account) {
                 BadRequestError(res, { unique_id: payload.user_unique_id, text: "User Account not found" }, null);
             } else if (!current_order) {
-                BadRequestError(res, { unique_id: payload.user_unique_id, text: "Order hasn't been disputed for refund" }, null);
+                BadRequestError(res, { unique_id: payload.user_unique_id, text: "Order not found!" }, null);
             } else if (current_order.delivery_status === cancelled) {
                 BadRequestError(res, { unique_id: payload.user_unique_id, text: "Order is cancelled!" }, null);
             } else if (current_order.delivery_status === refunded) {
                 BadRequestError(res, { unique_id: payload.user_unique_id, text: "Order has already been refunded!" }, null);
+            } else if (current_order.delivery_status !== refund) {
+                BadRequestError(res, { unique_id: payload.user_unique_id, text: "Order hasn't been disputed for refund!" }, null);
             } else {
 
                 const refund_amount = current_order.amount - current_order.shipping_fee;
@@ -2647,8 +2648,9 @@ export async function acceptRefundForOrder(req, res) {
     
                             const refund_cut_from_vendor = (parseInt(refund_percentage.value) * refund_amount) / 100;
                             const refund_cut_from_rider = (parseInt(refund_percentage.value) * current_order.shipping_fee) / 100;
-    
-                            const platform_refund_cut = (parseInt(_platform_refund_percentage.value) * refund_cut_from_vendor) / 100;
+                            
+                            const platform_vendor_refund_cut = (parseInt(_platform_refund_percentage.value) * refund_cut_from_vendor) / 100;
+                            const platform_rider_refund_cut = (parseInt(_platform_refund_percentage.value) * refund_cut_from_rider) / 100;
                             const vendor_refund_cut = (parseInt(_vendor_refund_percentage.value) * refund_cut_from_vendor) / 100;
                             const rider_refund_cut = (parseInt(_rider_refund_percentage.value) * refund_cut_from_rider) / 100;
     
@@ -2661,8 +2663,8 @@ export async function acceptRefundForOrder(req, res) {
                             const new_rider_card_balance = current_order.rider_credit > total_rider_balance ? 0 : total_rider_balance - current_order.rider_credit;
                             const new_rider_service_charge = current_order.rider_credit > total_rider_balance ? (rider_account.service_charge + (current_order.rider_credit - total_rider_balance)) : rider_account.service_charge;
     
-                            const new_user_balance = user_account.balance + (refund_amount - refund_cut_from_vendor);
-                            const dispute_message = `Order (${current_order.unique_id}) with tracking number [${current_order.tracker_number}] has been ${refunded.toLowerCase()} successfully`;
+                            const new_user_balance = user_account.balance + (refund_amount - refund_cut_from_vendor) + (current_order.shipping_fee - refund_cut_from_rider);
+                            const dispute_message = `Order (${current_order.unique_id}) with tracking number [${current_order.tracking_number}] has been ${refunded.toLowerCase()} successfully`;
                             const refund_transaction_details = `Payment on order (${current_order.unique_id}) has been ${refunded.toLowerCase()}`;
                             const compensation_transaction_details = `${compensation} on order (${current_order.unique_id}) has been ${paid.toLowerCase()} successfully`;
     
@@ -2763,10 +2765,10 @@ export async function acceptRefundForOrder(req, res) {
                                         await transaction.commit();
                                         const refunded_order_obj = {
                                             id: current_order.unique_id,
-                                            tracker_number: current_order.tracking_number,
+                                            tracking_number: current_order.tracking_number,
                                             status: refunded
                                         };
-                                        SuccessResponse(res, { unique_id: user_unique_id, text: "Order refunded successfully!" }, { order: refunded_order_obj });
+                                        SuccessResponse(res, { unique_id: payload.user_unique_id, text: "Order refunded successfully!" }, { order: refunded_order_obj });
                                     } else {
                                         throw new Error("Error updating all balances");
                                     }
@@ -2786,7 +2788,7 @@ export async function acceptRefundForOrder(req, res) {
             }
         } catch (err) {
             await transaction.rollback();
-            ServerError(res, { unique_id: user_unique_id, text: err.message }, null);
+            ServerError(res, { unique_id: payload.user_unique_id, text: err.message }, null);
         }
     }
 };
@@ -2806,17 +2808,18 @@ export async function denyRefundForOrder(req, res) {
                     ...payload,
                     user_unique_id: payload.user_unique_id,
                     paid: true_status,
-                    shipped: true_status,
-                    delivery_status: refund
+                    shipped: true_status
                 }
             });
             
             if (!current_order) {
-                BadRequestError(res, { unique_id: payload.user_unique_id, text: "Order hasn't been disputed for refund" }, null);
+                BadRequestError(res, { unique_id: payload.user_unique_id, text: "Order not found!" }, null);
             } else if (current_order.delivery_status === cancelled) {
                 BadRequestError(res, { unique_id: payload.user_unique_id, text: "Order is cancelled!" }, null);
             } else if (current_order.delivery_status === refund_denied) {
                 BadRequestError(res, { unique_id: payload.user_unique_id, text: "Order refund has already been denied!" }, null);
+            } else if (current_order.delivery_status !== refund) {
+                BadRequestError(res, { unique_id: payload.user_unique_id, text: "Order hasn't been disputed for refund!" }, null);
             } else {
     
                 const refund_amount = current_order.amount - current_order.shipping_fee;
