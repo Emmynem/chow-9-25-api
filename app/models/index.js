@@ -7,6 +7,7 @@ import privatesModel from "./privates.model.js";
 import userAccountModel from "./userAccount.model.js";
 import notificationsModel from "./notifications.model.js";
 import addressessModel from "./addressess.model.js";
+import userTransactionsModel from "./userTransactions.model.js";
 import cartsModel from "./carts.model.js";
 import categoriesModel from "./categories.model.js";
 import categoryImagesModel from "./categoryImages.model.js";
@@ -72,6 +73,7 @@ db.privates = privatesModel(sequelize, Sequelize);
 db.user_account = userAccountModel(sequelize, Sequelize);
 db.notifications = notificationsModel(sequelize, Sequelize);
 db.addressess = addressessModel(sequelize, Sequelize);
+db.user_transactions = userTransactionsModel(sequelize, Sequelize);
 db.vendors = vendorsModel(sequelize, Sequelize);
 db.vendor_users = vendorUsersModel(sequelize, Sequelize);
 db.riders = ridersModel(sequelize, Sequelize);
@@ -197,6 +199,10 @@ db.vendors.belongsTo(db.transactions, { foreignKey: 'unique_id', targetKey: 'ven
 //    - Rider Transactions Associations
 db.rider_transactions.hasOne(db.riders, { foreignKey: 'unique_id', sourceKey: 'rider_unique_id' });
 db.riders.belongsTo(db.rider_transactions, { foreignKey: 'unique_id', targetKey: 'rider_unique_id' });
+
+//    - User Transactions Associations
+db.user_transactions.hasOne(db.users, { foreignKey: 'unique_id', sourceKey: 'user_unique_id' });
+db.users.belongsTo(db.user_transactions, { foreignKey: 'unique_id', targetKey: 'user_unique_id' });
 
 //    - Vendor Account Associations
 db.vendor_account.hasOne(db.vendors, { foreignKey: 'unique_id', sourceKey: 'vendor_unique_id' });

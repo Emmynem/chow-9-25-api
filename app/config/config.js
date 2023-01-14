@@ -78,6 +78,10 @@ export const vendor_payment_methods = {
     wallet: "Wallet",
     transfer: "Transfer"
 };
+export const user_payment_methods = {
+    card: "Credit/Debit Card",
+    transfer: "Transfer"
+};
 // End - Default Actions
 
 // Default Currency
@@ -679,6 +683,12 @@ export const validate_payment_method = (obj) => {
 export const validate_vendor_payment_method = (obj) => {
     const method = obj;
     if (method !== vendor_payment_methods.card && method !== vendor_payment_methods.wallet && method !== vendor_payment_methods.transfer) return false;
+    return true;
+};
+
+export const validate_user_payment_method = (obj) => {
+    const method = obj;
+    if (method !== user_payment_methods.card && method !== user_payment_methods.transfer) return false;
     return true;
 };
 
