@@ -1,6 +1,6 @@
 import { check } from 'express-validator';
 import db from "../models/index.js";
-import { default_status, default_delete_status } from '../config/config.js';
+import { default_status, default_delete_status, return_default_value } from '../config/config.js';
 
 const RIDERS = db.riders;
 const RIDER_BANK_ACCOUNTS = db.rider_bank_accounts;
