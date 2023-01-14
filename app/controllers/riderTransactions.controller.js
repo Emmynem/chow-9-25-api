@@ -188,7 +188,7 @@ export async function addTransactionInternally(req, res, data, transaction) {
     let return_data = { status: 0 };
 
     if (data.rider_unique_id === "" || data.rider_unique_id === undefined) {
-        msg = "Vendor Unique ID is required";
+        msg = "Rider Unique ID is required";
         param = "rider_unique_id";
         logger.warn({ unique_id: data.rider_unique_id, text: `Transactions | Validation Error Occured - ${param} : ${msg}` });
         return { ...return_data, err: msg };
@@ -276,7 +276,7 @@ export async function addServiceChargePayment(req, res) {
                     transaction
                 });
     
-                if (last_debt) {
+                if (last_debt.length > 0) {
                     BadRequestError(res, { unique_id: rider_unique_id, text: "You have a pending service charge payment!" }, null);
                 } else {
                     if (payload.payment_method === vendor_payment_methods.card || payload.payment_method === vendor_payment_methods.wallet) {
@@ -301,13 +301,13 @@ export async function addServiceChargePayment(req, res) {
                                 );
     
                                 if (rider_transaction) {
-                                    CreationSuccessResponse(res, { unique_id: rider_unique_id, text: "Transaction created successfully!" }, { amount: payload.amount, transaction_unique_id: transaction.unique_id });
+                                    CreationSuccessResponse(res, { unique_id: rider_unique_id, text: "Transaction created successfully!" }, { amount: payload.amount, transaction_unique_id: rider_transaction.unique_id });
                                 } else {
                                     throw new Error("Error adding transaction");
                                 }
                             }
                         } else {
-                            BadRequestError(res, { unique_id: rider_unique_id, text: "Vendor's balance not found!" }, null);
+                            BadRequestError(res, { unique_id: rider_unique_id, text: "Rider's balance not found!" }, null);
                         }
                     } else if (payload.payment_method === vendor_payment_methods.transfer) {
                         if (rider_account) {
@@ -332,13 +332,13 @@ export async function addServiceChargePayment(req, res) {
                                 );
     
                                 if (rider_transaction) {
-                                    CreationSuccessResponse(res, { unique_id: rider_unique_id, text: "Transaction created successfully!" }, { amount: payload.amount, transaction_unique_id: transaction.unique_id });
+                                    CreationSuccessResponse(res, { unique_id: rider_unique_id, text: "Transaction created successfully!" }, { amount: payload.amount, transaction_unique_id: rider_transaction.unique_id });
                                 } else {
                                     throw new Error("Error adding transaction");
                                 }
                             }
                         } else {
-                            BadRequestError(res, { unique_id: rider_unique_id, text: "Vendor's balance not found!" }, null);
+                            BadRequestError(res, { unique_id: rider_unique_id, text: "Rider's balance not found!" }, null);
                         }
                     } else {
                         BadRequestError(res, { unique_id: rider_unique_id, text: "Choose a viable payment method!" }, null);
@@ -382,7 +382,7 @@ export async function addServiceChargePaymentExternally(req, res) {
                     transaction
                 });
     
-                if (last_debt) {
+                if (last_debt.length > 0) {
                     BadRequestError(res, { unique_id: payload.rider_unique_id, text: "You have a pending service charge payment!" }, null);
                 } else {
                     if (payload.payment_method === vendor_payment_methods.card || payload.payment_method === vendor_payment_methods.wallet) {
@@ -407,13 +407,13 @@ export async function addServiceChargePaymentExternally(req, res) {
                                 );
     
                                 if (rider_transaction) {
-                                    CreationSuccessResponse(res, { unique_id: payload.rider_unique_id, text: "Transaction created successfully!" }, { amount: payload.amount, transaction_unique_id: transaction.unique_id });
+                                    CreationSuccessResponse(res, { unique_id: payload.rider_unique_id, text: "Transaction created successfully!" }, { amount: payload.amount, transaction_unique_id: rider_transaction.unique_id });
                                 } else {
                                     throw new Error("Error adding transaction");
                                 }
                             }
                         } else {
-                            BadRequestError(res, { unique_id: payload.rider_unique_id, text: "Vendor's balance not found!" }, null);
+                            BadRequestError(res, { unique_id: payload.rider_unique_id, text: "Rider's balance not found!" }, null);
                         }
                     } else if (payload.payment_method === vendor_payment_methods.transfer) {
                         if (rider_account) {
@@ -438,13 +438,13 @@ export async function addServiceChargePaymentExternally(req, res) {
                                 );
     
                                 if (rider_transaction) {
-                                    CreationSuccessResponse(res, { unique_id: payload.rider_unique_id, text: "Transaction created successfully!" }, { amount: payload.amount, transaction_unique_id: transaction.unique_id });
+                                    CreationSuccessResponse(res, { unique_id: payload.rider_unique_id, text: "Transaction created successfully!" }, { amount: payload.amount, transaction_unique_id: rider_transaction.unique_id });
                                 } else {
                                     throw new Error("Error adding transaction");
                                 }
                             }
                         } else {
-                            BadRequestError(res, { unique_id: payload.rider_unique_id, text: "Vendor's balance not found!" }, null);
+                            BadRequestError(res, { unique_id: payload.rider_unique_id, text: "Rider's balance not found!" }, null);
                         }
                     } else {
                         BadRequestError(res, { unique_id: payload.rider_unique_id, text: "Choose a viable payment method!" }, null);
@@ -504,8 +504,8 @@ export async function addWithdrawal(req, res) {
                     },
                     transaction
                 });
-    
-                if (last_withdrawal) {
+                
+                if (last_withdrawal.length > 0) {
                     BadRequestError(res, { unique_id: rider_unique_id, text: "You have a pending withdrawal!" }, null);
                 } else {
                     if (rider_account) {
@@ -513,6 +513,8 @@ export async function addWithdrawal(req, res) {
                             BadRequestError(res, { unique_id: rider_unique_id, text: "Insufficient balance!" }, null);
                         } else if (rider_account.service_charge >= app_defaults.value) {
                             BadRequestError(res, { unique_id: rider_unique_id, text: `Pay outstanding service charge to enable withdrawal` }, { service_charge: rider_account.service_charge });
+                        } else if (!rider_bank_accounts) {
+                            BadRequestError(res, { unique_id: rider_unique_id, text: "Bank Account Unavailable" }, null);
                         } else {
                             const details = `${currency} ${payload.amount} ${withdrawal.toLowerCase()}. Bank account details : ${rider_bank_accounts.name} ${rider_bank_accounts.account_number} ${rider_bank_accounts.bank}`;
     
@@ -529,13 +531,13 @@ export async function addWithdrawal(req, res) {
                             );
     
                             if (rider_transaction) {
-                                CreationSuccessResponse(res, { unique_id: rider_unique_id, text: "Transaction created successfully!" }, { amount: payload.amount, transaction_unique_id: transaction.unique_id });
+                                CreationSuccessResponse(res, { unique_id: rider_unique_id, text: "Transaction created successfully!" }, { amount: payload.amount, transaction_unique_id: rider_transaction.unique_id });
                             } else {
                                 throw new Error("Error adding transaction!");
                             }
                         }
                     } else {
-                        BadRequestError(res, { unique_id: rider_unique_id, text: "Vendor's balance not found!" }, null);
+                        BadRequestError(res, { unique_id: rider_unique_id, text: "Rider's balance not found!" }, null);
                     }
                 }
             });
@@ -592,7 +594,7 @@ export async function addWithdrawalExternally(req, res) {
                     transaction
                 });
     
-                if (last_withdrawal) {
+                if (last_withdrawal.length > 0) {
                     BadRequestError(res, { unique_id: payload.rider_unique_id, text: "You have a pending withdrawal!" }, null);
                 } else {
                     if (rider_account) {
@@ -600,6 +602,8 @@ export async function addWithdrawalExternally(req, res) {
                             BadRequestError(res, { unique_id: payload.rider_unique_id, text: "Insufficient balance!" }, null);
                         } else if (rider_account.service_charge >= app_defaults.value) {
                             BadRequestError(res, { unique_id: payload.rider_unique_id, text: `Pay outstanding service charge to enable withdrawal` }, { service_charge: rider_account.service_charge });
+                        } else if (!rider_bank_accounts) {
+                            BadRequestError(res, { unique_id: payload.rider_unique_id, text: "Bank Account Unavailable" }, null);
                         } else {
                             const details = `${currency} ${payload.amount} ${withdrawal.toLowerCase()}. Bank account details : ${rider_bank_accounts.name} ${rider_bank_accounts.account_number} ${rider_bank_accounts.bank}`;
     
@@ -616,13 +620,13 @@ export async function addWithdrawalExternally(req, res) {
                             );
     
                             if (rider_transaction) {
-                                CreationSuccessResponse(res, { unique_id: payload.rider_unique_id, text: "Transaction created successfully!" }, { amount: payload.amount, transaction_unique_id: transaction.unique_id });
+                                CreationSuccessResponse(res, { unique_id: payload.rider_unique_id, text: "Transaction created successfully!" }, { amount: payload.amount, transaction_unique_id: rider_transaction.unique_id });
                             } else {
                                 throw new Error("Error adding transaction!");
                             }
                         }
                     } else {
-                        BadRequestError(res, { unique_id: payload.rider_unique_id, text: "Vendor's balance not found!" }, null);
+                        BadRequestError(res, { unique_id: payload.rider_unique_id, text: "Rider's balance not found!" }, null);
                     }
                 }
             });
@@ -903,7 +907,7 @@ export async function completeServiceChargePayment(req, res) {
                         }
     
                     } else {
-                        BadRequestError(res, { unique_id: payload.rider_unique_id, text: "Vendor's balance not found!" }, null);
+                        BadRequestError(res, { unique_id: payload.rider_unique_id, text: "Rider's balance not found!" }, null);
                     }
                 } else {
                     BadRequestError(res, { unique_id: payload.rider_unique_id, text: "Processing transaction not found!" }, null);
@@ -984,7 +988,7 @@ export async function completeWithdrawal(req, res) {
                         }
     
                     } else {
-                        BadRequestError(res, { unique_id: payload.rider_unique_id, text: "Vendor's balance not found!" }, null);
+                        BadRequestError(res, { unique_id: payload.rider_unique_id, text: "Rider's balance not found!" }, null);
                     }
                 } else {
                     BadRequestError(res, { unique_id: payload.rider_unique_id, text: "Processing transaction not found!" }, null);

@@ -7,12 +7,12 @@ const RIDER_TRANSACTIONS = db.rider_transactions;
 
 export const rider_transaction_rules = {
     forFindingRiderTransaction: [
-        check('rider_unique_id', "Vendor Unique Id is required")
+        check('rider_unique_id', "Rider Unique Id is required")
             .exists({ checkNull: true, checkFalsy: true })
             .bail()
             .custom(rider_unique_id => {
                 return RIDERS.findOne({ where: { unique_id: rider_unique_id, status: default_status } }).then(data => {
-                    if (!data) return Promise.reject('Vendor not found!');
+                    if (!data) return Promise.reject('Rider not found!');
                 });
             }),
         check('unique_id', "Unique Id is required")
@@ -31,12 +31,12 @@ export const rider_transaction_rules = {
             })
     ],
     forFindingRiderTransactionFalsy: [
-        check('rider_unique_id', "Vendor Unique Id is required")
+        check('rider_unique_id', "Rider Unique Id is required")
             .exists({ checkNull: true, checkFalsy: true })
             .bail()
             .custom(rider_unique_id => {
                 return RIDERS.findOne({ where: { unique_id: rider_unique_id, status: default_status } }).then(data => {
-                    if (!data) return Promise.reject('Vendor not found!');
+                    if (!data) return Promise.reject('Rider not found!');
                 });
             }),
         check('unique_id', "Unique Id is required")
@@ -65,12 +65,12 @@ export const rider_transaction_rules = {
             })
     ],
     forAdding: [
-        check('rider_unique_id', "Vendor Unique Id is required")
+        check('rider_unique_id', "Rider Unique Id is required")
             .exists({ checkNull: true, checkFalsy: true })
             .bail()
             .custom(rider_unique_id => {
                 return RIDERS.findOne({ where: { unique_id: rider_unique_id, status: default_status } }).then(data => {
-                    if (!data) return Promise.reject('Vendor not found!');
+                    if (!data) return Promise.reject('Rider not found!');
                 });
             }),
         check('type', "Type is required")

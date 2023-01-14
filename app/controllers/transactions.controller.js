@@ -333,7 +333,7 @@ export async function addServiceChargePayment(req, res) {
                         transaction
                     });
     
-                    if (last_debt) {
+                    if (last_debt.length > 0) {
                         BadRequestError(res, { unique_id: vendor_unique_id, text: "You have a pending service charge payment!" }, null);
                     } else {
                         if (payload.payment_method === vendor_payment_methods.card || payload.payment_method === vendor_payment_methods.wallet) {
@@ -441,7 +441,7 @@ export async function addServiceChargePaymentExternally(req, res) {
                     transaction
                 });
     
-                if (last_debt) {
+                if (last_debt.length > 0) {
                     BadRequestError(res, { unique_id: payload.vendor_unique_id, text: "You have a pending service charge payment!" }, null);
                 } else {
                     if (payload.payment_method === vendor_payment_methods.card || payload.payment_method === vendor_payment_methods.wallet) {
@@ -586,7 +586,7 @@ export async function addWithdrawal(req, res) {
                         transaction
                     });
     
-                    if (last_withdrawal) {
+                    if (last_withdrawal.length > 0) {
                         BadRequestError(res, { unique_id: vendor_unique_id, text: "You have a pending withdrawal!" }, null);
                     } else {
                         if (vendor_account) {
@@ -594,6 +594,8 @@ export async function addWithdrawal(req, res) {
                                 BadRequestError(res, { unique_id: vendor_unique_id, text: "Insufficient balance!" }, null);
                             } else if (vendor_account.service_charge >= app_defaults.value) {
                                 BadRequestError(res, { unique_id: vendor_unique_id, text: `Pay outstanding service charge to enable withdrawal` }, { service_charge: vendor_account.service_charge });
+                            } else if (!vendor_bank_accounts) {
+                                BadRequestError(res, { unique_id: vendor_unique_id, text: "Bank Account Unavailable" }, null);
                             } else {
                                 const details = `${currency} ${payload.amount} ${withdrawal.toLowerCase()}. Bank account details : ${vendor_bank_accounts.name} ${vendor_bank_accounts.account_number} ${vendor_bank_accounts.bank}`;
     
@@ -675,7 +677,7 @@ export async function addWithdrawalExternally(req, res) {
                     transaction
                 });
     
-                if (last_withdrawal) {
+                if (last_withdrawal.length > 0) {
                     BadRequestError(res, { unique_id: payload.vendor_unique_id, text: "You have a pending withdrawal!" }, null);
                 } else {
                     if (vendor_account) {
@@ -683,6 +685,8 @@ export async function addWithdrawalExternally(req, res) {
                             BadRequestError(res, { unique_id: payload.vendor_unique_id, text: "Insufficient balance!" }, null);
                         } else if (vendor_account.service_charge >= app_defaults.value) {
                             BadRequestError(res, { unique_id: payload.vendor_unique_id, text: `Pay outstanding service charge to enable withdrawal` }, { service_charge: vendor_account.service_charge });
+                        } else if (!vendor_bank_accounts) {
+                            BadRequestError(res, { unique_id: payload.vendor_unique_id, text: "Bank Account Unavailable" }, null);
                         } else {
                             const details = `${currency} ${payload.amount} ${withdrawal.toLowerCase()}. Bank account details : ${vendor_bank_accounts.name} ${vendor_bank_accounts.account_number} ${vendor_bank_accounts.bank}`;
     
