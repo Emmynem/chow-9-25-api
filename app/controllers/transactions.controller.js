@@ -117,7 +117,7 @@ export async function getTransactions(req, res) {
         BadRequestError(res, { unique_id: vendor_unique_id, text: "You don't have access to perform this action!" }, null);
     } else {
         TRANSACTIONS.findAndCountAll({
-            attributes: { exclude: ['id', 'vendor_unique_id'] },
+            attributes: { exclude: ['id', 'vendor_unique_id', 'status'] },
             where: {
                 vendor_unique_id,
                 status: default_status
@@ -159,7 +159,7 @@ export async function getTransaction(req, res) {
             ValidationError(res, { unique_id: vendor_unique_id, text: "Validation Error Occured" }, errors.array())
         } else {
             TRANSACTIONS.findOne({
-                attributes: { exclude: ['vendor_unique_id', 'id'] },
+                attributes: { exclude: ['vendor_unique_id', 'id', 'status'] },
                 where: {
                     vendor_unique_id,
                     ...payload,

@@ -19,6 +19,7 @@ const ORDERS_COMPLETED = db.orders_completed;
 const DISPUTES = db.disputes;
 const TRANSACTIONS = db.transactions;
 const RIDER_TRANSACTIONS = db.rider_transactions;
+const USER_TRANSACTIONS = db.user_transactions;
 const APP_DEFAULTS = db.app_defaults;
 const CARTS = db.carts;
 const USERS = db.users;
@@ -626,6 +627,7 @@ export async function addOrders(req, res) {
                 let count_errors = 0;
                 let count_cart_errors = 0;
                 let count_product_errors = 0;
+                let count_product_stock_errors = 0;
                 let count_vendor_errors = 0;                
 
                 payload.cart_unique_ids.forEach(async (element, index) => {
@@ -664,18 +666,23 @@ export async function addOrders(req, res) {
                         if (current_cart.shipping_fee_unique_id === null) count_errors += 1;
                         if (!rider_shipping) count_errors += 1;
                         if (!vendor) count_vendor_errors += 1;
-                        if (!product) count_product_errors += 1;
+                        if (!product) {
+                            count_product_errors += 1;
+                        } else {
+                            if (product.remaining < current_cart.quantity) count_product_stock_errors += 1;
+                        }
                     } else {
                         count_cart_errors += 1;
                     }
 
                     if (index === (payload.cart_unique_ids.length - 1)) {
-                        if (count_errors != 0 || count_cart_errors != 0 || count_product_errors != 0 || count_vendor_errors != 0) {
+                        if (count_errors != 0 || count_cart_errors != 0 || count_product_errors != 0 || count_vendor_errors != 0 || count_product_stock_errors != 0) {
                             const err_arr = [];
                             if (count_errors > 0) err_arr.push(`${count_errors} item${count_errors === 1 ? "" : "s"} shipping not available`);
                             if (count_cart_errors > 0) err_arr.push(`${count_cart_errors} cart item${count_cart_errors === 1 ? "" : "s"} not found`);
                             if (count_vendor_errors > 0) err_arr.push(`${count_vendor_errors} vendor item${count_vendor_errors === 1 ? "" : "s"} not found`);
                             if (count_product_errors > 0) err_arr.push(`${count_product_errors} product item${count_product_errors === 1 ? "" : "s"} not found`);
+                            if (count_product_stock_errors > 0) err_arr.push(`${count_product_stock_errors} product item${count_product_stock_errors === 1 ? "" : "s"} is out of stock`);
                             BadRequestError(res, { unique_id: user_unique_id, text: "Checkout failed" }, { errors: err_arr });
                         } else {
                             const tracking_number = random_numbers(15);
@@ -862,9 +869,12 @@ export async function checkOrderStatusForPayment(req, res) {
                         }
                     });
 
-                    if (!product) count_product_errors += 1;
+                    if (!product) {
+                        count_product_errors += 1;
+                    } else {
+                        if (product.remaining < current_order.quantity) count_stock_errors += 1;
+                    }
                     if (!rider_shipping) count_shipment_errors += 1;
-                    if (product.remaining < current_order.quantity) count_stock_errors += 1;
                 } else {
                     count_paid_errors += 1;
                 }
@@ -959,9 +969,12 @@ export async function updateOrderPaymentMethod(req, res) {
                         }
                     });
 
-                    if (!product) count_product_errors += 1;
+                    if (!product) {
+                        count_product_errors += 1;
+                    } else {
+                        if (product.remaining < current_order.quantity) count_stock_errors += 1;
+                    }
                     if (!rider_shipping) count_shipment_errors += 1;
-                    if (product.remaining < current_order.quantity) count_stock_errors += 1;
                 } else {
                     count_paid_errors += 1;
                 }
@@ -1073,9 +1086,12 @@ export async function updateOrderPaid(req, res) {
                         }
                     });
 
-                    if (!product) count_product_errors += 1;
+                    if (!product) {
+                        count_product_errors += 1;
+                    } else {
+                        if (product.remaining < current_order.quantity) count_stock_errors += 1;
+                    }
                     if (!rider_shipping) count_shipment_errors += 1;
-                    if (product.remaining < current_order.quantity) count_stock_errors += 1;
                 } else {
                     count_paid_errors += 1;
                 }
@@ -1226,7 +1242,19 @@ export async function updateOrderPaid(req, res) {
                                         }, { transaction }
                                     );
 
-                                    if (transactions && rider_transactions) {
+                                    const user_transactions = await USER_TRANSACTIONS.create(
+                                        {
+                                            unique_id: uuidv4(),
+                                            user_unique_id,
+                                            type: payment,
+                                            amount: current_order.amount,
+                                            transaction_status: completed,
+                                            details: transaction_details,
+                                            status: default_status
+                                        }, { transaction }
+                                    );
+
+                                    if (transactions && rider_transactions && user_transactions) {
                                         if (order_payment_method === payment_methods.wallet) {
 
                                             const paid_order_obj = {
@@ -1623,146 +1651,200 @@ export async function updateOrderCancelled(req, res) {
                                 );
     
                                 if (order_history) {
+                                    if (current_order.paid === true_status) {
+                                        const platform_cancellation_cut = (parseInt(cancellation_percentage.value) * current_order.amount) / 100;
+                                        const others_cut = platform_cancellation_cut / 2;
+                                        const vendor_cancellation_cut = (parseInt(_vendor_cancellation_percentage.value) * others_cut) / 100;
+                                        const rider_cancellation_cut = (parseInt(_rider_cancellation_percentage.value) * others_cut) / 100;
+        
+                                        const total_vendor_balance = check_vendor_balance_value(all_vendors_accounts, vendor_account.vendor_unique_id) ? get_vendor_balance_value(all_vendors_accounts, vendor_account.vendor_unique_id) + vendor_cancellation_cut : vendor_account.balance + vendor_cancellation_cut;
+                                        const total_rider_balance = check_rider_balance_value(all_riders_accounts, rider_account.rider_unique_id) ? get_rider_balance_value(all_riders_accounts, rider_account.rider_unique_id) + rider_cancellation_cut : rider_account.balance + rider_cancellation_cut;
     
-                                    const platform_cancellation_cut = (parseInt(cancellation_percentage.value) * current_order.amount) / 100;
-                                    const others_cut = platform_cancellation_cut / 2;
-                                    const vendor_cancellation_cut = (parseInt(_vendor_cancellation_percentage.value) * others_cut) / 100;
-                                    const rider_cancellation_cut = (parseInt(_rider_cancellation_percentage.value) * others_cut) / 100;
+                                        const total_vendor_service_charge = check_vendor_service_charge_value(all_vendors_accounts, vendor_account.vendor_unique_id) ? get_vendor_service_charge_value(all_vendors_accounts, vendor_account.vendor_unique_id) : vendor_account.service_charge;
+                                        const total_rider_service_charge = check_rider_service_charge_value(all_riders_accounts, rider_account.rider_unique_id) ? get_rider_service_charge_value(all_riders_accounts, rider_account.rider_unique_id) : rider_account.service_charge;
+        
+                                        const new_vendor_card_balance = current_order.credit > total_vendor_balance ? 0 : total_vendor_balance - current_order.credit;
+                                        all_vendors_accounts = replace_vendor_balance_value(all_vendors_accounts, vendor_account.vendor_unique_id, vendor_account['dataValues'], new_vendor_card_balance);
+                                        const new_vendor_service_charge = current_order.credit > total_vendor_balance ? (total_vendor_service_charge + (current_order.credit - total_vendor_balance)) : total_vendor_service_charge;
+                                        all_vendors_accounts = replace_vendor_service_charge_value(all_vendors_accounts, vendor_account.vendor_unique_id, vendor_account['dataValues'], new_vendor_service_charge);
+                                        
+                                        const new_rider_card_balance = current_order.rider_credit > total_rider_balance ? 0 : total_rider_balance - current_order.rider_credit;
+                                        all_riders_accounts = replace_rider_balance_value(all_riders_accounts, rider_account.rider_unique_id, rider_account['dataValues'], new_rider_card_balance);
+                                        const new_rider_service_charge = current_order.rider_credit > total_rider_balance ? (total_rider_service_charge + (current_order.rider_credit - total_rider_balance)) : total_rider_service_charge;
+                                        all_riders_accounts = replace_rider_service_charge_value(all_riders_accounts, rider_account.rider_unique_id, rider_account['dataValues'], new_rider_service_charge);
     
-                                    const total_vendor_balance = check_vendor_balance_value(all_vendors_accounts, vendor_account.vendor_unique_id) ? get_vendor_balance_value(all_vendors_accounts, vendor_account.vendor_unique_id) + vendor_cancellation_cut : vendor_account.balance + vendor_cancellation_cut;
-                                    const total_rider_balance = check_rider_balance_value(all_riders_accounts, rider_account.rider_unique_id) ? get_rider_balance_value(all_riders_accounts, rider_account.rider_unique_id) + rider_cancellation_cut : rider_account.balance + rider_cancellation_cut;
-
-                                    const total_vendor_service_charge = check_vendor_service_charge_value(all_vendors_accounts, vendor_account.vendor_unique_id) ? get_vendor_service_charge_value(all_vendors_accounts, vendor_account.vendor_unique_id) : vendor_account.service_charge;
-                                    const total_rider_service_charge = check_rider_service_charge_value(all_riders_accounts, rider_account.rider_unique_id) ? get_rider_service_charge_value(all_riders_accounts, rider_account.rider_unique_id) : rider_account.service_charge;
+                                        user_account_balance = user_account_balance + (current_order.amount - platform_cancellation_cut);
     
-                                    const new_vendor_card_balance = current_order.credit > total_vendor_balance ? 0 : total_vendor_balance - current_order.credit;
-                                    all_vendors_accounts = replace_vendor_balance_value(all_vendors_accounts, vendor_account.vendor_unique_id, vendor_account['dataValues'], new_vendor_card_balance);
-                                    const new_vendor_service_charge = current_order.credit > total_vendor_balance ? (total_vendor_service_charge + (current_order.credit - total_vendor_balance)) : total_vendor_service_charge;
-                                    all_vendors_accounts = replace_vendor_service_charge_value(all_vendors_accounts, vendor_account.vendor_unique_id, vendor_account['dataValues'], new_vendor_service_charge);
-                                    
-                                    const new_rider_card_balance = current_order.rider_credit > total_rider_balance ? 0 : total_rider_balance - current_order.rider_credit;
-                                    all_riders_accounts = replace_rider_balance_value(all_riders_accounts, rider_account.rider_unique_id, rider_account['dataValues'], new_rider_card_balance);
-                                    const new_rider_service_charge = current_order.rider_credit > total_rider_balance ? (total_rider_service_charge + (current_order.rider_credit - total_rider_balance)) : total_rider_service_charge;
-                                    all_riders_accounts = replace_rider_service_charge_value(all_riders_accounts, rider_account.rider_unique_id, rider_account['dataValues'], new_rider_service_charge);
-
-                                    user_account_balance = user_account_balance + (current_order.amount - platform_cancellation_cut);
-
-                                    const dispute_message = `Order (${current_order.unique_id}) with tracking number [${current_order.tracking_number}] has been ${cancelled.toLowerCase()}`;
-                                    const refund_transaction_details = `Payment on order (${current_order.unique_id}) has been ${refunded.toLowerCase()}`;
-                                    const compensation_transaction_details = `${compensation} on order (${current_order.unique_id}) has been ${paid.toLowerCase()} successfully`;
-    
-                                    const vendor_transaction_details = [
-                                        {
-                                            unique_id: uuidv4(),
-                                            vendor_unique_id: current_order.vendor_unique_id,
-                                            type: refund,
-                                            amount: current_order.credit,
-                                            transaction_status: completed,
-                                            details: refund_transaction_details,
-                                            status: default_status
-                                        },
-                                        {
-                                            unique_id: uuidv4(),
-                                            vendor_unique_id: current_order.vendor_unique_id,
-                                            type: payment,
-                                            amount: vendor_cancellation_cut,
-                                            transaction_status: completed,
-                                            details: compensation_transaction_details,
-                                            status: default_status
-                                        }
-                                    ];
-    
-                                    const rider_transaction_details = [
-                                        {
-                                            unique_id: uuidv4(),
-                                            rider_unique_id: rider_shipping.rider_unique_id,
-                                            type: refund,
-                                            amount: current_order.rider_credit,
-                                            transaction_status: completed,
-                                            details: refund_transaction_details,
-                                            status: default_status
-                                        },
-                                        {
-                                            unique_id: uuidv4(),
-                                            rider_unique_id: rider_shipping.rider_unique_id,
-                                            type: payment,
-                                            amount: rider_cancellation_cut,
-                                            transaction_status: completed,
-                                            details: compensation_transaction_details,
-                                            status: default_status
-                                        }
-                                    ];
-    
-                                    const transactions = await TRANSACTIONS.bulkCreate(vendor_transaction_details, { transaction });
-    
-                                    const rider_transactions = await RIDER_TRANSACTIONS.bulkCreate(rider_transaction_details, { transaction });
-    
-                                    const disputes = await DISPUTES.create(
-                                        {
-                                            unique_id: uuidv4(),
-                                            user_unique_id,
-                                            order_unique_id: current_order.unique_id,
-                                            message: dispute_message,
-                                            status: default_status
-                                        }, { transaction }
-                                    );
-    
-                                    if (transactions && rider_transactions && disputes) {
-
-                                        const cancelled_order_obj = {
-                                            id: current_order.unique_id,
-                                            tracking_number: current_order.tracking_number,
-                                            status: cancelled
-                                        };
-
-                                        all_cancelled_orders.push(cancelled_order_obj);
-
-                                        if (index === (tracking_number_orders.length - 1)) {
-                                            const update_user_balance = await USER_ACCOUNT.update(
-                                                {
-                                                    balance: user_account_balance,
-                                                }, {
-                                                    where: {
-                                                        user_unique_id,
-                                                    },
-                                                    transaction
-                                                }
-                                            );
-
-                                            if (update_user_balance > 0) {
-                                                const update_product_stock = await PRODUCTS.bulkCreate(all_products_stocks,
-                                                    {
-                                                        updateOnDuplicate: ["remaining"],
-                                                        transaction
-                                                    }
-                                                );
-
-                                                const update_vendor_balance = await VENDOR_ACCOUNT.bulkCreate(all_vendors_accounts,
-                                                    {
-                                                        updateOnDuplicate: ["balance", "service_charge"],
-                                                        transaction
-                                                    }
-                                                );
-
-                                                const update_rider_balance = await RIDER_ACCOUNT.bulkCreate(all_riders_accounts,
-                                                    {
-                                                        updateOnDuplicate: ["balance", "service_charge"],
-                                                        transaction
-                                                    }
-                                                );
-
-                                                if (update_product_stock && update_vendor_balance && update_rider_balance) {
-                                                    await transaction.commit();
-                                                    SuccessResponse(res, { unique_id: user_unique_id, text: "Order cancelled successfully!" }, { orders: all_cancelled_orders });
-                                                } else {
-                                                    throw new Error("Error updating products stock & all balances");
-                                                }
-                                            } else {
-                                                throw new Error("Error updating user balance");
+                                        const dispute_message = `Order (${current_order.unique_id}) with tracking number [${current_order.tracking_number}] has been ${cancelled.toLowerCase()}`;
+                                        const refund_transaction_details = `Payment on order (${current_order.unique_id}) has been ${refunded.toLowerCase()}`;
+                                        const compensation_transaction_details = `${compensation} on order (${current_order.unique_id}) has been ${paid.toLowerCase()} successfully`;
+        
+                                        const vendor_transaction_details = [
+                                            {
+                                                unique_id: uuidv4(),
+                                                vendor_unique_id: current_order.vendor_unique_id,
+                                                type: refund,
+                                                amount: current_order.credit,
+                                                transaction_status: completed,
+                                                details: refund_transaction_details,
+                                                status: default_status
+                                            },
+                                            {
+                                                unique_id: uuidv4(),
+                                                vendor_unique_id: current_order.vendor_unique_id,
+                                                type: payment,
+                                                amount: vendor_cancellation_cut,
+                                                transaction_status: completed,
+                                                details: compensation_transaction_details,
+                                                status: default_status
                                             }
+                                        ];
+        
+                                        const rider_transaction_details = [
+                                            {
+                                                unique_id: uuidv4(),
+                                                rider_unique_id: rider_shipping.rider_unique_id,
+                                                type: refund,
+                                                amount: current_order.rider_credit,
+                                                transaction_status: completed,
+                                                details: refund_transaction_details,
+                                                status: default_status
+                                            },
+                                            {
+                                                unique_id: uuidv4(),
+                                                rider_unique_id: rider_shipping.rider_unique_id,
+                                                type: payment,
+                                                amount: rider_cancellation_cut,
+                                                transaction_status: completed,
+                                                details: compensation_transaction_details,
+                                                status: default_status
+                                            }
+                                        ];
+    
+                                        const user_transaction_details = [
+                                            {
+                                                unique_id: uuidv4(),
+                                                user_unique_id,
+                                                type: refund,
+                                                amount: (current_order.amount - platform_cancellation_cut),
+                                                transaction_status: completed,
+                                                details: refund_transaction_details,
+                                                status: default_status
+                                            },
+                                            {
+                                                unique_id: uuidv4(),
+                                                user_unique_id,
+                                                type: compensation,
+                                                amount: platform_cancellation_cut,
+                                                transaction_status: completed,
+                                                details: compensation_transaction_details,
+                                                status: default_status
+                                            }
+                                        ];
+        
+                                        const transactions = await TRANSACTIONS.bulkCreate(vendor_transaction_details, { transaction });
+        
+                                        const rider_transactions = await RIDER_TRANSACTIONS.bulkCreate(rider_transaction_details, { transaction });
+    
+                                        const user_transactions = await USER_TRANSACTIONS.bulkCreate(user_transaction_details, { transaction });
+    
+                                        const disputes = await DISPUTES.create(
+                                            {
+                                                unique_id: uuidv4(),
+                                                user_unique_id,
+                                                order_unique_id: current_order.unique_id,
+                                                message: dispute_message,
+                                                status: default_status
+                                            }, { transaction }
+                                        );
+        
+                                        if (transactions && rider_transactions && user_transactions && disputes) {
+    
+                                            const cancelled_order_obj = {
+                                                id: current_order.unique_id,
+                                                tracking_number: current_order.tracking_number,
+                                                status: cancelled
+                                            };
+    
+                                            all_cancelled_orders.push(cancelled_order_obj);
+    
+                                            if (index === (tracking_number_orders.length - 1)) {
+                                                const update_user_balance = await USER_ACCOUNT.update(
+                                                    {
+                                                        balance: user_account_balance,
+                                                    }, {
+                                                        where: {
+                                                            user_unique_id,
+                                                        },
+                                                        transaction
+                                                    }
+                                                );
+    
+                                                if (update_user_balance > 0) {
+                                                    const update_product_stock = await PRODUCTS.bulkCreate(all_products_stocks,
+                                                        {
+                                                            updateOnDuplicate: ["remaining"],
+                                                            transaction
+                                                        }
+                                                    );
+    
+                                                    const update_vendor_balance = await VENDOR_ACCOUNT.bulkCreate(all_vendors_accounts,
+                                                        {
+                                                            updateOnDuplicate: ["balance", "service_charge"],
+                                                            transaction
+                                                        }
+                                                    );
+    
+                                                    const update_rider_balance = await RIDER_ACCOUNT.bulkCreate(all_riders_accounts,
+                                                        {
+                                                            updateOnDuplicate: ["balance", "service_charge"],
+                                                            transaction
+                                                        }
+                                                    );
+    
+                                                    if (update_product_stock && update_vendor_balance && update_rider_balance) {
+                                                        await transaction.commit();
+                                                        SuccessResponse(res, { unique_id: user_unique_id, text: "Order cancelled successfully!!!" }, { orders: all_cancelled_orders });
+                                                    } else {
+                                                        throw new Error("Error updating products stock & all balances");
+                                                    }
+                                                } else {
+                                                    throw new Error("Error updating user balance");
+                                                }
+                                            }
+                                        } else {
+                                            throw new Error("Error adding transactions & dispute");
                                         }
                                     } else {
-                                        throw new Error("Error adding transactions & dispute");
+                                        const dispute_message = `Order (${current_order.unique_id}) with tracking number [${current_order.tracking_number}] has been ${cancelled.toLowerCase()}`;
+
+                                        const disputes = await DISPUTES.create(
+                                            {
+                                                unique_id: uuidv4(),
+                                                user_unique_id,
+                                                order_unique_id: current_order.unique_id,
+                                                message: dispute_message,
+                                                status: default_status
+                                            }, { transaction }
+                                        );
+
+                                        if (disputes) {
+
+                                            const cancelled_order_obj = {
+                                                id: current_order.unique_id,
+                                                tracking_number: current_order.tracking_number,
+                                                status: cancelled
+                                            };
+
+                                            all_cancelled_orders.push(cancelled_order_obj);
+
+                                            if (index === (tracking_number_orders.length - 1)) {
+                                                await transaction.commit();
+                                                SuccessResponse(res, { unique_id: user_unique_id, text: "Order cancelled successfully!" }, { orders: all_cancelled_orders });
+                                            }
+                                        } else {
+                                            throw new Error("Error adding dispute");
+                                        }
                                     }
                                 } else {
                                     throw new Error("Error adding orders history");
@@ -1960,149 +2042,197 @@ export async function updateEachOrderCancelled(req, res) {
                             );
         
                             if (order_history) {
-    
-                                const update_product_stock = await PRODUCTS.update(
-                                    {
-                                        remaining: new_stock,
-                                    }, {
-                                        where: {
-                                            unique_id: product.unique_id,
-                                            vendor_unique_id: product.vendor_unique_id,
-                                        },
-                                        transaction
-                                    }
-                                );
-        
-                                const platform_cancellation_cut = (parseInt(cancellation_percentage.value) * current_order.amount) / 100;
-                                const others_cut = platform_cancellation_cut / 2;
-                                const vendor_cancellation_cut = (parseInt(_vendor_cancellation_percentage.value) * others_cut) / 100;
-                                const rider_cancellation_cut = (parseInt(_rider_cancellation_percentage.value) * others_cut) / 100;
-        
-                                const total_vendor_balance = vendor_account.balance + vendor_cancellation_cut;
-                                const total_rider_balance = rider_account.balance + rider_cancellation_cut;
-        
-                                const new_vendor_card_balance = current_order.credit > total_vendor_balance ? 0 : total_vendor_balance - current_order.credit;
-                                const new_vendor_service_charge = current_order.credit > total_vendor_balance ? (vendor_account.service_charge + (current_order.credit - total_vendor_balance)) : vendor_account.service_charge;
-        
-                                const new_rider_card_balance = current_order.rider_credit > total_rider_balance ? 0 : total_rider_balance - current_order.rider_credit;
-                                const new_rider_service_charge = current_order.rider_credit > total_rider_balance ? (rider_account.service_charge + (current_order.rider_credit - total_rider_balance)) : rider_account.service_charge;
-        
-                                const new_user_balance = user_account.balance + (current_order.amount - platform_cancellation_cut);
-                                const dispute_message = `Order (${current_order.unique_id}) with tracking number [${current_order.tracking_number}] has been ${cancelled.toLowerCase()}`;
-                                const refund_transaction_details = `Payment on order (${current_order.unique_id}) has been ${refunded.toLowerCase()}`;
-                                const compensation_transaction_details = `${compensation} on order (${current_order.unique_id}) has been ${paid.toLowerCase()} successfully`;
-        
-                                const vendor_transaction_details = [
-                                    {
-                                        unique_id: uuidv4(),
-                                        vendor_unique_id: current_order.vendor_unique_id,
-                                        type: refund,
-                                        amount: current_order.credit,
-                                        transaction_status: completed,
-                                        details: refund_transaction_details,
-                                        status: default_status
-                                    },
-                                    {
-                                        unique_id: uuidv4(),
-                                        vendor_unique_id: current_order.vendor_unique_id,
-                                        type: payment,
-                                        amount: vendor_cancellation_cut,
-                                        transaction_status: completed,
-                                        details: compensation_transaction_details,
-                                        status: default_status
-                                    }
-                                ];
-        
-                                const rider_transaction_details = [
-                                    {
-                                        unique_id: uuidv4(),
-                                        rider_unique_id: rider_shipping.rider_unique_id,
-                                        type: refund,
-                                        amount: current_order.rider_credit,
-                                        transaction_status: completed,
-                                        details: refund_transaction_details,
-                                        status: default_status
-                                    },
-                                    {
-                                        unique_id: uuidv4(),
-                                        rider_unique_id: rider_shipping.rider_unique_id,
-                                        type: payment,
-                                        amount: rider_cancellation_cut,
-                                        transaction_status: completed,
-                                        details: compensation_transaction_details,
-                                        status: default_status
-                                    }
-                                ];
-        
-                                const transactions = await TRANSACTIONS.bulkCreate(vendor_transaction_details, { transaction });
-        
-                                const rider_transactions = await RIDER_TRANSACTIONS.bulkCreate(rider_transaction_details, { transaction });
-        
-                                const disputes = await DISPUTES.create(
-                                    {
-                                        unique_id: uuidv4(),
-                                        user_unique_id,
-                                        order_unique_id: current_order.unique_id,
-                                        message: dispute_message,
-                                        status: default_status
-                                    }, { transaction }
-                                );
-        
-                                if (update_product_stock > 0 && transactions && rider_transactions && disputes) {
-                                    const update_user_balance = await USER_ACCOUNT.update(
+                                if (current_order.paid === true_status) {
+                                    const update_product_stock = await PRODUCTS.update(
                                         {
-                                            balance: new_user_balance,
+                                            remaining: new_stock,
                                         }, {
                                             where: {
-                                                user_unique_id,
+                                                unique_id: product.unique_id,
+                                                vendor_unique_id: product.vendor_unique_id,
                                             },
                                             transaction
                                         }
                                     );
-        
-                                    if (update_user_balance > 0) {
-                                        const update_vendor_balance = await VENDOR_ACCOUNT.update(
+            
+                                    const platform_cancellation_cut = (parseInt(cancellation_percentage.value) * current_order.amount) / 100;
+                                    const others_cut = platform_cancellation_cut / 2;
+                                    const vendor_cancellation_cut = (parseInt(_vendor_cancellation_percentage.value) * others_cut) / 100;
+                                    const rider_cancellation_cut = (parseInt(_rider_cancellation_percentage.value) * others_cut) / 100;
+            
+                                    const total_vendor_balance = vendor_account.balance + vendor_cancellation_cut;
+                                    const total_rider_balance = rider_account.balance + rider_cancellation_cut;
+            
+                                    const new_vendor_card_balance = current_order.credit > total_vendor_balance ? 0 : total_vendor_balance - current_order.credit;
+                                    const new_vendor_service_charge = current_order.credit > total_vendor_balance ? (vendor_account.service_charge + (current_order.credit - total_vendor_balance)) : vendor_account.service_charge;
+            
+                                    const new_rider_card_balance = current_order.rider_credit > total_rider_balance ? 0 : total_rider_balance - current_order.rider_credit;
+                                    const new_rider_service_charge = current_order.rider_credit > total_rider_balance ? (rider_account.service_charge + (current_order.rider_credit - total_rider_balance)) : rider_account.service_charge;
+            
+                                    const new_user_balance = user_account.balance + (current_order.amount - platform_cancellation_cut);
+                                    const dispute_message = `Order (${current_order.unique_id}) with tracking number [${current_order.tracking_number}] has been ${cancelled.toLowerCase()}`;
+                                    const refund_transaction_details = `Payment on order (${current_order.unique_id}) has been ${refunded.toLowerCase()}`;
+                                    const compensation_transaction_details = `${compensation} on order (${current_order.unique_id}) has been ${paid.toLowerCase()} successfully`;
+            
+                                    const vendor_transaction_details = [
+                                        {
+                                            unique_id: uuidv4(),
+                                            vendor_unique_id: current_order.vendor_unique_id,
+                                            type: refund,
+                                            amount: current_order.credit,
+                                            transaction_status: completed,
+                                            details: refund_transaction_details,
+                                            status: default_status
+                                        },
+                                        {
+                                            unique_id: uuidv4(),
+                                            vendor_unique_id: current_order.vendor_unique_id,
+                                            type: payment,
+                                            amount: vendor_cancellation_cut,
+                                            transaction_status: completed,
+                                            details: compensation_transaction_details,
+                                            status: default_status
+                                        }
+                                    ];
+            
+                                    const rider_transaction_details = [
+                                        {
+                                            unique_id: uuidv4(),
+                                            rider_unique_id: rider_shipping.rider_unique_id,
+                                            type: refund,
+                                            amount: current_order.rider_credit,
+                                            transaction_status: completed,
+                                            details: refund_transaction_details,
+                                            status: default_status
+                                        },
+                                        {
+                                            unique_id: uuidv4(),
+                                            rider_unique_id: rider_shipping.rider_unique_id,
+                                            type: payment,
+                                            amount: rider_cancellation_cut,
+                                            transaction_status: completed,
+                                            details: compensation_transaction_details,
+                                            status: default_status
+                                        }
+                                    ];
+    
+                                    const user_transaction_details = [
+                                        {
+                                            unique_id: uuidv4(),
+                                            user_unique_id,
+                                            type: refund,
+                                            amount: (current_order.amount - platform_cancellation_cut),
+                                            transaction_status: completed,
+                                            details: refund_transaction_details,
+                                            status: default_status
+                                        },
+                                        {
+                                            unique_id: uuidv4(),
+                                            user_unique_id,
+                                            type: compensation,
+                                            amount: platform_cancellation_cut,
+                                            transaction_status: completed,
+                                            details: compensation_transaction_details,
+                                            status: default_status
+                                        }
+                                    ];
+            
+                                    const transactions = await TRANSACTIONS.bulkCreate(vendor_transaction_details, { transaction });
+            
+                                    const rider_transactions = await RIDER_TRANSACTIONS.bulkCreate(rider_transaction_details, { transaction });
+    
+                                    const user_transactions = await USER_TRANSACTIONS.bulkCreate(user_transaction_details, { transaction });
+            
+                                    const disputes = await DISPUTES.create(
+                                        {
+                                            unique_id: uuidv4(),
+                                            user_unique_id,
+                                            order_unique_id: current_order.unique_id,
+                                            message: dispute_message,
+                                            status: default_status
+                                        }, { transaction }
+                                    );
+            
+                                    if (update_product_stock > 0 && transactions && rider_transactions && user_transactions && disputes) {
+                                        const update_user_balance = await USER_ACCOUNT.update(
                                             {
-                                                balance: new_vendor_card_balance,
-                                                // service_charge: new_vendor_service_charge // Add if payment method is cash or transfer 
-                                                service_charge: new_vendor_service_charge
+                                                balance: new_user_balance,
                                             }, {
                                                 where: {
-                                                    vendor_unique_id: current_order.vendor_unique_id,
+                                                    user_unique_id,
                                                 },
                                                 transaction
                                             }
                                         );
-        
-                                        const update_rider_balance = await RIDER_ACCOUNT.update(
-                                            {
-                                                balance: new_rider_card_balance,
-                                                // service_charge: new_rider_service_charge // Add if payment method is cash or transfer 
-                                                service_charge: new_rider_service_charge
-                                            }, {
-                                                where: {
-                                                    rider_unique_id: rider_shipping.rider_unique_id,
-                                                },
-                                                transaction
+            
+                                        if (update_user_balance > 0) {
+                                            const update_vendor_balance = await VENDOR_ACCOUNT.update(
+                                                {
+                                                    balance: new_vendor_card_balance,
+                                                    // service_charge: new_vendor_service_charge // Add if payment method is cash or transfer 
+                                                    service_charge: new_vendor_service_charge
+                                                }, {
+                                                    where: {
+                                                        vendor_unique_id: current_order.vendor_unique_id,
+                                                    },
+                                                    transaction
+                                                }
+                                            );
+            
+                                            const update_rider_balance = await RIDER_ACCOUNT.update(
+                                                {
+                                                    balance: new_rider_card_balance,
+                                                    // service_charge: new_rider_service_charge // Add if payment method is cash or transfer 
+                                                    service_charge: new_rider_service_charge
+                                                }, {
+                                                    where: {
+                                                        rider_unique_id: rider_shipping.rider_unique_id,
+                                                    },
+                                                    transaction
+                                                }
+                                            );
+            
+                                            if (update_vendor_balance > 0 && update_rider_balance > 0) {
+                                                await transaction.commit();
+                                                const cancelled_order_obj = {
+                                                    id: current_order.unique_id,
+                                                    tracking_number: current_order.tracking_number,
+                                                    status: cancelled
+                                                };
+                                                SuccessResponse(res, { unique_id: user_unique_id, text: "Order cancelled successfully!!!" }, { order: cancelled_order_obj });
+                                            } else {
+                                                throw new Error("Error updating all balances");
                                             }
-                                        );
-        
-                                        if (update_vendor_balance > 0 && update_rider_balance > 0) {
-                                            await transaction.commit();
-                                            const cancelled_order_obj = {
-                                                id: current_order.unique_id,
-                                                tracking_number: current_order.tracking_number,
-                                                status: cancelled
-                                            };
-                                            SuccessResponse(res, { unique_id: user_unique_id, text: "Order cancelled successfully!" }, { order: cancelled_order_obj });
                                         } else {
-                                            throw new Error("Error updating all balances");
+                                            throw new Error("Error updating user balance");
                                         }
                                     } else {
-                                        throw new Error("Error updating user balance");
+                                        throw new Error("Error updating products stock, adding transactions & dispute");
                                     }
                                 } else {
-                                    throw new Error("Error updating products stock, adding transactions & dispute");
+                                    const dispute_message = `Order (${current_order.unique_id}) with tracking number [${current_order.tracking_number}] has been ${cancelled.toLowerCase()}`;
+
+                                    const disputes = await DISPUTES.create(
+                                        {
+                                            unique_id: uuidv4(),
+                                            user_unique_id,
+                                            order_unique_id: current_order.unique_id,
+                                            message: dispute_message,
+                                            status: default_status
+                                        }, { transaction }
+                                    );
+
+                                    if (disputes) {
+                                        await transaction.commit();
+                                        const cancelled_order_obj = {
+                                            id: current_order.unique_id,
+                                            tracking_number: current_order.tracking_number,
+                                            status: cancelled
+                                        };
+                                        SuccessResponse(res, { unique_id: user_unique_id, text: "Order cancelled successfully!" }, { order: cancelled_order_obj });
+                                    } else {
+                                        throw new Error("Error adding dispute");
+                                    }
                                 }
                             } else {
                                 throw new Error("Error adding order history");
@@ -2709,10 +2839,33 @@ export async function acceptRefundForOrder(req, res) {
                                     status: default_status
                                 }
                             ];
+
+                            const user_transaction_details = [
+                                {
+                                    unique_id: uuidv4(),
+                                    user_unique_id,
+                                    type: refund,
+                                    amount: ((refund_amount - refund_cut_from_vendor) + (current_order.shipping_fee - refund_cut_from_rider)),
+                                    transaction_status: completed,
+                                    details: refund_transaction_details,
+                                    status: default_status
+                                },
+                                {
+                                    unique_id: uuidv4(),
+                                    user_unique_id,
+                                    type: compensation,
+                                    amount: (refund_cut_from_vendor + refund_cut_from_rider),
+                                    transaction_status: completed,
+                                    details: compensation_transaction_details,
+                                    status: default_status
+                                }
+                            ];
     
                             const transactions = await TRANSACTIONS.bulkCreate(vendor_transaction_details, { transaction });
     
                             const rider_transactions = await RIDER_TRANSACTIONS.bulkCreate(rider_transaction_details, { transaction });
+
+                            const user_transactions = await USER_TRANSACTIONS.bulkCreate(user_transaction_details, { transaction });
     
                             const disputes = await DISPUTES.create(
                                 {
@@ -2724,7 +2877,7 @@ export async function acceptRefundForOrder(req, res) {
                                 }, { transaction }
                             );
     
-                            if (transactions && rider_transactions && disputes) {
+                            if (transactions && rider_transactions && user_transactions && disputes) {
                                 const update_user_balance = await USER_ACCOUNT.update(
                                     {
                                         balance: new_user_balance,

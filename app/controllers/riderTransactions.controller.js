@@ -104,7 +104,7 @@ export function getRiderTransactions(req, res) {
     const rider_unique_id = req.RIDER_UNIQUE_ID;
 
     RIDER_TRANSACTIONS.findAndCountAll({
-        attributes: { exclude: ['id', 'rider_unique_id'] },
+        attributes: { exclude: ['id', 'rider_unique_id', 'status'] },
         where: {
             rider_unique_id,
             status: default_status
@@ -132,7 +132,7 @@ export function getRiderTransaction(req, res) {
         ValidationError(res, { unique_id: rider_unique_id, text: "Validation Error Occured" }, errors.array())
     } else {
         RIDER_TRANSACTIONS.findOne({
-            attributes: { exclude: ['rider_unique_id', 'id'] },
+            attributes: { exclude: ['rider_unique_id', 'id', 'status'] },
             where: {
                 rider_unique_id,
                 ...payload,

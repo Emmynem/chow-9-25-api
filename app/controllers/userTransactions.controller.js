@@ -102,7 +102,7 @@ export function getUserTransactions(req, res) {
     const user_unique_id = req.UNIQUE_ID;
 
     USER_TRANSACTIONS.findAndCountAll({
-        attributes: { exclude: ['id', 'user_unique_id'] },
+        attributes: { exclude: ['id', 'user_unique_id', 'status'] },
         where: {
             user_unique_id,
             status: default_status
@@ -130,7 +130,7 @@ export function getUserTransaction(req, res) {
         ValidationError(res, { unique_id: user_unique_id, text: "Validation Error Occured" }, errors.array())
     } else {
         USER_TRANSACTIONS.findOne({
-            attributes: { exclude: ['user_unique_id', 'id'] },
+            attributes: { exclude: ['user_unique_id', 'id', 'status'] },
             where: {
                 user_unique_id,
                 ...payload,
