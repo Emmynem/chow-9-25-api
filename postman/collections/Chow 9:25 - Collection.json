@@ -5024,6 +5024,96 @@
 						}
 					],
 					"id": "a4b5ff4b-2f03-4fe7-8cf6-792263e2685e"
+				},
+				{
+					"name": "Address",
+					"item": [
+						{
+							"name": "Get vendor address",
+							"id": "dfe0b943-d4b6-44ac-96bb-c28574bfd76e",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{domain}}/vendors/address",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"address"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add vendor address",
+							"id": "f304deee-164e-4ac7-8d11-cdce28efc631",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"address\": \"\",\r\n    \"additional_information\": \"\",\r\n    \"city\": \"\",\r\n    \"state\": \"\",\r\n    \"country\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/address",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"address"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update vendor address",
+							"id": "17935a93-4d70-4c2c-854c-8695c0cba966",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"address\": \"\",\r\n    \"additional_information\": \"\",\r\n    \"city\": \"\",\r\n    \"state\": \"\",\r\n    \"country\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/address",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"address"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"id": "488721ee-036b-47c9-a590-dc37f2bb889d"
 				}
 			],
 			"id": "e2c06d87-2593-4ebd-b7fc-95175cf8c004"
