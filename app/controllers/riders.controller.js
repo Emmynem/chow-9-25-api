@@ -28,6 +28,10 @@ export function rootGetRiders(req, res) {
         ],
         include: [
             {
+                model: VENDORS,
+                attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'pro', 'verification']
+            },
+            {
                 model: RIDER_ACCOUNT,
                 attributes: ['balance', 'service_charge', 'updatedAt']
             }
@@ -56,6 +60,10 @@ export function rootGetRider(req, res) {
                 ...payload
             },
             include: [
+                {
+                    model: VENDORS,
+                    attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'pro', 'verification']
+                },
                 {
                     model: RIDER_ACCOUNT,
                     attributes: ['balance', 'service_charge', 'updatedAt']
@@ -164,6 +172,10 @@ export function rootSearchRiders(req, res) {
             ],
             include: [
                 {
+                    model: VENDORS,
+                    attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'pro', 'verification']
+                },
+                {
                     model: RIDER_ACCOUNT,
                     attributes: ['balance', 'service_charge', 'updatedAt']
                 }
@@ -180,6 +192,87 @@ export function rootSearchRiders(req, res) {
     }
 };
 
+export async function getVendorRiders(req, res) {
+    const vendor_unique_id = req.VENDOR_UNIQUE_ID;
+    const vendor_user_unique_id = req.VENDOR_USER_UNIQUE_ID;
+
+    const vendor_user_routes = await VENDOR_USERS.findOne({
+        where: {
+            unique_id: vendor_user_unique_id,
+            vendor_unique_id,
+            status: default_status
+        }
+    });
+
+    if (!check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
+        BadRequestError(res, { unique_id: vendor_unique_id, text: "You don't have access to perform this action!" }, null);
+    } else {
+        RIDERS.findAndCountAll({
+            attributes: { exclude: ['rider_private', 'id', 'profile_image_base_url', 'profile_image_dir', 'profile_image_file', 'profile_image_size', 'method'] },
+            where: {
+                vendor_unique_id
+            },
+            order: [
+                ['createdAt', 'DESC']
+            ]
+        }).then(riders => {
+            if (!riders || riders.length == 0) {
+                SuccessResponse(res, { unique_id: vendor_unique_id, text: "Riders Not found" }, []);
+            } else {
+                SuccessResponse(res, { unique_id: vendor_unique_id, text: "Riders loaded" }, riders);
+            }
+        }).catch(err => {
+            ServerError(res, { unique_id: vendor_unique_id, text: err.message }, null);
+        });
+    }
+};
+
+export async function getVendorRider(req, res) {
+    const vendor_unique_id = req.VENDOR_UNIQUE_ID;
+    const vendor_user_unique_id = req.VENDOR_USER_UNIQUE_ID;
+
+    const vendor_user_routes = await VENDOR_USERS.findOne({
+        where: {
+            unique_id: vendor_user_unique_id,
+            vendor_unique_id,
+            status: default_status
+        }
+    });
+
+    if (!check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
+        BadRequestError(res, { unique_id: vendor_unique_id, text: "You don't have access to perform this action!" }, null);
+    } else {
+        const errors = validationResult(req);
+        const payload = matchedData(req);
+
+        if (!errors.isEmpty()) {
+            ValidationError(res, { unique_id: vendor_unique_id, text: "Validation Error Occured" }, errors.array())
+        } else {
+            RIDERS.findOne({
+                attributes: { exclude: ['rider_private', 'id', 'profile_image_base_url', 'profile_image_dir', 'profile_image_file', 'profile_image_size', 'method'] },
+                where: {
+                    vendor_unique_id,
+                    ...payload
+                },
+                include: [
+                    {
+                        model: RIDER_ACCOUNT,
+                        attributes: ['balance', 'service_charge', 'updatedAt']
+                    }
+                ]
+            }).then(rider => {
+                if (!rider) {
+                    NotFoundError(res, { unique_id: vendor_unique_id, text: "Rider not found" }, null);
+                } else {
+                    SuccessResponse(res, { unique_id: vendor_unique_id, text: "Rider loaded" }, rider);
+                }
+            }).catch(err => {
+                ServerError(res, { unique_id: vendor_unique_id, text: err.message }, null);
+            });
+        }
+    }
+};
+
 export function getRider(req, res) {
     const rider_unique_id = req.RIDER_UNIQUE_ID;
 
@@ -190,6 +283,10 @@ export function getRider(req, res) {
             status: default_status
         },
         include: [
+            {
+                model: VENDORS,
+                attributes: ['name', 'stripped', 'profile_image', 'cover_image', 'verification']
+            },
             {
                 model: RIDER_ACCOUNT,
                 attributes: ['balance', 'service_charge']

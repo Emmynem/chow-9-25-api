@@ -4,7 +4,8 @@ import { ridersMiddleware } from "../middleware/riders.middleware.js";
 import {
     changeRiderAvailability, getRider, removeRider, removeRiderPermanently, removeRiderPermanentlyViaVendor, removeRiderViaVendor, restoreRider, restoreRiderViaVendor, rootGetRider, rootGetRiders,
     rootSearchRiders, unverifyRider, unverifyRiderViaVendor, updateProfileImage, updateRider, updateRiderAccessGranted, updateRiderAccessGrantedViaVendor, updateRiderAccessRevoked,
-    updateRiderAccessRevokedViaVendor, updateRiderAccessSuspended, updateRiderAccessSuspendedViaVendor, updateRiderEmailVerified, updateRiderMobileNumberVerified, verifyRider, verifyRiderViaVendor
+    updateRiderAccessRevokedViaVendor, updateRiderAccessSuspended, updateRiderAccessSuspendedViaVendor, updateRiderEmailVerified, updateRiderMobileNumberVerified, verifyRider, verifyRiderViaVendor,
+    getVendorRider, getVendorRiders
 } from "../controllers/riders.controller.js";
 import { vendorAddRider } from '../controllers/auth.controller.js';
 
@@ -14,6 +15,9 @@ export default function (app) {
     app.get("/root/riders/search", [checks.verifyKey, checks.isAdministratorKey, rider_rules.forSearching], rootSearchRiders);
 
     app.get("/rider/profile", [checks.verifyRiderToken, checks.isRider], getRider);
+
+    app.get("/vendors/riders", [checks.verifyVendorUserToken, checks.isVendorUser], getVendorRiders);
+    app.get("/vendors/rider", [checks.verifyVendorUserToken, checks.isVendorUser, rider_rules.forFindingRiderViaVendor], getVendorRider);
 
     app.post("/vendors/rider", [checks.verifyVendorUserToken, checks.isVendorUser, rider_rules.forAddingViaVendor], vendorAddRider);
 
