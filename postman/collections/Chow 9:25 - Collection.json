@@ -1,0 +1,6398 @@
+{
+	"info": {
+		"_postman_id": "1fa31361-6b24-4da6-bd13-3ddd90e59238",
+		"name": "Chow 9:25 - Collection",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_uid": "16645752-1fa31361-6b24-4da6-bd13-3ddd90e59238"
+	},
+	"item": [
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Addresses",
+					"item": [
+						{
+							"name": "Get user addressess",
+							"id": "a82db6c7-0d05-43db-81e3-a24bfeac96ea",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{domain}}/addressess",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"addressess"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get user address",
+							"id": "6c4f19c3-20d9-41bb-82de-ec362f855eb1",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/address",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"address"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get user default address",
+							"id": "8ae564de-1580-48d1-9579-f8f78f191afa",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{domain}}/address/default",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"address",
+										"default"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add user address",
+							"id": "5c948560-a57f-4b84-8a14-b38ebaee098b",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"firstname\": \"\",\r\n    \"lastname\": \"\",\r\n    \"address\": \"\",\r\n    \"additional_information\": \"\",\r\n    \"city\": \"\",\r\n    \"state\": \"\",\r\n    \"country\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/address",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"address"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update user address",
+							"id": "c1cef73d-c378-4088-886f-ac9d079393ca",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\",\r\n    \"firstname\": \"\",\r\n    \"lastname\": \"\",\r\n    \"address\": \"\",\r\n    \"additional_information\": \"\",\r\n    \"city\": \"\",\r\n    \"state\": \"\",\r\n    \"country\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/address",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"address"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update user default address",
+							"id": "b8dbca28-e016-48b9-91ff-1580e6abe25b",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/address/default",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"address",
+										"default"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete user address",
+							"id": "1d2da8c2-9475-407d-bb3a-3b193f7cf7e1",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/address",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"address"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"id": "0b2610c9-af6a-4d79-9614-23f184a7b327"
+				},
+				{
+					"name": "Carts",
+					"item": [
+						{
+							"name": "Get user carts",
+							"id": "6dfd5cc4-f5cf-4c61-a127-9619ec5d7359",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{domain}}/carts",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"carts"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get user cart",
+							"id": "353f2ecf-e50a-445c-8e52-5b32a8fc4f86",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/cart",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"cart"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add user cart",
+							"id": "09999af2-84a0-4985-b22c-341feae374f6",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"vendor_unique_id\": \"\",\r\n    \"product_unique_id\": \"\",\r\n    \"quantity\": \"\",\r\n    \"shipping_fee_unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/cart",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"cart"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update user cart quantity",
+							"id": "92c4a97e-688c-4aa1-afb7-a6acd0e54653",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\",\r\n    \"quantity\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/cart/quantity",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"cart",
+										"quantity"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update user cart shipping",
+							"id": "72cc1530-0cfd-49c5-8a31-5da223f3d349",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\",\r\n    \"shipping_fee_unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/cart/shipping",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"cart",
+										"shipping"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete user cart",
+							"id": "9b134a34-4253-4a7f-8bd3-8fd771e702af",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/cart",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"cart"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"id": "7672f375-488e-4562-bb92-641af8410b0f"
+				},
+				{
+					"name": "Categories",
+					"item": [
+						{
+							"name": "Get categories",
+							"id": "c0e12d22-3117-4f69-84b5-9ae430e9cb7c",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{domain}}/categories",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"categories"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"id": "1a85fe20-b128-41f7-98d4-8f24b5fcfe34"
+				},
+				{
+					"name": "Disputes",
+					"item": [
+						{
+							"name": "Get user disputes",
+							"id": "d80b5d5a-079f-4aff-96cc-773cc86ca962",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{domain}}/disputes",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"disputes"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get user disputes via orders",
+							"id": "1ad42c24-76d0-498f-b345-c960f85c3eed",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"order_unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/disputes/via/order",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"disputes",
+										"via",
+										"order"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get user dispute",
+							"id": "06ca0fa9-9435-4e7a-a96f-c38cbe311e41",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/dispute",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"dispute"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"id": "216839da-507b-478c-8ea3-03ce6300461f"
+				},
+				{
+					"name": "Favorites",
+					"item": [
+						{
+							"name": "Get user favorites",
+							"id": "498602e8-209e-4782-a7e3-9a4547313b1c",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{domain}}/favorites",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"favorites"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get user favorite via product",
+							"id": "3e2846ee-0255-45dc-91be-ce292bb50979",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"product_unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/favorite/via/product",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"favorite",
+										"via",
+										"product"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add user favorite",
+							"id": "82351262-341f-4138-855b-a97087840ac9",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"product_unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/favorite",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"favorite"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete user favorite",
+							"id": "0e50ba3d-bdb3-4926-bf36-0c7bfcc17096",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/favorite",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"favorite"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"id": "35c3ea3e-4256-43e8-83ac-e5fe04863c49"
+				},
+				{
+					"name": "Menus",
+					"item": [
+						{
+							"name": "Get menus",
+							"id": "17f3bd3b-a980-49f3-94c7-85c9a62468f6",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{domain}}/menus/via/vendor/{{vendor-stripped}}",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"menus",
+										"via",
+										"vendor",
+										"{{vendor-stripped}}"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"id": "d396fe4a-a025-4db0-970d-b216935a9ca3"
+				},
+				{
+					"name": "Notifications",
+					"item": [
+						{
+							"name": "Get user notifications",
+							"id": "6960deb2-c618-443c-ae82-3c096227e9ee",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{domain}}/notifications",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"notifications"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get user notification",
+							"id": "b50d028b-7c56-434d-ba95-21610dd5f103",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/notification",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"notification"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update user notification - Seen",
+							"id": "50ec721c-072e-4cc4-9924-3de317cf6a55",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/notification/seen",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"notification",
+										"seen"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete user notification",
+							"id": "af6979bf-51d4-4685-8f93-56b33361152e",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/notification",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"notification"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"id": "b019cd29-2256-4c76-9824-82ce4a06a206"
+				},
+				{
+					"name": "Orders",
+					"item": [
+						{
+							"name": "Get user orders",
+							"id": "aee7118a-ac17-4e3b-aa7e-b38328e481ec",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{domain}}/orders",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"orders"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get user orders via vendor",
+							"id": "3a922780-b6a8-4913-a9b0-ab5bcc749e4d",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"vendor_unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/orders/via/vendor",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"orders",
+										"via",
+										"vendor"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get user orders via tracking",
+							"id": "68a9d654-33f0-45a1-9bcb-549406dd2816",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"tracking_number\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/orders/via/tracking",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"orders",
+										"via",
+										"tracking"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get user orders via delivery status",
+							"id": "a64cb551-8d24-4d77-963c-79a6f18c34fc",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"delivery_status\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/orders/via/delivery/status",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"orders",
+										"via",
+										"delivery",
+										"status"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get user paid orders",
+							"id": "fb85fa02-9ce2-439f-ad68-95727379efcc",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"paid\": true\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/orders/paid",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"orders",
+										"paid"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get user shipped orders",
+							"id": "75fc1a1c-c7a2-473d-af92-be702b802210",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"shipped\": true\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/orders/shipped",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"orders",
+										"shipped"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get user disputed orders",
+							"id": "77dfb696-445b-48c8-ae80-a2a06d5c3582",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"disputed\": true\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/orders/disputed",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"orders",
+										"disputed"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get user order",
+							"id": "3703f9f0-bc56-428a-ae2f-8c1a0e31f22c",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/order",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"order"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Checkout order",
+							"id": "5d08dcfe-bb02-4a11-8e5a-43a917833a00",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"payment_method\": \"\",\r\n    \"cart_unique_ids\": []\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/order/checkout",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"order",
+										"checkout"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Dispute for refund",
+							"id": "5757ed86-3134-45fe-b517-42efdac9f124",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/order/dispute",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"order",
+										"dispute"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update payment method",
+							"id": "205b4b6c-cf40-43aa-a4fe-54f5952aab76",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"tracking_number\": \"\",\r\n    \"payment_method\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/order/update/payment/method",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"order",
+										"update",
+										"payment",
+										"method"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Order payment status",
+							"id": "1e7d323c-e01a-4793-88cb-8fd69c748ade",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"tracking_number\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/order/payment/status",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"order",
+										"payment",
+										"status"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Order pay",
+							"id": "4d3df2fc-9d9e-46f4-90e9-f9b0b06e4cf3",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"tracking_number\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/order/pay",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"order",
+										"pay"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Order cancellation status via tracking",
+							"id": "765196b8-3a0e-469a-8e11-c67bfaf07236",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"tracking_number\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/order/cancellation/status/via/tracking",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"order",
+										"cancellation",
+										"status",
+										"via",
+										"tracking"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Order cancel via tracking",
+							"id": "b9c60b3b-7306-4eec-b2b3-cc55aff9cbce",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"tracking_number\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/order/cancel/via/tracking",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"order",
+										"cancel",
+										"via",
+										"tracking"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Order cancellation status",
+							"id": "8d48534b-c8a7-43d5-9d85-c259b50cc97c",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/order/cancellation/status",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"order",
+										"cancellation",
+										"status"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Order cancel",
+							"id": "68eb7f7f-8c3c-40dc-8304-6b8f6e030eae",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/order/cancel",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"order",
+										"cancel"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"id": "6167d568-ec3b-4cea-86b4-29c2b9533c1b"
+				},
+				{
+					"name": "Orders Completed",
+					"item": [
+						{
+							"name": "Get user orders completed",
+							"id": "0c6e11cb-7173-4560-99c7-b85ce0bce66c",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{domain}}/orders/completed",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"orders",
+										"completed"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get user orders completed via tracking",
+							"id": "370da34b-aefa-40b5-a1ad-494c73f2afb4",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"tracking_number\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/orders/completed/via/tracking",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"orders",
+										"completed",
+										"via",
+										"tracking"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get user order completed",
+							"id": "9cb42d58-4862-4216-b3e6-606ac0bccd02",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/order/completed",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"order",
+										"completed"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"id": "1fef7651-3ecd-49c2-9cba-d47516af17ae"
+				},
+				{
+					"name": "Orders History",
+					"item": [
+						{
+							"name": "Get user order history",
+							"id": "a8acb173-f125-48fa-8cae-426e84a6ec2f",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"order_unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/order/history",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"order",
+										"history"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"id": "cf20db28-5c41-479f-a62b-054aefc0abb1"
+				},
+				{
+					"name": "Products",
+					"item": [
+						{
+							"name": "Get products",
+							"id": "4d05e756-69a4-4cbd-a965-edeb060e2a19",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{domain}}/products",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"products"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get products via vendor",
+							"id": "c7a4486b-2e7f-475d-9f15-46564f0ea73b",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{domain}}/products/via/vendor/{{vendor-stripped}}",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"products",
+										"via",
+										"vendor",
+										"{{vendor-stripped}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get products via vendor menu",
+							"id": "85dba7e9-f98d-4c6f-afd1-81cc9b25e1f2",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{domain}}/products/via/vendor/menu/{{vendor-stripped}}/{{menu-stripped}}",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"products",
+										"via",
+										"vendor",
+										"menu",
+										"{{vendor-stripped}}",
+										"{{menu-stripped}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get products via category",
+							"id": "31cf864e-5287-457d-86a0-c9005a311d7a",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{domain}}/products/via/category/{{category-stripped}}",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"products",
+										"via",
+										"category",
+										"{{category-stripped}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get products via category & vendor",
+							"id": "8861fdbf-9450-4957-a2ec-8ea4e7d3ebeb",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{domain}}/products/via/vendor/category/{{vendor-stripped}}/{{category-stripped}}",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"products",
+										"via",
+										"vendor",
+										"category",
+										"{{vendor-stripped}}",
+										"{{category-stripped}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get product publicly",
+							"id": "27dd3712-3831-489a-80af-3fe761e52abd",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{domain}}/public/product/{{vendor-stripped}}/{{product-stripped}}",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"public",
+										"product",
+										"{{vendor-stripped}}",
+										"{{product-stripped}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get product by logged in user",
+							"id": "022e1373-c8fc-4b72-adee-00844587afc9",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{domain}}/product/{{vendor-stripped}}/{{product-stripped}}",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"product",
+										"{{vendor-stripped}}",
+										"{{product-stripped}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Search products - Generally / Anonymously",
+							"id": "311c1856-f7b5-4397-a6a2-d1b93be5e9b2",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"search\": \"nut\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/search/products",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"search",
+										"products"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Search products - User Logged In",
+							"id": "b9c2764b-0698-4d93-b0c6-ccabb09e770c",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"search\": \"nut\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/search",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"search"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"id": "3818f7fd-86e5-4b5f-8968-e1d49bc9962e"
+				},
+				{
+					"name": "Ratings",
+					"item": [
+						{
+							"name": "Get ratings",
+							"id": "44b16537-6eb1-4830-8ee2-6ba99e2fe32d",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{domain}}/ratings",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"ratings"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get product rating",
+							"id": "40b5f3bd-dc26-4e11-9f09-6fcb356371ae",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"product_unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/rating",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"rating"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add product rating",
+							"id": "f8ae67c7-afe4-4c9d-bd61-8c89222125d5",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"product_unique_id\": \"\",\r\n    \"rating\": 1\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/rating",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"rating"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete product rating",
+							"id": "c647d087-c3a5-4473-8467-d4249b6f62ca",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"product_unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/rating",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"rating"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"id": "67196b80-7414-4d88-a829-e7262febb538"
+				},
+				{
+					"name": "Shipping",
+					"item": [
+						{
+							"name": "Publicly get product shipping",
+							"id": "b65f8c08-847a-47ab-8d45-b8cb0c39f073",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"product_unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/shipping/product/anonymous",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"shipping",
+										"product",
+										"anonymous"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get product shipping by logged in user",
+							"id": "af2e3810-219a-49c7-ae7f-e458581f7f79",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"product_unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/shipping/product",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"shipping",
+										"product"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"id": "9884fb23-1745-429d-b4c3-9c98e8ea10b6"
+				},
+				{
+					"name": "Transactions",
+					"item": [
+						{
+							"name": "Get transactions",
+							"id": "45531e6d-feed-4536-816d-5526e12c26f5",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{domain}}/transactions",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"transactions"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get transaction",
+							"id": "6be8617a-8c60-4db2-a5ff-351328fe1ce4",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/transaction",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"transaction"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Deposit (Payment)",
+							"id": "a54ce20f-e55a-4ef0-9f6d-1764ae91734f",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"amount\": 0,\r\n    \"payment_method\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/transaction/payment/deposit",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"transaction",
+										"payment",
+										"deposit"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Deposit (Payment - Externally)",
+							"id": "3cb027c4-6c0d-4d9e-9199-99883df1aaa4",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"amount\": 0,\r\n    \"payment_method\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/transaction/payment/deposit/externally",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"transaction",
+										"payment",
+										"deposit",
+										"externally"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Deposit (Cancellation)",
+							"id": "85904b4f-f613-4f38-bd9b-cbc6dec14c08",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/transaction/cancel/deposit",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"transaction",
+										"cancel",
+										"deposit"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Deposit (Cancellation - Externally)",
+							"id": "72e9fd6b-d02a-4580-b152-adb71812c37f",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/transaction/cancel/deposit/externally",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"transaction",
+										"cancel",
+										"deposit",
+										"externally"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Deposit (Completion)",
+							"id": "1f745994-05cc-4d80-932a-e109995d6883",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/transaction/complete/deposit",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"transaction",
+										"complete",
+										"deposit"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Deposit (Completion - Externally)",
+							"id": "2ad848e3-1c99-473e-b223-a47acc212be3",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/transaction/complete/deposit/externally",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"transaction",
+										"complete",
+										"deposit",
+										"externally"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Remove transaction",
+							"id": "3f4bb070-922d-4101-8cca-58dcceed2ec8",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/transaction/remove",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"transaction",
+										"remove"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Restore transaction",
+							"id": "06eef526-979b-4f78-af79-e84c9487f1d8",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/transaction/restore",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"transaction",
+										"restore"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"id": "fc880647-6475-4514-a7e7-3fb30fcb1fdd"
+				},
+				{
+					"name": "Search History",
+					"item": [
+						{
+							"name": "Get search history",
+							"id": "f4571f97-e1bb-4956-bb29-9d8984edb4a3",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{domain}}/search/history",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"search",
+										"history"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete search history",
+							"id": "bf6c74e8-fdeb-495a-89e5-31e3a0e73cf6",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/search/history",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"search",
+										"history"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"id": "400836cc-ce54-4450-98ad-9edb004ca11d"
+				},
+				{
+					"name": "Get user profile",
+					"id": "a567665e-76a1-4387-9826-0e6351f13aba",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{domain}}/user/profile",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"user",
+								"profile"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update user profile",
+					"id": "1aa97fe8-bde3-466c-a77d-53a9f78dfc07",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"firstname\": \"\",\r\n    \"middlename\": \"\",\r\n    \"lastname\": \"\",\r\n    \"mobile_number\": \"\",\r\n    \"gender\": \"\",\r\n    \"dob\": \"\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domain}}/user/profile",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"user",
+								"profile"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update user profile image",
+					"id": "9ba09847-9678-49cb-ab05-fd88571bfadc",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "profile_image",
+									"type": "file",
+									"value": null
+								}
+							],
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domain}}/user/profile/image",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"user",
+								"profile",
+								"image"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"id": "f02faeb2-64b6-4c0d-a3bf-da658c20e070"
+		},
+		{
+			"name": "Authentications",
+			"item": [
+				{
+					"name": "Users",
+					"item": [
+						{
+							"name": "User sign in via email",
+							"id": "70ac879e-a871-4649-b52c-8fb9db3067fa",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"\",\r\n    \"password\": \"\",\r\n    \"remember_me\": false\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/auth/user/signin/email",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"auth",
+										"user",
+										"signin",
+										"email"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "User sign in via mobile number",
+							"id": "80574936-2993-46d5-9b83-e7fc20c67ca7",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"mobile_number\": \"\",\r\n    \"password\": \"\",\r\n    \"remember_me\": false\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/auth/user/signin/mobile",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"auth",
+										"user",
+										"signin",
+										"mobile"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "User sign up",
+							"id": "80e893f7-4135-493e-b8f4-9b77ccd55251",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"method\": \"\",\r\n    \"firstname\": \"\",\r\n    \"middlename\": \"\",\r\n    \"lastname\": \"\",\r\n    \"email\": \"\",\r\n    \"mobile_number\": \"\",\r\n    \"gender\": \"\",\r\n    \"dob\": \"\",\r\n    \"password\": \"\",\r\n    \"confirmPassword\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/auth/user/signup",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"auth",
+										"user",
+										"signup"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Change user password",
+							"id": "89f6bac6-47c4-49e7-bcd9-8863cc2a2073",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"oldPassword\": \"\",\r\n    \"password\": \"\",\r\n    \"confirmPassword\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/user/password/change",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"user",
+										"password",
+										"change"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Recover user password via email",
+							"id": "ccb84a4a-6836-446b-bc6d-3981fce5de8b",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/user/password/recover/email",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"user",
+										"password",
+										"recover",
+										"email"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Recover user password via mobile number",
+							"id": "65538e8b-57cf-40ea-8599-601a30b5ec53",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"mobile_number\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/user/password/recover/mobile",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"user",
+										"password",
+										"recover",
+										"mobile"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Verify user email",
+							"id": "7ccf2665-9113-4dec-a265-ae845581f2bc",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/user/verify/email",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"user",
+										"verify",
+										"email"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Verify user mobile number",
+							"id": "eba334ff-220c-440f-b3e7-861bd8c1e07e",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"mobile_number\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/user/verify/mobile",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"user",
+										"verify",
+										"mobile"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"id": "f345820a-e435-484f-aa62-2f27e8f23bf2"
+				},
+				{
+					"name": "Riders",
+					"item": [
+						{
+							"name": "Rider sign in via email",
+							"id": "838f6c4b-be26-4c35-b138-fa3d28bf1677",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"\",\r\n    \"password\": \"\",\r\n    \"remember_me\": false\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/auth/rider/signin/email",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"auth",
+										"rider",
+										"signin",
+										"email"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Rider sign in via mobile number",
+							"id": "e482ad6f-505f-4eae-bdbc-5852292805b9",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"mobile_number\": \"\",\r\n    \"password\": \"\",\r\n    \"remember_me\": false\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/auth/rider/signin/mobile",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"auth",
+										"rider",
+										"signin",
+										"mobile"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Rider sign up",
+							"id": "fa06abf0-47c5-4164-922f-b03620580196",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"method\": \"\",\r\n    \"firstname\": \"\",\r\n    \"middlename\": \"\",\r\n    \"lastname\": \"\",\r\n    \"email\": \"\",\r\n    \"mobile_number\": \"\",\r\n    \"gender\": \"\",\r\n    \"dob\": \"\",\r\n    \"password\": \"\",\r\n    \"confirmPassword\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/auth/rider/signup",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"auth",
+										"rider",
+										"signup"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Change rider password",
+							"id": "1fa74c52-b588-495b-b60b-1b74b43ad769",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"oldPassword\": \"\",\r\n    \"password\": \"\",\r\n    \"confirmPassword\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/rider/password/change",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"rider",
+										"password",
+										"change"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Recover rider password via email",
+							"id": "80fb3933-5320-465f-8489-e43bbce193bc",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/rider/password/recover/email",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"rider",
+										"password",
+										"recover",
+										"email"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Recover rider password via mobile number",
+							"id": "5fef1a8a-40a7-4422-8183-02d9dad506d6",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"mobile_number\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/rider/password/recover/mobile",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"rider",
+										"password",
+										"recover",
+										"mobile"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Verify rider email",
+							"id": "b3989434-fed3-4982-a812-47ff4e71d797",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/rider/verify/email",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"rider",
+										"verify",
+										"email"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Verify rider mobile number",
+							"id": "7154fe16-fec6-45ef-bab6-39c86f30a56d",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"mobile_number\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/rider/verify/mobile",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"rider",
+										"verify",
+										"mobile"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"id": "6c8e1bd0-13db-4854-bfdd-9f8b779d193e"
+				},
+				{
+					"name": "Vendors",
+					"item": [
+						{
+							"name": "Vendor Sign In",
+							"id": "daf3422e-44ab-480d-8d6e-6b3b4878f7f6",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"\",\r\n    \"mobile_number\": \"\",\r\n    \"remember_me\": false\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/auth/vendor/access/{{vendor-stripped}}",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"auth",
+										"vendor",
+										"access",
+										"{{vendor-stripped}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Vendor Sign In - Verify OTP",
+							"id": "7c2f08fb-0013-4341-80b4-bf4b5ac9bb69",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"\",\r\n    \"mobile_number\": \"\",\r\n    \"otp\": \"\",\r\n    \"remember_me\": false\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/auth/vendor/access/{{vendor-stripped}}/verify",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"auth",
+										"vendor",
+										"access",
+										"{{vendor-stripped}}",
+										"verify"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Vendor Sign Up",
+							"id": "946f50de-d272-4217-a09c-c458a5bf6e7e",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"\",\r\n    \"email\": \"\",\r\n    \"description\": \"\",\r\n    \"opening_hours\": null,\r\n    \"closing_hours\": null,\r\n    \"firstname\": \"\",\r\n    \"middlename\": \"\",\r\n    \"lastname\": \"\",\r\n    \"user_email\": \"\",\r\n    \"mobile_number\": \"\",\r\n    \"gender\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/auth/vendor/signup",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"auth",
+										"vendor",
+										"signup"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"id": "c53157a7-6a86-45e9-9d5b-962e2e70db7b"
+				}
+			],
+			"id": "c2d9e124-c5ee-484c-b5f8-97e228cf325e"
+		},
+		{
+			"name": "Vendors",
+			"item": [
+				{
+					"name": "Categories",
+					"item": [
+						{
+							"name": "Get categories for vendors",
+							"id": "d93a2d97-5bb5-4fde-9a96-5409ef024690",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{domain}}/vendors/categories",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"categories"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"id": "6ab60ad9-5bb3-47a4-a736-3e8eb543e7f4"
+				},
+				{
+					"name": "Menus",
+					"item": [
+						{
+							"name": "Get menus",
+							"id": "3416c747-f24c-496b-8e5c-3652c4674d26",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{domain}}/vendors/menus",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"menus"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get menu",
+							"id": "935c1d5c-dd49-4980-b0ea-fd631665623d",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/menu",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"menu"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add menu",
+							"id": "4bee2fbf-e643-4a07-841e-d38b015a99e5",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"\",\r\n    \"start_time\": \"\",\r\n    \"end_time\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/menu",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"menu"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update menu name",
+							"id": "af7b53ff-4f21-43af-9e9f-7fb82ab04660",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\",\r\n    \"name\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/menu/name",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"menu",
+										"name"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update menu duration",
+							"id": "c6be7ac5-5351-4f82-836e-9ac285a9522c",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\",\r\n    \"start_time\": \"\",\r\n    \"end_time\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/menu/duration",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"menu",
+										"duration"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete menu",
+							"id": "776ad188-d9a2-47c6-9b26-05a52d245209",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/menu",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"menu"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"id": "e59e8e2a-e20d-4c8a-8be1-68f1de820cc5"
+				},
+				{
+					"name": "Orders",
+					"item": [
+						{
+							"name": "Get vendor orders",
+							"id": "5e9ca69c-138f-4ef4-9651-6bcb0b2e8582",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{domain}}/vendors/orders",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"orders"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get vendor orders via tracking",
+							"id": "9a375d7a-507c-4e9c-89a3-309ea310e3f5",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"tracking_number\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/orders/via/tracking",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"orders",
+										"via",
+										"tracking"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get vendor paid orders",
+							"id": "4687542b-0400-41b4-ad61-b6a1aa3f3cfb",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"paid\": true\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/orders/paid",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"orders",
+										"paid"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get vendor shipped orders",
+							"id": "1ff60103-0890-4c1d-99b6-14b098ebb7fa",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"shipped\": true\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/orders/shipped",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"orders",
+										"shipped"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get vendor disputed orders",
+							"id": "fa09c0a7-eb3c-47d1-abb9-ef39e80c34fe",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"disputed\": true\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/orders/disputed",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"orders",
+										"disputed"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Order completed",
+							"id": "e7391437-b823-4c4f-8094-69737936b76a",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/order/completed",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"order",
+										"completed"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"id": "ee2ab5ac-db30-4ca8-8d69-09ffb289cb66"
+				},
+				{
+					"name": "Orders Completed",
+					"item": [
+						{
+							"name": "Get vendor orders completed",
+							"id": "a02852d2-8ae8-4e88-9172-8e80970681ea",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{domain}}/vendors/orders/completed",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"orders",
+										"completed"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"id": "df2af71e-9fde-4f56-9b3a-7f4f10d98232"
+				},
+				{
+					"name": "OTPs",
+					"item": [
+						{
+							"name": "Create OTP",
+							"id": "9bcf3380-429d-4692-98fd-92879ae6b37a",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{domain}}/vendors/otp/create",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"otp",
+										"create"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Verify OTP",
+							"id": "221e80a8-600e-4175-90e4-1f2937a137e9",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"otp\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/otp/verify",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"otp",
+										"verify"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"id": "079fd1e3-e28a-46fc-b0ef-d2ab7acbce1b"
+				},
+				{
+					"name": "Products",
+					"item": [
+						{
+							"name": "Get vendor products",
+							"id": "47f62e51-04ce-45ca-a900-b4effdbc0a55",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{domain}}/vendors/products",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"products"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get vendor product",
+							"id": "178dd605-e31d-4673-9b7c-e98e18453028",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/product",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"product"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add vendor product",
+							"id": "a0b3126d-8b21-4ab8-8840-4fe940813c8a",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"menu_unique_id\": \"\",\r\n    \"category_unique_id\": \"\",\r\n    \"name\": \"\",\r\n    \"description\": \"\",\r\n    \"duration\": \"\",\r\n    \"weight\": \"\",\r\n    \"quantity\": \"\",\r\n    \"remaining\": \"\",\r\n    \"price\": \"\",\r\n    \"sales_price\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/product",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"product"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add vendor product image",
+							"id": "7fd5afbe-cc61-47d9-b351-d481ef20777b",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "image",
+											"type": "file",
+											"value": null
+										},
+										{
+											"key": "product_unique_id",
+											"value": "",
+											"type": "text"
+										}
+									],
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/product/image",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"product",
+										"image"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update vendor product name",
+							"id": "28462c95-5c45-467a-99f0-3b33599eb6d1",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\",\r\n    \"category_unique_id\": \"\",\r\n    \"name\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/product/name",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"product",
+										"name"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update vendor product description",
+							"id": "5fb4318d-a84e-4924-98f9-45b12c124667",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\",\r\n    \"description\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/product/description",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"product",
+										"description"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update vendor product criteria",
+							"id": "b89ee6f1-2e9c-494e-83e5-f29a0f75b831",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\",\r\n    \"duration\": \"\",\r\n    \"weight\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/product/criteria",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"product",
+										"criteria"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update vendor product stock",
+							"id": "4ecc25a6-3e7a-4c22-bad4-20c624d786bd",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\",\r\n    \"quantity\": \"\",\r\n    \"remaining\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/product/stock",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"product",
+										"stock"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update vendor product prices",
+							"id": "fbfc3435-0c3e-455f-a7de-c56a7bf8c58f",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\",\r\n    \"price\": \"\",\r\n    \"sales_price\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/product/prices",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"product",
+										"prices"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update vendor product menu",
+							"id": "87a1cc6d-d90a-4d25-b262-1360e121d58a",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\",\r\n    \"menu_unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/product/menu",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"product",
+										"menu"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update vendor product category",
+							"id": "74f2f5e1-87a7-4b13-bc49-f57f803cd150",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\",\r\n    \"category_unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/product/category",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"product",
+										"category"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update vendor product image",
+							"id": "d6b17f7d-ede5-4b2c-849f-359a687f4cf0",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "image",
+											"type": "file",
+											"contentType": "",
+											"value": null
+										},
+										{
+											"key": "product_unique_id",
+											"value": "",
+											"type": "text"
+										},
+										{
+											"key": "unique_id",
+											"value": "",
+											"type": "text"
+										}
+									],
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/product/image",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"product",
+										"image"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Remove vendor product",
+							"id": "df354483-14e0-4047-84ae-5cfc6d72ada1",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/product/remove",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"product",
+										"remove"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Restore vendor product",
+							"id": "95956b72-07f9-404a-9f8f-068982d87414",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/product/restore",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"product",
+										"restore"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete vendor product image",
+							"id": "75882177-b5c4-4c69-952b-5adfb787abda",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\",\r\n    \"product_unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/product/image",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"product",
+										"image"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"id": "c9b3c3cd-041f-47af-85d0-48de8f3fecd4"
+				},
+				{
+					"name": "Bank Accounts",
+					"item": [
+						{
+							"name": "Get vendor bank accounts",
+							"id": "e06537a4-3386-46f7-ac34-78be9c3f3457",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{domain}}/vendors/bank/accounts",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"bank",
+										"accounts"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get vendor default bank account",
+							"id": "72040d34-ecb3-4c4e-8472-1b09ff1d52fd",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{domain}}/vendors/default/bank/account",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"default",
+										"bank",
+										"account"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get vendor bank account",
+							"id": "8201759f-4a22-42f2-b71d-02c6f71b9103",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/bank/account",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"bank",
+										"account"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add vendor bank account",
+							"id": "197184da-7b83-4cd3-bb42-fe3d8e8d06ba",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"\",\r\n    \"bank\": \"\",\r\n    \"account_number\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/bank/account",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"bank",
+										"account"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update vendor bank account",
+							"id": "dca840a0-7271-496c-a3d1-33a3da3cc698",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\",\r\n    \"name\": \"\",\r\n    \"bank\": \"\",\r\n    \"account_number\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/bank/account",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"bank",
+										"account"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update vendor default bank account",
+							"id": "459c48e2-05a6-4f8a-847f-4b335925b1e4",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/bank/account/default",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"bank",
+										"account",
+										"default"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete vendor bank account",
+							"id": "b88f4093-e9e5-4a5a-95c8-686b5925dbf9",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/bank/account",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"bank",
+										"account"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"id": "96ccac1c-564e-40bb-975e-b3732b9836ef"
+				},
+				{
+					"name": "Riders",
+					"item": [
+						{
+							"name": "Get vendor riders",
+							"id": "1a5a493c-09a8-4e03-9207-c0a2fa294cef",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{domain}}/vendors/riders",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"riders"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get vendor rider",
+							"id": "f1c2fbff-79d3-4483-9031-44f3506e5549",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/rider",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"rider"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add vendor rider",
+							"id": "bc8183f1-ce0e-4c79-9214-d9372bc50e89",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"firstname\": \"\",\r\n    \"middlename\": \"\",\r\n    \"lastname\": \"\",\r\n    \"email\": \"\",\r\n    \"mobile_number\": \"\",\r\n    \"gender\": \"\",\r\n    \"dob\": \"\",\r\n    \"password\": \"\",\r\n    \"confirmPassword\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/rider",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"rider"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Grant rider access - Vendor",
+							"id": "8d714a81-3d9b-406e-bb8e-e94c34e7a453",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/rider/access/grant",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"rider",
+										"access",
+										"grant"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Suspend rider access - Vendor",
+							"id": "e7ddaa26-684d-4499-a3a5-c7079576e3c6",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/rider/access/suspend",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"rider",
+										"access",
+										"suspend"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Revoke rider access - Vendor",
+							"id": "e594ca34-f187-46af-83f8-46eef18ea7ff",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/rider/access/revoke",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"rider",
+										"access",
+										"revoke"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Verify rider - Vendor",
+							"id": "51ad9209-7ad5-4bd8-85f5-706717962319",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/rider/verify",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"rider",
+										"verify"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Unverify rider - Vendor",
+							"id": "618d5921-6660-44ce-8e47-d04db76894c0",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/rider/unverify",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"rider",
+										"unverify"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Remove rider - Vendor",
+							"id": "6519b56c-0eeb-4f00-8054-64b9f612b70f",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/rider/remove",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"rider",
+										"remove"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Restore rider - Vendor",
+							"id": "7f209f45-4770-472d-aebf-381e3015c93e",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/rider/restore",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"rider",
+										"restore"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"id": "9d6e1e62-27b1-479c-90d0-b826eb10b400"
+				},
+				{
+					"name": "Transactions",
+					"item": [
+						{
+							"name": "Get vendor transactions",
+							"id": "3e4c1b25-3db2-4b14-9626-818a1137415e",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{domain}}/vendors/transactions",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"transactions"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get vendor transaction",
+							"id": "6c6154cb-2c66-4505-977c-4ac60ac89619",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/transaction",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"transaction"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Service charge (Payment) - Vendor",
+							"id": "75b81010-aaa3-45b0-9064-3974d4789bf5",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"amount\": 0,\r\n    \"payment_method\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/transaction/payment/service/charge",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"transaction",
+										"payment",
+										"service",
+										"charge"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Service charge (Payment - Externally) - Vendor",
+							"id": "09b76a03-ef73-4dfb-af35-5c0f5afaedbb",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"amount\": 0,\r\n    \"payment_method\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/transaction/payment/service/charge/externally",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"transaction",
+										"payment",
+										"service",
+										"charge",
+										"externally"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Withdrawal (Payment) - Vendor",
+							"id": "fc7ab4ad-b32a-4700-b1d7-188121c278de",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"amount\": 0\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/transaction/payment/withdrawal",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"transaction",
+										"payment",
+										"withdrawal"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Withdrawal (Payment - Externally) - Vendor",
+							"id": "67697d3c-5596-4ae4-8215-4cb000241b5b",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"amount\": 0\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/transaction/payment/withdrawal/externally",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"transaction",
+										"payment",
+										"withdrawal",
+										"externally"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Service charge (Cancellation) - Vendor",
+							"id": "cfc76717-85c0-40ed-bde0-97aa69fc0069",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/transaction/cancel/service/charge",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"transaction",
+										"cancel",
+										"service",
+										"charge"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Service charge (Cancellation - Externally) - Vendor",
+							"id": "79b15156-63df-4fdc-a73e-dbf9eb73bb6a",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/transaction/cancel/service/charge/externally",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"transaction",
+										"cancel",
+										"service",
+										"charge",
+										"externally"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Withdrawal (Cancellation) - Vendor",
+							"id": "b438b55a-d3c7-45f7-ac3e-7c477c78c67f",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/transaction/cancel/withdrawal",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"transaction",
+										"cancel",
+										"withdrawal"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Withdrawal (Cancellation - Externally) - Vendor",
+							"id": "efbd8d15-9c52-44b3-ac5b-17f636a5e269",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/transaction/cancel/withdrawal/externally",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"transaction",
+										"cancel",
+										"withdrawal",
+										"externally"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Service charge (Completion) - Vendor",
+							"id": "95ea175f-cded-46c4-8134-929be906fb87",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/transaction/complete/service/charge",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"transaction",
+										"complete",
+										"service",
+										"charge"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Service charge (Completion - Externally) - Vendor",
+							"id": "9125e2a1-3790-40ad-a9c9-230f165ec307",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/transaction/complete/service/charge/externally",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"transaction",
+										"complete",
+										"service",
+										"charge",
+										"externally"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Withdrawal (Completion) - Vendor",
+							"id": "89c434b6-8c6a-4bc8-ad88-786f36ce40a9",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/transaction/complete/withdrawal",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"transaction",
+										"complete",
+										"withdrawal"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Withdrawal (Completion - Externally) - Vendor",
+							"id": "d1c1bab3-fdac-41c6-8f0d-c62897d69952",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/transaction/complete/withdrawal/externally",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"transaction",
+										"complete",
+										"withdrawal",
+										"externally"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Remove transaction - Vendor",
+							"id": "299b9b8e-f682-499c-9b22-0c22cdf2e0ef",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/transaction/remove",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"transaction",
+										"remove"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Restore transaction - Vendor",
+							"id": "3b0984d4-eeab-4c6a-9f17-21791622034c",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/transaction/restore",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"transaction",
+										"restore"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"id": "a4b5ff4b-2f03-4fe7-8cf6-792263e2685e"
+				}
+			],
+			"id": "e2c06d87-2593-4ebd-b7fc-95175cf8c004"
+		},
+		{
+			"name": "Riders",
+			"item": [
+				{
+					"name": "Orders",
+					"item": [
+						{
+							"name": "Get rider orders",
+							"id": "6f39ecfe-becb-46ac-8eaa-d4156a325308",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{domain}}/riders/orders",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"riders",
+										"orders"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get rider orders via tracking",
+							"id": "ac85ea39-28d0-4ff0-9bc1-c4a521d885d6",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"tracking_number\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/riders/orders/via/tracking",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"riders",
+										"orders",
+										"via",
+										"tracking"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get rider paid orders",
+							"id": "1a70f674-73a1-463f-9599-8626a7e7c1c4",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"paid\": true\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/riders/orders/paid",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"riders",
+										"orders",
+										"paid"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get rider shipped orders",
+							"id": "0cda2cd9-2701-407b-b722-3857c547be55",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"shipped\": true\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/riders/orders/shipped",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"riders",
+										"orders",
+										"shipped"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get rider disputed orders",
+							"id": "e856d74c-d47e-4c8e-b8bc-6acf5606d709",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"disputed\": true\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/riders/orders/disputed",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"riders",
+										"orders",
+										"disputed"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Order in transit",
+							"id": "2c76a588-7593-417c-a2e2-2a8fca2dedd5",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\",\r\n    \"shipping_fee_unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/riders/order/shipping",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"riders",
+										"order",
+										"shipping"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Order shipped",
+							"id": "fab4d1a5-75a9-4c35-b0a3-8d87528889d2",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\",\r\n    \"shipping_fee_unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/riders/order/shipped",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"riders",
+										"order",
+										"shipped"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"id": "1ce81cdb-f33d-41ac-9565-49c74040a600"
+				},
+				{
+					"name": "Orders Completed",
+					"item": [
+						{
+							"name": "Get rider orders completed",
+							"id": "20145bf6-369c-4f8c-a413-bd5b8346283e",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{domain}}/riders/orders/completed",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"riders",
+										"orders",
+										"completed"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"id": "a5b1ae6d-0234-42af-89c3-b7db1a4aaa6b"
+				},
+				{
+					"name": "Bank Accounts",
+					"item": [
+						{
+							"name": "Get rider bank accounts",
+							"id": "97d2e514-e3a1-47f9-970d-fe56b45ea8f2",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{domain}}/riders/bank/accounts",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"riders",
+										"bank",
+										"accounts"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get rider default bank account",
+							"id": "a5945a79-c595-43bc-93c2-8ae7f30a45b0",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{domain}}/riders/default/bank/account",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"riders",
+										"default",
+										"bank",
+										"account"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get rider bank account",
+							"id": "3afe0130-9ca9-4747-8221-700589ecf3db",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/riders/bank/account",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"riders",
+										"bank",
+										"account"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add rider bank account",
+							"id": "4ede2896-2eef-4ebe-91db-d75cd15200fc",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"\",\r\n    \"bank\": \"\",\r\n    \"account_number\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/riders/bank/account",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"riders",
+										"bank",
+										"account"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update rider bank account",
+							"id": "971f0993-af56-4635-a4b3-2d120c0cbd8d",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\",\r\n    \"name\": \"\",\r\n    \"bank\": \"\",\r\n    \"account_number\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/riders/bank/account",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"riders",
+										"bank",
+										"account"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update rider default bank account",
+							"id": "f0bd22a1-95d1-45a3-8d84-08bf1eeaa2fd",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/riders/bank/account/default",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"riders",
+										"bank",
+										"account",
+										"default"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete rider bank account",
+							"id": "94ae19ff-4f97-4109-a154-2581bea82f05",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/riders/bank/account",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"riders",
+										"bank",
+										"account"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"id": "751d2792-85cc-4ab8-acf3-e432b234d26e"
+				},
+				{
+					"name": "Shipping",
+					"item": [
+						{
+							"name": "Get rider shippings",
+							"id": "3e86e6b1-0fe5-435e-9ca2-86bd8df39e25",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{domain}}/riders/shippings",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"riders",
+										"shippings"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get rider shipping",
+							"id": "58aacd44-05f0-45ca-8b34-95d79b4cf02f",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/riders/shipping",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"riders",
+										"shipping"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add rider shipping",
+							"id": "f5df4274-b98d-412c-9df5-28783c4c43ec",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"min_weight\": \"\",\r\n    \"max_weight\": \"\",\r\n    \"price\": \"\",\r\n    \"from_city\": \"\",\r\n    \"from_state\": \"\",\r\n    \"from_country\": \"\",\r\n    \"to_city\": \"\",\r\n    \"to_state\": \"\",\r\n    \"to_country\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/riders/shipping",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"riders",
+										"shipping"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add rider shipping multiple",
+							"id": "6274eb10-9db5-40fb-b4da-ea1712bba1e3",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"shipping\": [\r\n        {\r\n            \"min_weight\": \"\",\r\n            \"max_weight\": \"\",\r\n            \"price\": \"\",\r\n            \"from_city\": \"\",\r\n            \"from_state\": \"\",\r\n            \"from_country\": \"\",\r\n            \"to_city\": \"\",\r\n            \"to_state\": \"\",\r\n            \"to_country\": \"\"\r\n        }\r\n    ]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/riders/shipping/multiple",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"riders",
+										"shipping",
+										"multiple"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update rider shipping criteria",
+							"id": "68e3e660-881f-45b8-88b4-86000d0cd0b9",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\",\r\n    \"min_weight\": \"\",\r\n    \"max_weight\": \"\",\r\n    \"price\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/riders/shipping/criteria",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"riders",
+										"shipping",
+										"criteria"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update rider shipping location",
+							"id": "32f737b4-5728-456a-aa1c-5dc8aebc9b48",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\",\r\n    \"from_city\": \"\",\r\n    \"from_state\": \"\",\r\n    \"from_country\": \"\",\r\n    \"to_city\": \"\",\r\n    \"to_state\": \"\",\r\n    \"to_country\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/riders/shipping/location",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"riders",
+										"shipping",
+										"location"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"id": "42dc3941-5347-4260-bd4d-db3477762d4f"
+				},
+				{
+					"name": "Transactions",
+					"item": [
+						{
+							"name": "Get rider transactions",
+							"id": "e0eb27ea-67a4-457b-9cc0-6f53afe103e6",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{domain}}/riders/transactions",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"riders",
+										"transactions"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get rider transaction",
+							"id": "0d1b17f1-8ca3-4ee9-8f10-119071ae8249",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/riders/transaction",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"riders",
+										"transaction"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Service charge (Payment) - Rider",
+							"id": "000a2a2e-75aa-4b2f-a5ce-36097af00f56",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"amount\": 0,\r\n    \"payment_method\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/riders/transaction/payment/service/charge",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"riders",
+										"transaction",
+										"payment",
+										"service",
+										"charge"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Service charge (Payment - Externally) - Rider",
+							"id": "40622421-cabb-48a2-ab1d-5102b260fd92",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"amount\": 0,\r\n    \"payment_method\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/riders/transaction/payment/service/charge/externally",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"riders",
+										"transaction",
+										"payment",
+										"service",
+										"charge",
+										"externally"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Withdrawal (Payment) - Rider",
+							"id": "c32561c0-b6ae-44ec-894a-e431a4a49061",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"amount\": 0\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/riders/transaction/payment/withdrawal",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"riders",
+										"transaction",
+										"payment",
+										"withdrawal"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Withdrawal (Payment - Externally) - Rider",
+							"id": "f1ed0bb7-287f-4697-a46f-01ba24b2d89b",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"amount\": 0\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/riders/transaction/payment/withdrawal/externally",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"riders",
+										"transaction",
+										"payment",
+										"withdrawal",
+										"externally"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Service charge (Cancellation) - Rider",
+							"id": "f1ea7ed9-024b-46a3-9ed2-751e632fa6a3",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/riders/transaction/cancel/service/charge",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"riders",
+										"transaction",
+										"cancel",
+										"service",
+										"charge"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Service charge (Cancellation - Externally) - Rider",
+							"id": "30de569a-57eb-4b30-b739-bff11eff338f",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/riders/transaction/cancel/service/charge/externally",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"riders",
+										"transaction",
+										"cancel",
+										"service",
+										"charge",
+										"externally"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Withdrawal (Cancellation) - Rider",
+							"id": "bfd2b8b1-f463-4f6f-bbf4-fae1335faa1f",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/riders/transaction/cancel/withdrawal",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"riders",
+										"transaction",
+										"cancel",
+										"withdrawal"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Withdrawal (Cancellation - Externally) - Rider",
+							"id": "18ed56ee-d00b-4445-9cd9-84f4ad42da61",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/riders/transaction/cancel/withdrawal/externally",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"riders",
+										"transaction",
+										"cancel",
+										"withdrawal",
+										"externally"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Service charge (Completion) - Rider",
+							"id": "6a8f2b5b-80a4-4e8c-8b18-46940cf41c5c",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/riders/transaction/complete/service/charge",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"riders",
+										"transaction",
+										"complete",
+										"service",
+										"charge"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Service charge (Completion - Externally) - Rider",
+							"id": "70cf69f0-ed11-4b3d-9a1c-5b547292bac4",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/riders/transaction/complete/service/charge/externally",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"riders",
+										"transaction",
+										"complete",
+										"service",
+										"charge",
+										"externally"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Withdrawal (Completion) - Rider",
+							"id": "22ab9756-669c-41f9-92f5-2bc9891dc427",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/riders/transaction/complete/withdrawal",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"riders",
+										"transaction",
+										"complete",
+										"withdrawal"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Withdrawal (Completion - Externally) - Rider",
+							"id": "474c79db-cd6e-4b35-9e74-5b88be004d3f",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/riders/transaction/complete/withdrawal/externally",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"riders",
+										"transaction",
+										"complete",
+										"withdrawal",
+										"externally"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Remove transaction - Rider",
+							"id": "f0a5979a-598c-401c-afb2-634b03ae17d5",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/riders/transaction/remove",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"riders",
+										"transaction",
+										"remove"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Restore transaction - Rider",
+							"id": "2db8046a-8684-4a2d-baf8-c837fec16522",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/riders/transaction/restore",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"riders",
+										"transaction",
+										"restore"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"id": "4e4f516a-8fe4-4098-b181-1d4f3628f71d"
+				},
+				{
+					"name": "Get rider profile",
+					"id": "5b8a2575-8a09-43db-96d0-9c5ea9a315ff",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{domain}}/rider/profile",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"rider",
+								"profile"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update rider profile",
+					"id": "f2964ad1-ecbb-4aed-b949-8812e6c1e981",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"firstname\": \"\",\r\n    \"middlename\": \"\",\r\n    \"lastname\": \"\",\r\n    \"mobile_number\": \"\",\r\n    \"gender\": \"\",\r\n    \"dob\": \"\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domain}}/rider/profile",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"rider",
+								"profile"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update rider availability",
+					"id": "155eb802-6c4f-4d91-9090-7ba5e842e643",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{domain}}/rider/availability",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"rider",
+								"availability"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update rider profile image",
+					"id": "ecc5adee-4c48-4d9d-8737-15960eadeb08",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "profile_image",
+									"type": "file",
+									"value": null
+								}
+							],
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domain}}/rider/profile/image",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"rider",
+								"profile",
+								"image"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"id": "6fa7992a-0aa9-4c7d-872a-e26f2607c92b"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "8c27922e-8995-4ae1-ad26-d6ff59700a3e",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "c5f80ebe-1299-435b-a8b9-7d3b7eb0f919",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "8e9e69a0-f743-4481-b97a-a096c6825325",
+			"key": "domain",
+			"value": "https://api.9-25.co",
+			"type": "string"
+		},
+		{
+			"id": "73329dbd-7875-4bcd-8ff9-38ecb63ad5bd",
+			"key": "chow-925-access-token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "976c0274-1385-49fd-8cd2-6a7d6aa1e0eb",
+			"key": "chow-925-access-key",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "29caf0a3-1e8e-4144-88c0-da6cdba838c9",
+			"key": "vendor-stripped",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "531893a5-2ed7-48dc-b24b-1e1a2f7a460d",
+			"key": "menu-stripped",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "3f2b0834-d1d4-4ed4-b9c9-4b7bb8d5195f",
+			"key": "category-stripped",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"id": "78ba096f-b881-4461-a23d-d30e284e625e",
+			"key": "product-stripped",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
