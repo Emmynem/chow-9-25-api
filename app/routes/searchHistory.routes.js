@@ -12,8 +12,7 @@ export default function (app) {
 
     app.get("/search/history", [checks.verifyToken, checks.isUser], getSearchHistories);
 
-    app.post("/search", [checks.verifyToken, checks.isUser, search_history_rules.forAdding], searchProducts);
-    app.post("/public/search", [search_history_rules.forAdding], searchProducts);
+    app.get("/search", [checks.verifyToken, checks.isUser, search_history_rules.forAdding], searchProducts);
 
-    app.delete("/search", [checks.verifyToken, checks.isUser, search_history_rules.forFindingSearchHistory], deleteSearchHistory);
+    app.delete("/search/history", [checks.verifyToken, checks.isUser, search_history_rules.forFindingSearchHistory], deleteSearchHistory);
 };
