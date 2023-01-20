@@ -2230,6 +2230,106 @@
 					"id": "400836cc-ce54-4450-98ad-9edb004ca11d"
 				},
 				{
+					"name": "Vendors",
+					"item": [
+						{
+							"name": "Search vendors",
+							"id": "32c9d98e-f7a4-4410-821b-4155fcffb91d",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"search\": \"9:25\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/search/vendors",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"search",
+										"vendors"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"id": "18551874-3445-47d4-a3f0-53a0d34f3d10"
+				},
+				{
+					"name": "View History",
+					"item": [
+						{
+							"name": "Get view history",
+							"id": "88c351a6-8297-48bf-b0ef-7c188aa6bf95",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{domain}}/user/product/view/history",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"user",
+										"product",
+										"view",
+										"history"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete search history Copy",
+							"id": "5c9e2ed6-614b-4a96-8b49-827d849c2931",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/user/product/view/history",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"user",
+										"product",
+										"view",
+										"history"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"id": "b39e9b9b-58f2-41d3-b85b-4d6a65058b1b"
+				},
+				{
 					"name": "Get user profile",
 					"id": "a567665e-76a1-4387-9826-0e6351f13aba",
 					"protocolProfileBehavior": {
@@ -5114,6 +5214,630 @@
 						}
 					],
 					"id": "488721ee-036b-47c9-a590-dc37f2bb889d"
+				},
+				{
+					"name": "Users",
+					"item": [
+						{
+							"name": "Get vendor users",
+							"id": "d3853161-2773-459a-8b0b-2b498296cf6d",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{domain}}/vendors/users",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"users"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get vendor user",
+							"id": "619ae1fe-e4ae-477d-846c-eaba6879c408",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/user",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"user"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get vendor user profile",
+							"id": "720cb85f-3b45-41be-9a71-476215265cee",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{domain}}/vendors/user/profile",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"user",
+										"profile"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add vendor user",
+							"id": "e4c9f43a-d038-4b66-9d36-bb21ca9bc104",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"firstname\": \"\",\r\n    \"middlename\": \"\",\r\n    \"lastname\": \"\",\r\n    \"email\": \"\",\r\n    \"mobile_number\": \"\",\r\n    \"gender\": \"\",\r\n    \"routes\": []\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/user",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"user"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update vendor user profile",
+							"id": "832987b6-a28b-4e63-b43d-7696c18ceeef",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"firstname\": \"\",\r\n    \"middlename\": \"\",\r\n    \"lastname\": \"\",\r\n    \"email\": \"\",\r\n    \"mobile_number\": \"\",\r\n    \"gender\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/user/profile",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"user",
+										"profile"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update vendor user",
+							"id": "6c269f0b-28e6-45f9-b0bb-65467234b78c",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\",\r\n    \"firstname\": \"\",\r\n    \"middlename\": \"\",\r\n    \"lastname\": \"\",\r\n    \"email\": \"\",\r\n    \"mobile_number\": \"\",\r\n    \"gender\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/user",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"user"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update vendor user routes",
+							"id": "527a5230-7be9-418c-ab2c-6a79d3e37c16",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\",\r\n    \"routes\": []\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/user/routes",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"user",
+										"routes"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Grant user access - Vendor",
+							"id": "ca1b5094-6de8-4c00-8e33-eab80dbe102f",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/user/access/grant",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"user",
+										"access",
+										"grant"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Suspend user access - Vendor",
+							"id": "a2293f2d-5988-462e-8ba5-34c5747d43db",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/user/access/suspend",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"user",
+										"access",
+										"suspend"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Revoke user access - Vendor",
+							"id": "04401256-d4e9-45cf-a08a-8e20d89adbf8",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/user/access/revoke",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"user",
+										"access",
+										"revoke"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Remove user - Vendor",
+							"id": "e90ade93-1872-46a5-882b-60dfb45034cc",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/user/remove",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"user",
+										"remove"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Restore user - Vendor",
+							"id": "151687e4-e2c9-4c43-8ac1-7185714fab7c",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domain}}/vendors/user/restore",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"vendors",
+										"user",
+										"restore"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"id": "b9fa25dc-90fd-45e4-aab1-b738d45d530e"
+				},
+				{
+					"name": "Get vendor profile",
+					"id": "95961e28-35ab-4887-86d4-d85fc34f02c7",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{domain}}/vendor/profile",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"vendor",
+								"profile"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update vendor profile image",
+					"id": "3e74ece4-285f-46ee-a17e-bd3cda8f221d",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "profile_image",
+									"type": "file",
+									"value": null
+								}
+							],
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domain}}/vendor/profile/image",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"vendor",
+								"profile",
+								"image"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update vendor cover image",
+					"id": "68be6bd9-2b75-40cd-a0fd-27871f81ab2e",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "cover_image",
+									"type": "file",
+									"value": null
+								}
+							],
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domain}}/vendor/cover/image",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"vendor",
+								"cover",
+								"image"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upgrade vendor",
+					"id": "86ecdb40-4151-4bca-b8fb-87eb6e1aa659",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domain}}/vendor/upgrade",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"vendor",
+								"upgrade"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Downgrade vendor",
+					"id": "2ae225d6-5d7f-4c45-b557-f34a632ab63a",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"unique_id\": \"\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domain}}/vendor/downgrade",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"vendor",
+								"downgrade"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update vendor name",
+					"id": "a6a0a8b4-29b1-4490-bf21-f2aae2435e7a",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domain}}/vendor/name",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"vendor",
+								"name"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update vendor description",
+					"id": "045767ce-854a-480f-ab22-00b7eae45de5",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"description\": \"\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domain}}/vendor/description",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"vendor",
+								"description"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update vendor hours",
+					"id": "6c624f2c-78b2-40dc-8d2e-6f487362c885",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"opening_hours\": null,\r\n    \"closing_hours\": null\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domain}}/vendor/hours",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"vendor",
+								"hours"
+							]
+						}
+					},
+					"response": []
 				}
 			],
 			"id": "e2c06d87-2593-4ebd-b7fc-95175cf8c004"
@@ -6423,7 +7147,7 @@
 		{
 			"listen": "prerequest",
 			"script": {
-				"id": "8c27922e-8995-4ae1-ad26-d6ff59700a3e",
+				"id": "03d89eb4-9e97-4944-9026-ba94066c4ba4",
 				"type": "text/javascript",
 				"exec": [
 					""
@@ -6433,7 +7157,7 @@
 		{
 			"listen": "test",
 			"script": {
-				"id": "c5f80ebe-1299-435b-a8b9-7d3b7eb0f919",
+				"id": "100bca65-8495-40b4-9427-ebb9b408b505",
 				"type": "text/javascript",
 				"exec": [
 					""
@@ -6443,43 +7167,43 @@
 	],
 	"variable": [
 		{
-			"id": "8e9e69a0-f743-4481-b97a-a096c6825325",
+			"id": "912d4f0b-f50a-441a-b0bf-c2060907f8c2",
 			"key": "domain",
 			"value": "https://api.9-25.co",
 			"type": "string"
 		},
 		{
-			"id": "73329dbd-7875-4bcd-8ff9-38ecb63ad5bd",
+			"id": "0eba17bd-d159-495f-8f0d-dd7f59ebcc62",
 			"key": "chow-925-access-token",
 			"value": "",
 			"type": "string"
 		},
 		{
-			"id": "976c0274-1385-49fd-8cd2-6a7d6aa1e0eb",
+			"id": "066229b7-5baf-4b4c-b783-5424d0a81922",
 			"key": "chow-925-access-key",
 			"value": "",
 			"type": "string"
 		},
 		{
-			"id": "29caf0a3-1e8e-4144-88c0-da6cdba838c9",
+			"id": "0ebbfbb1-d6c3-4ce5-9a58-d6839cd201b6",
 			"key": "vendor-stripped",
 			"value": "",
 			"type": "string"
 		},
 		{
-			"id": "531893a5-2ed7-48dc-b24b-1e1a2f7a460d",
+			"id": "33fec06f-c82e-4756-bb58-30ece8f0af28",
 			"key": "menu-stripped",
 			"value": "",
 			"type": "string"
 		},
 		{
-			"id": "3f2b0834-d1d4-4ed4-b9c9-4b7bb8d5195f",
+			"id": "0e1c259e-6e00-40b5-9cf8-49a1c67c2807",
 			"key": "category-stripped",
 			"value": "",
 			"type": "string"
 		},
 		{
-			"id": "78ba096f-b881-4461-a23d-d30e284e625e",
+			"id": "879fdad3-d0bd-4f78-b4ad-e70dcf0aab33",
 			"key": "product-stripped",
 			"value": "",
 			"type": "string"
