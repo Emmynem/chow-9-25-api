@@ -2,6 +2,7 @@
 	"info": {
 		"_postman_id": "1fa31361-6b24-4da6-bd13-3ddd90e59238",
 		"name": "Chow 9:25 - Collection",
+		"description": "## Authentication\n\nAlmost all calls to the API endpoints are authenticated and they must all be over **HTTPS.**\n\nYou should send your Authorization header in the following format:\n\n- `chow-925-access-token` : `LOGGED_IN_USER_TOKEN`\n    \n\nFor routes that requires a key add the header:\n\n- `chow-925-access-key` : `API_KEY`\n    \n\nSend an API request without authentication or with an invalid api key, and you'll get a response with the **401 Unauthorized** status code.\n\n## Response Formats\n\nThe HTTP status code of our response is the ultimate source of truth as to whether or not your request succeeded. Successful requests will get a 2xx response status code, a failed request due to validation error will get a 422 response status code with a response body telling you exactly what went wrong, while a request with a server or internal error will get a 500 response status code with a response body as the validation error.\n\nYou can also watch for the presence and value of the status property in our response. For successful requests, we'll respond with status set to true. For failed responses, we'll respond with status set to false, and a data property explaining what went wrong.\n\nAn exception is where the request failed due to a validation error, in which case we won't send a status property. Instead, we'll send an errors property with an object containing all validation errors, along with a message property letting you know plainly how to fix your request parameters.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_uid": "16645752-1fa31361-6b24-4da6-bd13-3ddd90e59238"
 	},
@@ -207,7 +208,8 @@
 							"response": []
 						}
 					],
-					"id": "0b2610c9-af6a-4d79-9614-23f184a7b327"
+					"id": "0b2610c9-af6a-4d79-9614-23f184a7b327",
+					"description": "API endpoints for `USERS` - `ADDRESSESS` are found in this section. All calls to our endpoints in this section must be authenticated, see introduction for the `Authorization header` ."
 				},
 				{
 					"name": "Carts",
@@ -386,7 +388,8 @@
 							"response": []
 						}
 					],
-					"id": "7672f375-488e-4562-bb92-641af8410b0f"
+					"id": "7672f375-488e-4562-bb92-641af8410b0f",
+					"description": "API endpoints for `USERS` - `CARTS` are found in this section. All calls to our endpoints in this section must be authenticated, see introduction for the `Authorization header` ."
 				},
 				{
 					"name": "Categories",
@@ -413,7 +416,8 @@
 							"response": []
 						}
 					],
-					"id": "1a85fe20-b128-41f7-98d4-8f24b5fcfe34"
+					"id": "1a85fe20-b128-41f7-98d4-8f24b5fcfe34",
+					"description": "API endpoints for `CATEGORIES` are found in this section."
 				},
 				{
 					"name": "Disputes",
@@ -502,7 +506,8 @@
 							"response": []
 						}
 					],
-					"id": "216839da-507b-478c-8ea3-03ce6300461f"
+					"id": "216839da-507b-478c-8ea3-03ce6300461f",
+					"description": "API endpoints for `USERS` - `DISPUTES` are found in this section. All calls to our endpoints in this section must be authenticated, see introduction for the `Authorization header` ."
 				},
 				{
 					"name": "Favorites",
@@ -621,7 +626,8 @@
 							"response": []
 						}
 					],
-					"id": "35c3ea3e-4256-43e8-83ac-e5fe04863c49"
+					"id": "35c3ea3e-4256-43e8-83ac-e5fe04863c49",
+					"description": "API endpoints for `USERS` - `FAVORITES` are found in this section. All calls to our endpoints in this section must be authenticated, see introduction for the `Authorization header` ."
 				},
 				{
 					"name": "Menus",
@@ -646,12 +652,14 @@
 										"vendor",
 										"{{vendor-stripped}}"
 									]
-								}
+								},
+								"description": "This route needs a parameter to show results, provide a stripped variable of the vendor's name. e.g.\n\n`Vendor Name` - `9:25` : `Stripped` - `925` .\n\nWhere `parameter` : `925`, i.e. `{domain}/menus/via/vendor/{parameter}`"
 							},
 							"response": []
 						}
 					],
-					"id": "d396fe4a-a025-4db0-970d-b216935a9ca3"
+					"id": "d396fe4a-a025-4db0-970d-b216935a9ca3",
+					"description": "API endpoints for `MENUS` are found in this section."
 				},
 				{
 					"name": "Notifications",
@@ -769,7 +777,8 @@
 							"response": []
 						}
 					],
-					"id": "b019cd29-2256-4c76-9824-82ce4a06a206"
+					"id": "b019cd29-2256-4c76-9824-82ce4a06a206",
+					"description": "API endpoints for `USERS` - `NOTIFICATIONS` are found in this section. All calls to our endpoints in this section must be authenticated, see introduction for the `Authorization header` ."
 				},
 				{
 					"name": "Orders",
@@ -1304,7 +1313,8 @@
 							"response": []
 						}
 					],
-					"id": "6167d568-ec3b-4cea-86b4-29c2b9533c1b"
+					"id": "6167d568-ec3b-4cea-86b4-29c2b9533c1b",
+					"description": "API endpoints for `USERS` - `ORDERS` are found in this section. All calls to our endpoints in this section must be authenticated, see introduction for the `Authorization header` ."
 				},
 				{
 					"name": "Orders Completed",
@@ -1396,7 +1406,8 @@
 							"response": []
 						}
 					],
-					"id": "1fef7651-3ecd-49c2-9cba-d47516af17ae"
+					"id": "1fef7651-3ecd-49c2-9cba-d47516af17ae",
+					"description": "API endpoints for `USERS` - `ORDERS COMPLETED` are found in this section. All calls to our endpoints in this section must be authenticated, see introduction for the `Authorization header` ."
 				},
 				{
 					"name": "Orders History",
@@ -1433,7 +1444,8 @@
 							"response": []
 						}
 					],
-					"id": "cf20db28-5c41-479f-a62b-054aefc0abb1"
+					"id": "cf20db28-5c41-479f-a62b-054aefc0abb1",
+					"description": "API endpoints for `USERS` - `ORDERS HISTORY` are found in this section. All calls to our endpoints in this section must be authenticated, see introduction for the `Authorization header` ."
 				},
 				{
 					"name": "Products",
@@ -1479,7 +1491,8 @@
 										"vendor",
 										"{{vendor-stripped}}"
 									]
-								}
+								},
+								"description": "This route needs a parameter to show results, provide a stripped variable of the vendor's name, e.g.\n\n- `Vendor Name` - `9:25` : `Stripped` - `925` .\n    \n\nWhere `parameter` : `925`, i.e. `{domain}/products/via/vendor/{parameter}`"
 							},
 							"response": []
 						},
@@ -1505,7 +1518,8 @@
 										"{{vendor-stripped}}",
 										"{{menu-stripped}}"
 									]
-								}
+								},
+								"description": "This route needs two parameters to show results, provide a stripped variable of the vendor's name and vendor's menu, e.g.\n\n- `Vendor Name` - `9:25` : `Stripped` - `925`\n- `Menu` - `Breakfast` : `Stripped` - `breakfast`.\n    \n\nWhere `parameter-1` : `925`, `parameter-2` : `breakfast` , i.e. `{domain}/products/via/vendor/menu/{parameter-1}/parameter-2`"
 							},
 							"response": []
 						},
@@ -1529,7 +1543,8 @@
 										"category",
 										"{{category-stripped}}"
 									]
-								}
+								},
+								"description": "This route needs a parameter to show results, provide a stripped variable of a category name, e.g.\n\n- `Category Name` - `Pastries` : `Stripped` - `pastries` .\n    \n\nWhere `parameter` : `pastries`, i.e. `{domain}/products/via/category/{parameter}`"
 							},
 							"response": []
 						},
@@ -1555,7 +1570,8 @@
 										"{{vendor-stripped}}",
 										"{{category-stripped}}"
 									]
-								}
+								},
+								"description": "This route needs two parameters to show results, provide a stripped variable of the vendor's name and category name, e.g.\n\n- `Vendor Name` - `9:25` : `Stripped` - `925`\n- `Category Name` - `Pastries` : `Stripped` - `pastries`.\n    \n\nWhere `parameter-1` : `925`, `parameter-2` : `pastries` , i.e. `{domain}/products/via/vendor/category/{parameter-1}/parameter-2`"
 							},
 							"response": []
 						},
@@ -1579,7 +1595,8 @@
 										"{{vendor-stripped}}",
 										"{{product-stripped}}"
 									]
-								}
+								},
+								"description": "This route needs two parameters to show results, provide a stripped variable of the vendor's name and product name, e.g.\n\n- `Vendor Name` - `9:25` : `Stripped` - `925`\n- `Product Name` - `Doughnut` : `Stripped` - `doughnut`.\n    \n\nWhere `parameter-1` : `925`, `parameter-2` : `doughnut` , i.e. `{domain}/public/product/{parameter-1}/parameter-2`"
 							},
 							"response": []
 						},
@@ -1602,7 +1619,8 @@
 										"{{vendor-stripped}}",
 										"{{product-stripped}}"
 									]
-								}
+								},
+								"description": "This route needs two parameters to show results, provide a stripped variable of the vendor's name and product name, e.g.\n\n- `Vendor Name` - `9:25` : `Stripped` - `925`\n- `Product Name` - `Doughnut` : `Stripped` - `doughnut`.\n    \n\nWhere `parameter-1` : `925`, `parameter-2` : `doughnut` , i.e. `{domain}/product/{parameter-1}/parameter-2`"
 							},
 							"response": []
 						},
@@ -1668,7 +1686,8 @@
 							"response": []
 						}
 					],
-					"id": "3818f7fd-86e5-4b5f-8968-e1d49bc9962e"
+					"id": "3818f7fd-86e5-4b5f-8968-e1d49bc9962e",
+					"description": "API endpoints for `PRODUCTS` are found in this section."
 				},
 				{
 					"name": "Ratings",
@@ -1785,7 +1804,8 @@
 							"response": []
 						}
 					],
-					"id": "67196b80-7414-4d88-a829-e7262febb538"
+					"id": "67196b80-7414-4d88-a829-e7262febb538",
+					"description": "API endpoints for `RATINGS` are found in this section. Not all routes need authorization."
 				},
 				{
 					"name": "Shipping",
@@ -1854,7 +1874,8 @@
 							"response": []
 						}
 					],
-					"id": "9884fb23-1745-429d-b4c3-9c98e8ea10b6"
+					"id": "9884fb23-1745-429d-b4c3-9c98e8ea10b6",
+					"description": "API endpoints for `SHIPPING` are found in this section. This is for general purpose and user's logged in."
 				},
 				{
 					"name": "Transactions",
@@ -2168,7 +2189,8 @@
 							"response": []
 						}
 					],
-					"id": "fc880647-6475-4514-a7e7-3fb30fcb1fdd"
+					"id": "fc880647-6475-4514-a7e7-3fb30fcb1fdd",
+					"description": "API endpoints for `USERS` - `TRANSACTIONS` are found in this section. Not all routes need authorization."
 				},
 				{
 					"name": "Search History",
@@ -2227,7 +2249,8 @@
 							"response": []
 						}
 					],
-					"id": "400836cc-ce54-4450-98ad-9edb004ca11d"
+					"id": "400836cc-ce54-4450-98ad-9edb004ca11d",
+					"description": "API endpoints for `USERS` - `SEARCH HISTORY` are found in this section. All calls to our endpoints in this section must be authenticated, see introduction for the `Authorization header` ."
 				},
 				{
 					"name": "Vendors",
@@ -2264,7 +2287,8 @@
 							"response": []
 						}
 					],
-					"id": "18551874-3445-47d4-a3f0-53a0d34f3d10"
+					"id": "18551874-3445-47d4-a3f0-53a0d34f3d10",
+					"description": "API endpoints for `USERS` - `VENDORS` are found in this section."
 				},
 				{
 					"name": "View History",
@@ -2294,7 +2318,7 @@
 							"response": []
 						},
 						{
-							"name": "Delete search history Copy",
+							"name": "Delete view history",
 							"id": "5c9e2ed6-614b-4a96-8b49-827d849c2931",
 							"protocolProfileBehavior": {
 								"disableBodyPruning": true
@@ -2327,7 +2351,8 @@
 							"response": []
 						}
 					],
-					"id": "b39e9b9b-58f2-41d3-b85b-4d6a65058b1b"
+					"id": "b39e9b9b-58f2-41d3-b85b-4d6a65058b1b",
+					"description": "API endpoints for `USERS` - `VIEW HISTORY` are found in this section. All calls to our endpoints in this section must be authenticated, see introduction for the `Authorization header` ."
 				},
 				{
 					"name": "Get user profile",
@@ -2421,7 +2446,8 @@
 					"response": []
 				}
 			],
-			"id": "f02faeb2-64b6-4c0d-a3bf-da658c20e070"
+			"id": "f02faeb2-64b6-4c0d-a3bf-da658c20e070",
+			"description": "API endpoints for `USERS` are found in this section"
 		},
 		{
 			"name": "Authentications",
@@ -3064,7 +3090,8 @@
 					"id": "c53157a7-6a86-45e9-9d5b-962e2e70db7b"
 				}
 			],
-			"id": "c2d9e124-c5ee-484c-b5f8-97e228cf325e"
+			"id": "c2d9e124-c5ee-484c-b5f8-97e228cf325e",
+			"description": "API endpoints for `AUTHENTICATION` are found in this section. This includes the following;\n\n- Users\n- Riders\n- Vendors"
 		},
 		{
 			"name": "Vendors",
@@ -7147,7 +7174,7 @@
 		{
 			"listen": "prerequest",
 			"script": {
-				"id": "03d89eb4-9e97-4944-9026-ba94066c4ba4",
+				"id": "75589946-fa2c-4120-badf-d66c4fb61f68",
 				"type": "text/javascript",
 				"exec": [
 					""
@@ -7157,7 +7184,7 @@
 		{
 			"listen": "test",
 			"script": {
-				"id": "100bca65-8495-40b4-9427-ebb9b408b505",
+				"id": "e739e95e-65b7-4776-8aed-11217ff2ba0c",
 				"type": "text/javascript",
 				"exec": [
 					""
@@ -7167,43 +7194,43 @@
 	],
 	"variable": [
 		{
-			"id": "912d4f0b-f50a-441a-b0bf-c2060907f8c2",
+			"id": "2d974d2f-3140-4588-9350-f30441f3435b",
 			"key": "domain",
 			"value": "https://api.9-25.co",
 			"type": "string"
 		},
 		{
-			"id": "0eba17bd-d159-495f-8f0d-dd7f59ebcc62",
+			"id": "4f0d188f-7e0d-4aec-b351-59d17eb6a2da",
 			"key": "chow-925-access-token",
 			"value": "",
 			"type": "string"
 		},
 		{
-			"id": "066229b7-5baf-4b4c-b783-5424d0a81922",
+			"id": "4a226893-85a1-417c-b962-0f49101c30e4",
 			"key": "chow-925-access-key",
 			"value": "",
 			"type": "string"
 		},
 		{
-			"id": "0ebbfbb1-d6c3-4ce5-9a58-d6839cd201b6",
+			"id": "c29fb104-a461-4011-9f02-2e1e4bcd1097",
 			"key": "vendor-stripped",
 			"value": "",
 			"type": "string"
 		},
 		{
-			"id": "33fec06f-c82e-4756-bb58-30ece8f0af28",
+			"id": "560c7483-5d54-4448-b966-ad5594a81a7f",
 			"key": "menu-stripped",
 			"value": "",
 			"type": "string"
 		},
 		{
-			"id": "0e1c259e-6e00-40b5-9cf8-49a1c67c2807",
+			"id": "eec1d2f7-f819-4e39-b202-1d62c1f6217b",
 			"key": "category-stripped",
 			"value": "",
 			"type": "string"
 		},
 		{
-			"id": "879fdad3-d0bd-4f78-b4ad-e70dcf0aab33",
+			"id": "3143122d-06a7-4796-b88f-fe8f027d8f6a",
 			"key": "product-stripped",
 			"value": "",
 			"type": "string"
