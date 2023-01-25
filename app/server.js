@@ -108,4 +108,10 @@ vendorUsersRoutes(app);
 // change timezone for app
 process.env.TZ = "Africa/Lagos";
 
+process.on('SIGINT', function () {
+    db.sequelize.close(function (err) {
+        process.exit(err ? 1 : 0);
+    });
+});
+
 export default app;
