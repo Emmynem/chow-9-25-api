@@ -1,7 +1,7 @@
 import { validationResult, matchedData } from 'express-validator';
 import { v4 as uuidv4 } from 'uuid';
 import { ServerError, SuccessResponse, ValidationError, OtherSuccessResponse, NotFoundError, CreationSuccessResponse, BadRequestError, logger } from '../common/index.js';
-import { default_delete_status, default_status, tag_admin, true_status, false_status, ratings } from '../config/config.js';
+import { default_delete_status, default_status, tag_admin, true_status, false_status, ratings, paginate } from '../config/config.js';
 import db from "../models/index.js";
 
 const RATINGS = db.ratings;
@@ -10,7 +10,10 @@ const PRODUCTS = db.products;
 const PRODUCT_IMAGES = db.product_images;
 const Op = db.Sequelize.Op;
 
-export function rootGetRatings(req, res) {
+export async function rootGetRatings(req, res) {
+    const total_records = await RATINGS.count();
+    const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
     RATINGS.findAndCountAll({
         attributes: { exclude: ['id'] },
         order: [
@@ -31,12 +34,14 @@ export function rootGetRatings(req, res) {
                     }
                 ]
             }
-        ]
+        ],
+        offset: pagination.start,
+        limit: pagination.limit
     }).then(ratings => {
         if (!ratings || ratings.length == 0) {
             SuccessResponse(res, { unique_id: tag_admin, text: "Ratings Not found" }, []);
         } else {
-            SuccessResponse(res, { unique_id: tag_admin, text: "Ratings loaded" }, ratings);
+            SuccessResponse(res, { unique_id: tag_admin, text: "Ratings loaded" }, { ...ratings, pages: pagination.pages });
         }
     }).catch(err => {
         ServerError(res, { unique_id: tag_admin, text: err.message }, null);
@@ -83,13 +88,16 @@ export function rootGetRating(req, res) {
     }
 };
 
-export function rootGetRatingsSpecifically(req, res) {
+export async function rootGetRatingsSpecifically(req, res) {
     const errors = validationResult(req);
     const payload = matchedData(req);
 
     if (!errors.isEmpty()) {
         ValidationError(res, { unique_id: tag_admin, text: "Validation Error Occured" }, errors.array())
     } else {
+        const total_records = await RATINGS.count({ where: { ...payload } });
+        const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
         RATINGS.findAndCountAll({
             attributes: { exclude: ['id'] },
             where: {
@@ -113,12 +121,14 @@ export function rootGetRatingsSpecifically(req, res) {
                         }
                     ]
                 }
-            ]
+            ],
+            offset: pagination.start,
+            limit: pagination.limit
         }).then(ratings => {
             if (!ratings || ratings.length == 0) {
                 SuccessResponse(res, { unique_id: tag_admin, text: "Ratings Not found" }, []);
             } else {
-                SuccessResponse(res, { unique_id: tag_admin, text: "Ratings loaded" }, ratings);
+                SuccessResponse(res, { unique_id: tag_admin, text: "Ratings loaded" }, { ...ratings, pages: pagination.pages });
             }
         }).catch(err => {
             ServerError(res, { unique_id: tag_admin, text: err.message }, null);
@@ -126,8 +136,11 @@ export function rootGetRatingsSpecifically(req, res) {
     }
 };
 
-export function getRatings(req, res) {
+export async function getRatings(req, res) {
     const user_unique_id = req.UNIQUE_ID;
+
+    const total_records = await RATINGS.count({ where: { user_unique_id } });
+    const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
 
     RATINGS.findAndCountAll({
         attributes: { exclude: ['id', 'user_unique_id', 'createdAt', 'status'] },
@@ -148,19 +161,21 @@ export function getRatings(req, res) {
                     }
                 ]
             }
-        ]
+        ],
+        offset: pagination.start,
+        limit: pagination.limit
     }).then(ratings => {
         if (!ratings || ratings.length == 0) {
             SuccessResponse(res, { unique_id: user_unique_id, text: "Ratings Not found" }, []);
         } else {
-            SuccessResponse(res, { unique_id: user_unique_id, text: "Ratings loaded" }, ratings);
+            SuccessResponse(res, { unique_id: user_unique_id, text: "Ratings loaded" }, { ...ratings, pages: pagination.pages });
         }
     }).catch(err => {
         ServerError(res, { unique_id: user_unique_id, text: err.message }, null);
     });
 };
 
-export function getRatingSpecifically(req, res) {
+export async function getRatingSpecifically(req, res) {
     const user_unique_id = req.UNIQUE_ID;
     const errors = validationResult(req);
     const payload = matchedData(req);
@@ -168,6 +183,9 @@ export function getRatingSpecifically(req, res) {
     if (!errors.isEmpty()) {
         ValidationError(res, { unique_id: user_unique_id, text: "Validation Error Occured" }, errors.array())
     } else {
+        const total_records = await RATINGS.count({ where: { user_unique_id, ...payload } });
+        const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
         RATINGS.findOne({
             attributes: { exclude: ['id', 'user_unique_id', 'createdAt', 'status'] },
             where: {
@@ -185,12 +203,14 @@ export function getRatingSpecifically(req, res) {
                         }
                     ]
                 }
-            ]
+            ],
+            offset: pagination.start,
+            limit: pagination.limit
         }).then(rating => {
             if (!rating) {
                 NotFoundError(res, { unique_id: user_unique_id, text: "Rating Not found" }, null);
             } else {
-                SuccessResponse(res, { unique_id: user_unique_id, text: "Rating loaded" }, rating);
+                SuccessResponse(res, { unique_id: user_unique_id, text: "Rating loaded" }, { ...rating, pages: pagination.pages });
             }
         }).catch(err => {
             ServerError(res, { unique_id: user_unique_id, text: err.message }, null);

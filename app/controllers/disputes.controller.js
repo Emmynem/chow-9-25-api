@@ -1,7 +1,7 @@
 import { validationResult, matchedData } from 'express-validator';
 import { v4 as uuidv4 } from 'uuid';
 import { ServerError, SuccessResponse, ValidationError, OtherSuccessResponse, NotFoundError, CreationSuccessResponse, BadRequestError, logger } from '../common/index.js';
-import { default_delete_status, default_status, tag_admin, true_status, false_status } from '../config/config.js';
+import { default_delete_status, default_status, tag_admin, true_status, false_status, paginate } from '../config/config.js';
 import db from "../models/index.js";
 
 const DISPUTES = db.disputes;
@@ -14,7 +14,10 @@ const PRODUCTS = db.products;
 const PRODUCT_IMAGES = db.product_images;
 const Op = db.Sequelize.Op;
 
-export function rootGetDisputes(req, res) {
+export async function rootGetDisputes(req, res) {
+    const total_records = await DISPUTES.count();
+    const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
     DISPUTES.findAndCountAll({
         attributes: { exclude: ['id'] },
         order: [
@@ -55,12 +58,14 @@ export function rootGetDisputes(req, res) {
                     }
                 ]
             }
-        ]
+        ],
+        offset: pagination.start,
+        limit: pagination.limit
     }).then(disputes => {
         if (!disputes || disputes.length == 0) {
             SuccessResponse(res, { unique_id: tag_admin, text: "Disputes Not found" }, []);
         } else {
-            SuccessResponse(res, { unique_id: tag_admin, text: "Disputes loaded" }, disputes);
+            SuccessResponse(res, { unique_id: tag_admin, text: "Disputes loaded" }, { ...disputes, pages: pagination.pages });
         }
     }).catch(err => {
         ServerError(res, { unique_id: tag_admin, text: err.message }, null);
@@ -127,13 +132,16 @@ export function rootGetDispute(req, res) {
     }
 };
 
-export function rootGetDisputesSpecifically(req, res) {
+export async function rootGetDisputesSpecifically(req, res) {
     const errors = validationResult(req);
     const payload = matchedData(req);
 
     if (!errors.isEmpty()) {
         ValidationError(res, { unique_id: tag_admin, text: "Validation Error Occured" }, errors.array())
     } else {
+        const total_records = await DISPUTES.count({ where: { ...payload } });
+        const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
         DISPUTES.findAndCountAll({
             attributes: { exclude: ['id'] },
             where : {
@@ -177,12 +185,14 @@ export function rootGetDisputesSpecifically(req, res) {
                         }
                     ]
                 }
-            ]
+            ],
+            offset: pagination.start,
+            limit: pagination.limit
         }).then(disputes => {
             if (!disputes || disputes.length == 0) {
                 SuccessResponse(res, { unique_id: tag_admin, text: "Disputes Not found" }, []);
             } else {
-                SuccessResponse(res, { unique_id: tag_admin, text: "Disputes loaded" }, disputes);
+                SuccessResponse(res, { unique_id: tag_admin, text: "Disputes loaded" }, { ...disputes, pages: pagination.pages });
             }
         }).catch(err => {
             ServerError(res, { unique_id: tag_admin, text: err.message }, null);
@@ -190,8 +200,11 @@ export function rootGetDisputesSpecifically(req, res) {
     }
 };
 
-export function getDisputes(req, res) {
+export async function getDisputes(req, res) {
     const user_unique_id = req.UNIQUE_ID;
+
+    const total_records = await DISPUTES.count({ where: { user_unique_id } });
+    const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
 
     DISPUTES.findAndCountAll({
         attributes: { exclude: ['id', 'user_unique_id', 'createdAt', 'updatedAt'] },
@@ -232,19 +245,21 @@ export function getDisputes(req, res) {
                     }
                 ]
             }
-        ]
+        ],
+        offset: pagination.start,
+        limit: pagination.limit
     }).then(disputes => {
         if (!disputes || disputes.length == 0) {
             SuccessResponse(res, { unique_id: user_unique_id, text: "Disputes Not found" }, []);
         } else {
-            SuccessResponse(res, { unique_id: user_unique_id, text: "Disputes loaded" }, disputes);
+            SuccessResponse(res, { unique_id: user_unique_id, text: "Disputes loaded" }, { ...disputes, pages: pagination.pages });
         }
     }).catch(err => {
         ServerError(res, { unique_id: user_unique_id, text: err.message }, null);
     });
 };
 
-export function getDisputesSpecifically(req, res) {
+export async function getDisputesSpecifically(req, res) {
     const user_unique_id = req.UNIQUE_ID;
     const errors = validationResult(req);
     const payload = matchedData(req);
@@ -252,6 +267,9 @@ export function getDisputesSpecifically(req, res) {
     if (!errors.isEmpty()) {
         ValidationError(res, { unique_id: user_unique_id, text: "Validation Error Occured" }, errors.array())
     } else {
+        const total_records = await DISPUTES.count({ where: { user_unique_id, ...payload } });
+        const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
         DISPUTES.findAndCountAll({
             attributes: { exclude: ['id', 'user_unique_id', 'createdAt', 'updatedAt'] },
             where: {
@@ -292,12 +310,14 @@ export function getDisputesSpecifically(req, res) {
                         }
                     ]
                 }
-            ]
+            ],
+            offset: pagination.start,
+            limit: pagination.limit
         }).then(disputes => {
             if (!disputes || disputes.length == 0) {
                 SuccessResponse(res, { unique_id: user_unique_id, text: "Disputes Not found" }, []);
             } else {
-                SuccessResponse(res, { unique_id: user_unique_id, text: "Disputes loaded" }, disputes);
+                SuccessResponse(res, { unique_id: user_unique_id, text: "Disputes loaded" }, { ...disputes, pages: pagination.pages });
             }
         }).catch(err => {
             ServerError(res, { unique_id: user_unique_id, text: err.message }, null);

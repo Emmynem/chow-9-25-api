@@ -6,7 +6,7 @@ import { ServerError, SuccessResponse, ValidationError, OtherSuccessResponse, No
 import { 
     default_delete_status, default_status, tag_admin, image_rename_document, category_image_document_name, save_image_document_path,
     save_document_domain, save_image_dir, image_join_path_and_file, image_remove_unwanted_file, image_remove_file, image_documents_path_alt, 
-    strip_text, file_length_5Mb, anonymous
+    strip_text, file_length_5Mb, anonymous, paginate
 } from '../config/config.js';
 import db from "../models/index.js";
 
@@ -17,17 +17,22 @@ const Op = db.Sequelize.Op;
 
 const { rename } = fs;
 
-export function rootGetCategories(req, res) {
+export async function rootGetCategories(req, res) {
+    const total_records = await CATEGORIES.count();
+    const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
     CATEGORIES.findAndCountAll({
         attributes: { exclude: ['id'] },
         order: [
             ['createdAt', 'DESC']
-        ]
+        ],
+        offset: pagination.start,
+        limit: pagination.limit
     }).then(categories => {
         if (!categories || categories.length == 0) {
             SuccessResponse(res, { unique_id: tag_admin, text: "Categories Not found" }, []);
         } else {
-            SuccessResponse(res, { unique_id: tag_admin, text: "Categories loaded" }, categories);
+            SuccessResponse(res, { unique_id: tag_admin, text: "Categories loaded" }, { ...categories, pages: pagination.pages });
         }
     }).catch(err => {
         ServerError(res, { unique_id: tag_admin, text: err.message }, null);
@@ -59,8 +64,11 @@ export function rootGetCategory(req, res) {
     }
 };
 
-export function getCategoriesForUsers(req, res) {
+export async function getCategoriesForUsers(req, res) {
     const user_unique_id = req.UNIQUE_ID;
+
+    const total_records = await CATEGORIES.count({ where: { status: default_status } });
+    const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
 
     CATEGORIES.findAndCountAll({
         attributes: { exclude: ['id', 'createdAt', 'updatedAt'] },
@@ -69,21 +77,26 @@ export function getCategoriesForUsers(req, res) {
         },
         order: [
             ['name', 'ASC']
-        ]
+        ],
+        offset: pagination.start,
+        limit: pagination.limit
     }).then(categories => {
         if (!categories || categories.length == 0) {
             SuccessResponse(res, { unique_id: user_unique_id || anonymous, text: "Categories Not found" }, []);
         } else {
-            SuccessResponse(res, { unique_id: user_unique_id || anonymous, text: "Categories loaded" }, categories);
+            SuccessResponse(res, { unique_id: user_unique_id || anonymous, text: "Categories loaded" }, { ...categories, pages: pagination.pages });
         }
     }).catch(err => {
         ServerError(res, { unique_id: user_unique_id || anonymous, text: err.message }, null);
     });
 };
 
-export function getCategoriesForVendors(req, res) {
+export async function getCategoriesForVendors(req, res) {
     const vendor_unique_id = req.VENDOR_UNIQUE_ID;
     const vendor_user_unique_id = req.VENDOR_USER_UNIQUE_ID;
+
+    const total_records = await CATEGORIES.count({ where: { status: default_status } });
+    const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
 
     CATEGORIES.findAndCountAll({
         attributes: { exclude: ['id', 'createdAt', 'updatedAt'] },
@@ -92,12 +105,14 @@ export function getCategoriesForVendors(req, res) {
         },
         order: [
             ['name', 'ASC']
-        ]
+        ],
+        offset: pagination.start,
+        limit: pagination.limit
     }).then(categories => {
         if (!categories || categories.length == 0) {
             SuccessResponse(res, { unique_id: vendor_unique_id, text: "Categories Not found" }, []);
         } else {
-            SuccessResponse(res, { unique_id: vendor_unique_id, text: "Categories loaded" }, categories);
+            SuccessResponse(res, { unique_id: vendor_unique_id, text: "Categories loaded" }, { ...categories, pages: pagination.pages });
         }
     }).catch(err => {
         ServerError(res, { unique_id: vendor_unique_id, text: err.message }, null);

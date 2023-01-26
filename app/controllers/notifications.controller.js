@@ -1,13 +1,16 @@
 import { validationResult, matchedData } from 'express-validator';
 import { v4 as uuidv4 } from 'uuid';
 import { ServerError, SuccessResponse, ValidationError, OtherSuccessResponse, NotFoundError, BadRequestError, logger } from '../common/index.js';
-import { check_length_TEXT, default_delete_status, default_status, false_status, tag_admin, true_status } from '../config/config.js';
+import { check_length_TEXT, default_delete_status, default_status, false_status, paginate, tag_admin, true_status } from '../config/config.js';
 import db from "../models/index.js";
 
 const NOTIFICATIONS = db.notifications;
 const USERS = db.users;
 
-export function rootGetNotifications (req, res) {
+export async function rootGetNotifications (req, res) {
+    const total_records = await NOTIFICATIONS.count();
+    const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
     NOTIFICATIONS.findAndCountAll({
         attributes: { exclude: ['id'] },
         order: [
@@ -19,12 +22,14 @@ export function rootGetNotifications (req, res) {
                 attributes: ['firstname', 'middlename', 'lastname', 'email', 'mobile_number', 'profile_image']
             }
         ],
+        offset: pagination.start,
+        limit: pagination.limit
     }).then(notifications => {
         if (!notifications || notifications.length == 0) {
             SuccessResponse(res, { unique_id: tag_admin, text: "Notifications Not found" }, []);
         } else {
             NOTIFICATIONS.count({ where: { seen: false_status } }).then(data => { 
-                SuccessResponse(res, { unique_id: tag_admin, text: "Notifications loaded" }, { ...notifications, unread: data });
+                SuccessResponse(res, { unique_id: tag_admin, text: "Notifications loaded" }, { ...notifications, unread: data, pages: pagination.pages });
             });
         }
     }).catch(err => {
@@ -32,13 +37,16 @@ export function rootGetNotifications (req, res) {
     });
 };
 
-export function rootGetNotificationsSpecifically(req, res) {
+export async function rootGetNotificationsSpecifically(req, res) {
     const errors = validationResult(req);
     const payload = matchedData(req);
 
     if (!errors.isEmpty()) {
         ValidationError(res, { unique_id: tag_admin, text: "Validation Error Occured" }, errors.array())
     } else {
+        const total_records = await NOTIFICATIONS.count({ where: { ...payload } });
+        const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
         NOTIFICATIONS.findAndCountAll({
             attributes: { exclude: ['id'] },
             where: {
@@ -53,12 +61,14 @@ export function rootGetNotificationsSpecifically(req, res) {
                     attributes: ['firstname', 'middlename', 'lastname', 'email', 'mobile_number', 'profile_image']
                 }
             ],
+            offset: pagination.start,
+            limit: pagination.limit
         }).then(notifications => {
             if (!notifications || notifications.length == 0) {
                 SuccessResponse(res, { unique_id: tag_admin, text: "Notifications Not found" }, []);
             } else {
                 NOTIFICATIONS.count({ where: { seen: false_status } }).then(data => {
-                    SuccessResponse(res, { unique_id: tag_admin, text: "Notifications loaded" }, { ...notifications, unread: data });
+                    SuccessResponse(res, { unique_id: tag_admin, text: "Notifications loaded" }, { ...notifications, unread: data, pages: pagination.pages });
                 });
             }
         }).catch(err => {
@@ -67,8 +77,11 @@ export function rootGetNotificationsSpecifically(req, res) {
     }
 };
 
-export function getUserNotifications (req, res) {
+export async function getUserNotifications (req, res) {
     const user_unique_id = req.UNIQUE_ID;
+
+    const total_records = await NOTIFICATIONS.count({ where: { user_unique_id, status: default_status } });
+    const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
 
     NOTIFICATIONS.findAndCountAll({
         attributes: { exclude: ['id', 'user_unique_id', 'updatedAt', 'status'] },
@@ -78,13 +91,15 @@ export function getUserNotifications (req, res) {
         },
         order: [
             ['createdAt', 'DESC']
-        ]
+        ],
+        offset: pagination.start,
+        limit: pagination.limit
     }).then(notifications => {
         if (!notifications || notifications.length == 0) {
             SuccessResponse(res, { unique_id: user_unique_id, text: "Notifications Not found" }, []);
         } else {
             NOTIFICATIONS.count({ where: { user_unique_id, seen: false_status, status: default_status } }).then(data => {
-                SuccessResponse(res, { unique_id: user_unique_id, text: "Notifications loaded" }, { ...notifications, unread: data });
+                SuccessResponse(res, { unique_id: user_unique_id, text: "Notifications loaded" }, { ...notifications, unread: data, pages: pagination.pages });
             });
         }
     }).catch(err => {

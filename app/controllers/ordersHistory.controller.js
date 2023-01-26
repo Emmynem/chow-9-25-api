@@ -1,7 +1,6 @@
 import { validationResult, matchedData } from 'express-validator';
-import { v4 as uuidv4 } from 'uuid';
 import { ServerError, SuccessResponse, ValidationError, OtherSuccessResponse, NotFoundError, CreationSuccessResponse, BadRequestError, logger } from '../common/index.js';
-import { default_delete_status, default_status, tag_admin, true_status, false_status } from '../config/config.js';
+import { default_delete_status, default_status, tag_admin, true_status, false_status, paginate } from '../config/config.js';
 import db from "../models/index.js";
 
 const ORDERS_HISTORY = db.orders_history;
@@ -14,7 +13,10 @@ const PRODUCTS = db.products;
 const PRODUCT_IMAGES = db.product_images;
 const Op = db.Sequelize.Op;
 
-export function rootGetOrdersHistory(req, res) {
+export async function rootGetOrdersHistory(req, res) {
+    const total_records = await ORDERS_HISTORY.count();
+    const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
     ORDERS_HISTORY.findAndCountAll({
         attributes: { exclude: ['id'] },
         order: [
@@ -55,12 +57,14 @@ export function rootGetOrdersHistory(req, res) {
                     }
                 ]
             }
-        ]
+        ],
+        offset: pagination.start,
+        limit: pagination.limit
     }).then(orders_history => {
         if (!orders_history || orders_history.length == 0) {
             SuccessResponse(res, { unique_id: tag_admin, text: "Orders History Not found" }, []);
         } else {
-            SuccessResponse(res, { unique_id: tag_admin, text: "Orders History loaded" }, orders_history);
+            SuccessResponse(res, { unique_id: tag_admin, text: "Orders History loaded" }, { ...orders_history, pages: pagination.pages });
         }
     }).catch(err => {
         ServerError(res, { unique_id: tag_admin, text: err.message }, null);
@@ -127,7 +131,7 @@ export function rootGetOrderHistory(req, res) {
     }
 };
 
-export function getOrderHistorySpecifically(req, res) {
+export async function getOrderHistorySpecifically(req, res) {
     const user_unique_id = req.UNIQUE_ID;
     const errors = validationResult(req);
     const payload = matchedData(req);
@@ -135,6 +139,9 @@ export function getOrderHistorySpecifically(req, res) {
     if (!errors.isEmpty()) {
         ValidationError(res, { unique_id: user_unique_id, text: "Validation Error Occured" }, errors.array())
     } else {
+        const total_records = await ORDERS_HISTORY.count({ where: { user_unique_id, ...payload } });
+        const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
         ORDERS_HISTORY.findAndCountAll({
             attributes: { exclude: ['id', 'user_unique_id', 'createdAt', 'updatedAt'] },
             where: {
@@ -175,12 +182,14 @@ export function getOrderHistorySpecifically(req, res) {
                         }
                     ]
                 }
-            ]
+            ],
+            offset: pagination.start,
+            limit: pagination.limit
         }).then(order_history => {
             if (!order_history || order_history.length == 0) {
                 SuccessResponse(res, { unique_id: user_unique_id, text: "Order History Not found" }, []);
             } else {
-                SuccessResponse(res, { unique_id: user_unique_id, text: "Order History loaded" }, order_history);
+                SuccessResponse(res, { unique_id: user_unique_id, text: "Order History loaded" }, { ...order_history, pages: pagination.pages });
             }
         }).catch(err => {
             ServerError(res, { unique_id: user_unique_id, text: err.message }, null);

@@ -1,7 +1,6 @@
 import { validationResult, matchedData } from 'express-validator';
-import { v4 as uuidv4 } from 'uuid';
 import { ServerError, SuccessResponse, ValidationError, OtherSuccessResponse, NotFoundError, CreationSuccessResponse, BadRequestError, logger } from '../common/index.js';
-import { default_delete_status, default_status, tag_admin, url_path_without_limits, check_user_route, true_status, false_status } from '../config/config.js';
+import { default_delete_status, default_status, tag_admin, url_path_without_limits, check_user_route, true_status, false_status, paginate } from '../config/config.js';
 import db from "../models/index.js";
 
 const ORDERS_COMPLETED = db.orders_completed;
@@ -15,7 +14,10 @@ const PRODUCTS = db.products;
 const PRODUCT_IMAGES = db.product_images;
 const Op = db.Sequelize.Op;
 
-export function rootGetOrdersCompleted(req, res) {
+export async function rootGetOrdersCompleted(req, res) {
+    const total_records = await ORDERS_COMPLETED.count();
+    const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
     ORDERS_COMPLETED.findAndCountAll({
         attributes: { exclude: ['id'] },
         order: [
@@ -56,12 +58,14 @@ export function rootGetOrdersCompleted(req, res) {
                     }
                 ]
             }
-        ]
+        ],
+        offset: pagination.start,
+        limit: pagination.limit
     }).then(orders_completed => {
         if (!orders_completed || orders_completed.length == 0) {
             SuccessResponse(res, { unique_id: tag_admin, text: "Orders Completed Not found" }, []);
         } else {
-            SuccessResponse(res, { unique_id: tag_admin, text: "Orders Completed loaded" }, orders_completed);
+            SuccessResponse(res, { unique_id: tag_admin, text: "Orders Completed loaded" }, { ...orders_completed, pages: pagination.pages });
         }
     }).catch(err => {
         ServerError(res, { unique_id: tag_admin, text: err.message }, null);
@@ -131,13 +135,16 @@ export function rootGetOrderCompleted(req, res) {
     }
 };
 
-export function rootGetOrdersCompletedSpecifically(req, res) {
+export async function rootGetOrdersCompletedSpecifically(req, res) {
     const errors = validationResult(req);
     const payload = matchedData(req);
 
     if (!errors.isEmpty()) {
         ValidationError(res, { unique_id: tag_admin, text: "Validation Error Occured" }, errors.array())
     } else {
+        const total_records = await ORDERS_COMPLETED.count({ where: { ...payload } });
+        const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
         ORDERS_COMPLETED.findAndCountAll({
             attributes: { exclude: ['id'] },
             where: {
@@ -181,12 +188,14 @@ export function rootGetOrdersCompletedSpecifically(req, res) {
                         }
                     ]
                 }
-            ]
+            ],
+            offset: pagination.start,
+            limit: pagination.limit
         }).then(orders_completed => {
             if (!orders_completed || orders_completed.length == 0) {
                 SuccessResponse(res, { unique_id: tag_admin, text: "Orders Completed Not found" }, []);
             } else {
-                SuccessResponse(res, { unique_id: tag_admin, text: "Orders Completed loaded" }, orders_completed);
+                SuccessResponse(res, { unique_id: tag_admin, text: "Orders Completed loaded" }, { ...orders_completed, pages: pagination.pages });
             }
         }).catch(err => {
             ServerError(res, { unique_id: tag_admin, text: err.message }, null);
@@ -209,6 +218,9 @@ export async function getVendorOrdersCompleted(req, res) {
     if (!check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
         BadRequestError(res, { unique_id: vendor_unique_id, text: "You don't have access to perform this action!" }, null);
     } else {
+        const total_records = await ORDERS_COMPLETED.count({ where: { vendor_unique_id } });
+        const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
         ORDERS_COMPLETED.findAndCountAll({
             attributes: { exclude: ['id', 'vendor_unique_id', 'createdAt', 'updatedAt'] },
             where: {
@@ -248,12 +260,14 @@ export async function getVendorOrdersCompleted(req, res) {
                         }
                     ]
                 }
-            ]
+            ],
+            offset: pagination.start,
+            limit: pagination.limit
         }).then(orders_completed => {
             if (!orders_completed || orders_completed.length == 0) {
                 SuccessResponse(res, { unique_id: vendor_unique_id, text: "Orders Completed Not found" }, []);
             } else {
-                SuccessResponse(res, { unique_id: vendor_unique_id, text: "Orders Completed loaded" }, orders_completed);
+                SuccessResponse(res, { unique_id: vendor_unique_id, text: "Orders Completed loaded" }, { ...orders_completed, pages: pagination.pages });
             }
         }).catch(err => {
             ServerError(res, { unique_id: vendor_unique_id, text: err.message }, null);
@@ -261,13 +275,30 @@ export async function getVendorOrdersCompleted(req, res) {
     }
 };
 
-export function getRiderOrdersCompleted(req, res) {
+export async function getRiderOrdersCompleted(req, res) {
     const rider_unique_id = req.RIDER_UNIQUE_ID;
+
+    const total_records = await ORDERS_COMPLETED.count({
+        where: { '$order.rider_shipping.rider_unique_id$': rider_unique_id },
+        include: [{
+            model: ORDERS,
+            attributes: ['quantity', 'amount', 'shipping_fee', 'payment_method', 'paid', 'shipped', 'disputed', 'delivery_status', 'createdAt', 'updatedAt'],
+            include: [
+                {
+                    model: RIDER_SHIPPING,
+                    as: 'rider_shipping',
+                    required: true,
+                    attributes: ['min_weight', 'max_weight', 'price', 'from_city', 'from_state', 'from_country', 'to_city', 'to_state', 'to_country']
+                }
+            ]
+        }]
+    });
+    const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
 
     ORDERS_COMPLETED.findAndCountAll({
         attributes: { exclude: ['id', 'createdAt', 'updatedAt'] },
         where: {
-            '$rider_shipping.rider_unique_id$': rider_unique_id
+            '$order.rider_shipping.rider_unique_id$': rider_unique_id
         },
         order: [
             ['createdAt', 'DESC']
@@ -299,25 +330,30 @@ export function getRiderOrdersCompleted(req, res) {
                         model: RIDER_SHIPPING,
                         as: 'rider_shipping',
                         required: true,
-                        attributes: ['rider_unique_id', 'min_weight', 'max_weight', 'price', 'city', 'state', 'country']
+                        attributes: ['min_weight', 'max_weight', 'price', 'from_city', 'from_state', 'from_country', 'to_city', 'to_state', 'to_country']
                     }
                 ]
             }
-        ]
+        ],
+        offset: pagination.start,
+        limit: pagination.limit
     }).then(orders_completed => {
         if (!orders_completed || orders_completed.length == 0) {
             SuccessResponse(res, { unique_id: rider_unique_id, text: "Orders Completed Not found" }, []);
         } else {
-            SuccessResponse(res, { unique_id: rider_unique_id, text: "Orders Completed loaded" }, orders_completed);
+            SuccessResponse(res, { unique_id: rider_unique_id, text: "Orders Completed loaded" }, { ...orders_completed, pages: pagination.pages });
         }
     }).catch(err => {
         ServerError(res, { unique_id: rider_unique_id, text: err.message }, null);
     });
 };
 
-export function getOrdersCompleted(req, res) {
+export async function getOrdersCompleted(req, res) {
     const user_unique_id = req.UNIQUE_ID;
     
+    const total_records = await ORDERS_COMPLETED.count({ where: { user_unique_id } });
+    const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
     ORDERS_COMPLETED.findAndCountAll({
         attributes: { exclude: ['id', 'user_unique_id', 'createdAt', 'updatedAt'] },
         where: {
@@ -357,19 +393,21 @@ export function getOrdersCompleted(req, res) {
                     }
                 ]
             }
-        ]
+        ],
+        offset: pagination.start,
+        limit: pagination.limit
     }).then(orders_completed => {
         if (!orders_completed || orders_completed.length == 0) {
             SuccessResponse(res, { unique_id: user_unique_id, text: "Orders Completed Not found" }, []);
         } else {
-            SuccessResponse(res, { unique_id: user_unique_id, text: "Orders Completed loaded" }, orders_completed);
+            SuccessResponse(res, { unique_id: user_unique_id, text: "Orders Completed loaded" }, { ...orders_completed, pages: pagination.pages });
         }
     }).catch(err => {
         ServerError(res, { unique_id: user_unique_id, text: err.message }, null);
     });
 };
 
-export function getOrdersCompletedSpecifically(req, res) {
+export async function getOrdersCompletedSpecifically(req, res) {
     const user_unique_id = req.UNIQUE_ID;
     const errors = validationResult(req);
     const payload = matchedData(req);
@@ -377,6 +415,9 @@ export function getOrdersCompletedSpecifically(req, res) {
     if (!errors.isEmpty()) {
         ValidationError(res, { unique_id: user_unique_id, text: "Validation Error Occured" }, errors.array())
     } else {
+        const total_records = await ORDERS_COMPLETED.count({ where: { user_unique_id, ...payload } });
+        const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
         ORDERS_COMPLETED.findAndCountAll({
             attributes: { exclude: ['id', 'user_unique_id', 'createdAt', 'updatedAt'] },
             where: {
@@ -417,12 +458,14 @@ export function getOrdersCompletedSpecifically(req, res) {
                         }
                     ]
                 }
-            ]
+            ],
+            offset: pagination.start,
+            limit: pagination.limit
         }).then(orders_completed => {
             if (!orders_completed || orders_completed.length == 0) {
                 SuccessResponse(res, { unique_id: user_unique_id, text: "Orders Completed Not found" }, []);
             } else {
-                SuccessResponse(res, { unique_id: user_unique_id, text: "Orders Completed loaded" }, orders_completed);
+                SuccessResponse(res, { unique_id: user_unique_id, text: "Orders Completed loaded" }, { ...orders_completed, pages: pagination.pages });
             }
         }).catch(err => {
             ServerError(res, { unique_id: user_unique_id, text: err.message }, null);

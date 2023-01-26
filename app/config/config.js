@@ -355,6 +355,7 @@ export const start = 1;
 export const zero = 0;
 
 export const app_defaults_data_type = ['STRING', 'INTEGER', 'BIGINT', 'BOOLEAN'];
+const paginate_limit = 20;
 
 export const today_str = () => {
     const d = new Date();
@@ -832,4 +833,32 @@ export const check_rider_service_charge_value = (arr, rider_unique_id) => {
 export const get_rider_service_charge_value = (arr, rider_unique_id) => {
     const index = arr.findIndex(e => e.rider_unique_id === rider_unique_id);
     return arr[index]['service_charge'];
+};
+
+export const paginate = (page, _records, total_records) => {
+    // Get total pages available for the amount of records needed in each page with total records
+    const records = !_records || _records < paginate_limit ? paginate_limit : _records;
+    const pages = Math.floor(total_records / records);
+    // return false if page is less than 1 (first page) or greater than pages (last page)
+    if (page < 1 || page > pages || !page)
+        return {
+            start: 0,
+            end: total_records < records ? total_records : records,
+            pages: pages,
+            limit: total_records < records ? total_records : records
+        };
+
+    // get the end limit
+    const end = pages === page ? total_records : (page === 1 ? page * records : page * records);
+    // get start limit
+    // if records are uneven at the last page, show all records from last ending to the end
+    const start = page === 1 ? 0 : (pages === page ? ((total_records - records) - (total_records - (page * records))) : end - records);
+
+    // return object
+    return {
+        start: start,
+        end: end,
+        pages: pages,
+        limit: end - start
+    };
 };

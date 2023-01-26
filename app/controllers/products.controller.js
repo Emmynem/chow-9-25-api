@@ -6,7 +6,7 @@ import { ServerError, SuccessResponse, ValidationError, OtherSuccessResponse, No
 import { 
     default_delete_status, default_status, tag_admin, url_path_without_limits, check_user_route, true_status, false_status, zero, strip_text, 
     platform_rename_document, product_image_document_name, save_platform_document_path, save_document_domain, save_platform_document_dir, platform_join_path_and_file, 
-    platform_remove_unwanted_file, platform_remove_file, platform_documents_path_alt, file_length_5Mb, anonymous
+    platform_remove_unwanted_file, platform_remove_file, platform_documents_path_alt, file_length_5Mb, anonymous, paginate
 } from '../config/config.js';
 import db from "../models/index.js";
 import { addViewHistory } from "./viewHistory.controller.js";
@@ -21,7 +21,10 @@ const Op = db.Sequelize.Op;
 
 const { rename } = fs;
 
-export function rootGetProducts(req, res) {
+export async function rootGetProducts(req, res) {
+    const total_records = await PRODUCTS.count();
+    const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
     PRODUCTS.findAndCountAll({
         attributes: { exclude: ['id'] },
         order: [
@@ -48,25 +51,30 @@ export function rootGetProducts(req, res) {
                 model: CATEGORIES,
                 attributes: ['name', 'stripped']
             }
-        ]
+        ],
+        offset: pagination.start,
+        limit: pagination.limit
     }).then(products => {
         if (!products || products.length == 0) {
             SuccessResponse(res, { unique_id: tag_admin, text: "Products Not found" }, []);
         } else {
-            SuccessResponse(res, { unique_id: tag_admin, text: "Products loaded" }, products);
+            SuccessResponse(res, { unique_id: tag_admin, text: "Products loaded" }, { ...products, pages: pagination.pages });
         }
     }).catch(err => {
         ServerError(res, { unique_id: tag_admin, text: err.message }, null);
     });
 };
 
-export function rootGetProductsSpecifically(req, res) {
+export async function rootGetProductsSpecifically(req, res) {
     const errors = validationResult(req);
     const payload = matchedData(req);
 
     if (!errors.isEmpty()) {
         ValidationError(res, { unique_id: tag_admin, text: "Validation Error Occured" }, errors.array())
     } else {
+        const total_records = await PRODUCTS.count({ where: { ...payload } });
+        const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
         PRODUCTS.findAndCountAll({
             attributes: { exclude: ['id'] },
             where: {
@@ -96,12 +104,14 @@ export function rootGetProductsSpecifically(req, res) {
                     model: CATEGORIES,
                     attributes: ['name', 'stripped']
                 }
-            ]
+            ],
+            offset: pagination.start,
+            limit: pagination.limit
         }).then(products => {
             if (!products || products.length == 0) {
                 SuccessResponse(res, { unique_id: tag_admin, text: "Products Not found" }, []);
             } else {
-                SuccessResponse(res, { unique_id: tag_admin, text: "Products loaded" }, products);
+                SuccessResponse(res, { unique_id: tag_admin, text: "Products loaded" }, { ...products, pages: pagination.pages });
             }
         }).catch(err => {
             ServerError(res, { unique_id: tag_admin, text: err.message }, null);
@@ -155,13 +165,41 @@ export function rootGetProduct(req, res) {
     }
 };
 
-export function searchProducts(req, res) {
+export async function searchProducts(req, res) {
     const errors = validationResult(req);
     const payload = matchedData(req);
 
     if (!errors.isEmpty()) {
         ValidationError(res, { unique_id: anonymous, text: "Validation Error Occured" }, errors.array())
     } else {
+        const total_records = await PRODUCTS.count({
+            where: {
+                [Op.or]: [
+                    {
+                        name: {
+                            [Op.or]: {
+                                [Op.like]: `%${payload.search}`,
+                                [Op.startsWith]: `${payload.search}`,
+                                [Op.endsWith]: `${payload.search}`,
+                                [Op.substring]: `${payload.search}`,
+                            }
+                        }
+
+                    },
+                    {
+                        description: {
+                            [Op.or]: {
+                                [Op.substring]: `${payload.search}`
+                            }
+                        }
+
+                    }
+                ],
+                status: default_status
+            }
+        });
+        const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
         PRODUCTS.findAndCountAll({
             attributes: { exclude: ['id', 'vendor_user_unique_id', 'status', 'createdAt', 'updatedAt'] },
             where: {
@@ -212,12 +250,14 @@ export function searchProducts(req, res) {
                     model: CATEGORIES,
                     attributes: ['name', 'stripped']
                 }
-            ]
+            ],
+            offset: pagination.start,
+            limit: pagination.limit
         }).then(products => {
             if (!products || products.length == 0) {
                 SuccessResponse(res, { unique_id: anonymous, text: "Products Not found" }, []);
             } else {
-                SuccessResponse(res, { unique_id: anonymous, text: "Products loaded" }, products);
+                SuccessResponse(res, { unique_id: anonymous, text: "Products loaded" }, { ...products, pages: pagination.pages });
             }
         }).catch(err => {
             ServerError(res, { unique_id: anonymous, text: err.message }, null);
@@ -225,7 +265,10 @@ export function searchProducts(req, res) {
     }
 };
 
-export function getProductsGenerally(req, res) {
+export async function getProductsGenerally(req, res) {
+    const total_records = await PRODUCTS.count({ where: { status: default_status } });
+    const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
     PRODUCTS.findAndCountAll({
         attributes: { exclude: ['id', 'vendor_user_unique_id', 'status', 'createdAt', 'updatedAt'] },
         where: {
@@ -255,12 +298,14 @@ export function getProductsGenerally(req, res) {
                 model: CATEGORIES,
                 attributes: ['name', 'stripped']
             }
-        ]
+        ],
+        offset: pagination.start,
+        limit: pagination.limit
     }).then(products => {
         if (!products || products.length == 0) {
             SuccessResponse(res, { unique_id: anonymous, text: "Products Not found" }, []);
         } else {
-            SuccessResponse(res, { unique_id: anonymous, text: "Products loaded" }, products);
+            SuccessResponse(res, { unique_id: anonymous, text: "Products loaded" }, { ...products, pages: pagination.pages });
         }
     }).catch(err => {
         ServerError(res, { unique_id: anonymous, text: err.message }, null);
@@ -279,6 +324,9 @@ export async function getProductsByVendorGenerally(req, res) {
         if (!vendor_products) {
             BadRequestError(res, { unique_id: anonymous, text: "Vendor Products not found!" }, null);
         } else {
+            const total_records = await PRODUCTS.count({ where: { vendor_unique_id: vendors.unique_id, status: default_status } });
+            const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
             PRODUCTS.findAndCountAll({
                 attributes: { exclude: ['id', 'vendor_user_unique_id', 'status', 'createdAt', 'updatedAt'] },
                 where: {
@@ -309,12 +357,14 @@ export async function getProductsByVendorGenerally(req, res) {
                         model: CATEGORIES,
                         attributes: ['name', 'stripped']
                     }
-                ]
+                ],
+                offset: pagination.start,
+                limit: pagination.limit
             }).then(products => {
                 if (!products || products.length == 0) {
                     SuccessResponse(res, { unique_id: anonymous, text: "Products Not found" }, []);
                 } else {
-                    SuccessResponse(res, { unique_id: anonymous, text: "Products loaded" }, products);
+                    SuccessResponse(res, { unique_id: anonymous, text: "Products loaded" }, { ...products, pages: pagination.pages });
                 }
             }).catch(err => {
                 ServerError(res, { unique_id: anonymous, text: err.message }, null);
@@ -338,6 +388,9 @@ export async function getProductsByVendorCategoryGenerally(req, res) {
         if (!vendor_category_products) {
             BadRequestError(res, { unique_id: anonymous, text: "Vendor Category Products not found!" }, null);
         } else {
+            const total_records = await PRODUCTS.count({ where: { vendor_unique_id: vendors.unique_id, category_unique_id: categories.unique_id, status: default_status } });
+            const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
             PRODUCTS.findAndCountAll({
                 attributes: { exclude: ['id', 'vendor_user_unique_id', 'status', 'createdAt', 'updatedAt'] },
                 where: {
@@ -369,12 +422,14 @@ export async function getProductsByVendorCategoryGenerally(req, res) {
                         model: CATEGORIES,
                         attributes: ['name', 'stripped']
                     }
-                ]
+                ],
+                offset: pagination.start,
+                limit: pagination.limit
             }).then(products => {
                 if (!products || products.length == 0) {
                     SuccessResponse(res, { unique_id: anonymous, text: "Products Not found" }, []);
                 } else {
-                    SuccessResponse(res, { unique_id: anonymous, text: "Products loaded" }, products);
+                    SuccessResponse(res, { unique_id: anonymous, text: "Products loaded" }, { ...products, pages: pagination.pages });
                 }
             }).catch(err => {
                 ServerError(res, { unique_id: anonymous, text: err.message }, null);
@@ -400,6 +455,9 @@ export async function getProductsByVendorMenuGenerally(req, res) {
             if (!vendor_menu_products) {
                 BadRequestError(res, { unique_id: anonymous, text: "Vendor Menu Products not found!" }, null);
             } else {
+                const total_records = await PRODUCTS.count({ where: { vendor_unique_id: vendors.unique_id, menu_unique_id: menus.unique_id, status: default_status } });
+                const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
                 PRODUCTS.findAndCountAll({
                     attributes: { exclude: ['id', 'vendor_user_unique_id', 'status', 'createdAt', 'updatedAt'] },
                     where: {
@@ -431,12 +489,14 @@ export async function getProductsByVendorMenuGenerally(req, res) {
                             model: CATEGORIES,
                             attributes: ['name', 'stripped']
                         }
-                    ]
+                    ],
+                    offset: pagination.start,
+                    limit: pagination.limit
                 }).then(products => {
                     if (!products || products.length == 0) {
                         SuccessResponse(res, { unique_id: anonymous, text: "Products Not found" }, []);
                     } else {
-                        SuccessResponse(res, { unique_id: anonymous, text: "Products loaded" }, products);
+                        SuccessResponse(res, { unique_id: anonymous, text: "Products loaded" }, { ...products, pages: pagination.pages });
                     }
                 }).catch(err => {
                     ServerError(res, { unique_id: anonymous, text: err.message }, null);
@@ -453,6 +513,9 @@ export async function getProductsByCategoryGenerally(req, res) {
     if (!categories) {
         BadRequestError(res, { unique_id: anonymous, text: "Category not found!" }, null);
     } else {
+        const total_records = await PRODUCTS.count({ where: { category_unique_id: categories.unique_id, status: default_status } });
+        const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
         PRODUCTS.findAndCountAll({
             attributes: { exclude: ['id', 'vendor_user_unique_id', 'status', 'createdAt', 'updatedAt'] },
             where: {
@@ -483,12 +546,14 @@ export async function getProductsByCategoryGenerally(req, res) {
                     model: CATEGORIES,
                     attributes: ['name', 'stripped']
                 }
-            ]
+            ],
+            offset: pagination.start,
+            limit: pagination.limit
         }).then(products => {
             if (!products || products.length == 0) {
                 SuccessResponse(res, { unique_id: anonymous, text: "Products Not found" }, []);
             } else {
-                SuccessResponse(res, { unique_id: anonymous, text: "Products loaded" }, products);
+                SuccessResponse(res, { unique_id: anonymous, text: "Products loaded" }, { ...products, pages: pagination.pages });
             }
         }).catch(err => {
             ServerError(res, { unique_id: anonymous, text: err.message }, null);
@@ -564,6 +629,9 @@ export async function getProducts(req, res) {
     if (!check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
         BadRequestError(res, { unique_id: vendor_unique_id, text: "You don't have access to perform this action!" }, null);
     } else {
+        const total_records = await PRODUCTS.count({ where: { vendor_unique_id } });
+        const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
         PRODUCTS.findAndCountAll({
             attributes: { exclude: ['id', 'vendor_unique_id'] },
             where: {
@@ -589,12 +657,14 @@ export async function getProducts(req, res) {
                     model: CATEGORIES,
                     attributes: ['name', 'stripped']
                 }
-            ]
+            ],
+            offset: pagination.start,
+            limit: pagination.limit
         }).then(products => {
             if (!products || products.length == 0) {
                 SuccessResponse(res, { unique_id: vendor_unique_id, text: "Products Not found" }, []);
             } else {
-                SuccessResponse(res, { unique_id: vendor_unique_id, text: "Products loaded" }, products);
+                SuccessResponse(res, { unique_id: vendor_unique_id, text: "Products loaded" }, { ...products, pages: pagination.pages });
             }
         }).catch(err => {
             ServerError(res, { unique_id: vendor_unique_id, text: err.message }, null);

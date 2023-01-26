@@ -1,14 +1,17 @@
 import { validationResult, matchedData } from 'express-validator';
 import { v4 as uuidv4 } from 'uuid';
 import { ServerError, SuccessResponse, ValidationError, OtherSuccessResponse, NotFoundError, CreationSuccessResponse, BadRequestError, logger } from '../common/index.js';
-import { default_delete_status, default_status, false_status, tag_admin, true_status } from '../config/config.js';
+import { default_delete_status, default_status, false_status, paginate, tag_admin, true_status } from '../config/config.js';
 import db from "../models/index.js";
 
 const ADDRESSESS = db.addressess;
 const USERS = db.users;
 const Op = db.Sequelize.Op;
 
-export function rootGetAddressess(req, res) {
+export async function rootGetAddressess(req, res) {
+    const total_records = await ADDRESSESS.count();
+    const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
     ADDRESSESS.findAndCountAll({
         attributes: { exclude: ['id'] },
         order: [
@@ -19,19 +22,24 @@ export function rootGetAddressess(req, res) {
                 model: USERS,
                 attributes: ['firstname', 'middlename', 'lastname', 'email', 'mobile_number', 'profile_image']
             }
-        ]
+        ],
+        offset: pagination.start,
+        limit: pagination.limit
     }).then(addressess => {
         if (!addressess || addressess.length == 0) {
             SuccessResponse(res, { unique_id: tag_admin, text: "Addressess Not found" }, []);
         } else {
-            SuccessResponse(res, { unique_id: tag_admin, text: "Addressess loaded" }, addressess);
+            SuccessResponse(res, { unique_id: tag_admin, text: "Addressess loaded" }, { ...addressess, pages: pagination.pages });
         }
     }).catch(err => {
         ServerError(res, { unique_id: tag_admin, text: err.message }, null);
     });
 };
 
-export function rootGetDefaultAddressess(req, res) {
+export async function rootGetDefaultAddressess(req, res) {
+    const total_records = await ADDRESSESS.count({ where: { default_address: true_status } });
+    const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
     ADDRESSESS.findAndCountAll({
         attributes: { exclude: ['id'] },
         where: {
@@ -45,12 +53,14 @@ export function rootGetDefaultAddressess(req, res) {
                 model: USERS,
                 attributes: ['firstname', 'middlename', 'lastname', 'email', 'mobile_number', 'profile_image']
             }
-        ]
+        ],
+        offset: pagination.start,
+        limit: pagination.limit
     }).then(addressess => {
         if (!addressess || addressess.length == 0) {
             SuccessResponse(res, { unique_id: tag_admin, text: "Addressess Not found" }, []);
         } else {
-            SuccessResponse(res, { unique_id: tag_admin, text: "Addressess loaded" }, addressess);
+            SuccessResponse(res, { unique_id: tag_admin, text: "Addressess loaded" }, { ...addressess, pages: pagination.pages });
         }
     }).catch(err => {
         ServerError(res, { unique_id: tag_admin, text: err.message }, null);
@@ -63,8 +73,7 @@ export function rootGetAddress(req, res) {
 
     if (!errors.isEmpty()) {
         ValidationError(res, { unique_id: tag_admin, text: "Validation Error Occured" }, errors.array())
-    }
-    else {
+    } else {
         ADDRESSESS.findOne({
             attributes: { exclude: ['id'] },
             where: {
@@ -88,8 +97,11 @@ export function rootGetAddress(req, res) {
     }
 };
 
-export function getUserAddresses(req, res) {
+export async function getUserAddresses(req, res) {
     const user_unique_id = req.UNIQUE_ID;
+
+    const total_records = await ADDRESSESS.count({ where: { user_unique_id } });
+    const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
 
     ADDRESSESS.findAndCountAll({
         attributes: { exclude: ['user_unique_id', 'id'] },
@@ -99,12 +111,14 @@ export function getUserAddresses(req, res) {
         order: [
             ['default_address', 'ASC'],
             ['createdAt', 'DESC']
-        ]
+        ],
+        offset: pagination.start,
+        limit: pagination.limit
     }).then(addressess => {
         if (!addressess || addressess.length == 0) {
             SuccessResponse(res, { unique_id: user_unique_id, text: "Addressess Not found" }, []);
         } else {
-            SuccessResponse(res, { unique_id: user_unique_id, text: "Addressess loaded" }, addressess);
+            SuccessResponse(res, { unique_id: user_unique_id, text: "Addressess loaded" }, { ...addressess, pages: pagination.pages });
         }
     }).catch(err => {
         ServerError(res, { unique_id: user_unique_id, text: err.message }, null);
@@ -138,8 +152,7 @@ export function getUserAddress(req, res) {
 
     if (!errors.isEmpty()) {
         ValidationError(res, { unique_id: user_unique_id, text: "Validation Error Occured" }, errors.array())
-    }
-    else {
+    } else {
         ADDRESSESS.findOne({
             attributes: { exclude: ['user_unique_id', 'id'] },
             where: {

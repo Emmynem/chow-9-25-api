@@ -35,7 +35,10 @@ const VENDOR_USERS = db.vendor_users;
 const VENDOR_ACCOUNT = db.vendor_account;
 const Op = db.Sequelize.Op;
 
-export function rootGetOrders(req, res) {
+export async function rootGetOrders(req, res) {
+    const total_records = await ORDERS.count();
+    const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
     ORDERS.findAndCountAll({
         attributes: { exclude: ['id'] },
         order: [
@@ -70,25 +73,30 @@ export function rootGetOrders(req, res) {
                     }
                 ]
             }
-        ]
+        ],
+        offset: pagination.start,
+        limit: pagination.limit
     }).then(orders => {
         if (!orders || orders.length == 0) {
             SuccessResponse(res, { unique_id: tag_admin, text: "Orders Not found" }, []);
         } else {
-            SuccessResponse(res, { unique_id: tag_admin, text: "Orders loaded" }, orders);
+            SuccessResponse(res, { unique_id: tag_admin, text: "Orders loaded" }, { ...orders, pages: pagination.pages });
         }
     }).catch(err => {
         ServerError(res, { unique_id: tag_admin, text: err.message }, null);
     });
 };
 
-export function rootGetOrdersSpecifically(req, res) {
+export async function rootGetOrdersSpecifically(req, res) {
     const errors = validationResult(req);
     const payload = matchedData(req);
 
     if (!errors.isEmpty()) {
         ValidationError(res, { unique_id: tag_admin, text: "Validation Error Occured" }, errors.array())
     } else {
+        const total_records = await ORDERS.count({ where: { ...payload } });
+        const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
         ORDERS.findAndCountAll({
             attributes: { exclude: ['id'] },
             where: {
@@ -126,12 +134,14 @@ export function rootGetOrdersSpecifically(req, res) {
                         }
                     ]
                 }
-            ]
+            ],
+            offset: pagination.start,
+            limit: pagination.limit
         }).then(orders => {
             if (!orders || orders.length == 0) {
                 SuccessResponse(res, { unique_id: tag_admin, text: "Orders Not found" }, []);
             } else {
-                SuccessResponse(res, { unique_id: tag_admin, text: "Orders loaded" }, orders);
+                SuccessResponse(res, { unique_id: tag_admin, text: "Orders loaded" }, { ...orders, pages: pagination.pages });
             }
         }).catch(err => {
             ServerError(res, { unique_id: tag_admin, text: err.message }, null);
@@ -211,8 +221,11 @@ export async function getVendorOrders(req, res) {
     if (!check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
         BadRequestError(res, { unique_id: vendor_unique_id, text: "You don't have access to perform this action!" }, null);
     } else {
+        const total_records = await ORDERS.count({ where: { vendor_unique_id } });
+        const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
         ORDERS.findAndCountAll({
-            attributes: ['unique_id', 'user_unique_id', 'product_unique_id', 'tracking_number', 'shipping_fee_unique_id', 'quantity', 'amount', 'shipping_fee', 'credit', 'service_charge', 'payment_method', 'paid', 'shipped', 'disputed', 'delivery_status', 'updatedAt'],
+            attributes: ['unique_id', 'user_unique_id', 'product_unique_id', 'tracking_number', 'shipping_fee_unique_id', 'quantity', 'amount', 'shipping_fee', 'credit', 'service_charge', 'payment_method', 'paid', 'shipped', 'disputed', 'delivery_status', 'updatedAt', 'createdAt'],
             where: {
                 vendor_unique_id
             },
@@ -244,12 +257,14 @@ export async function getVendorOrders(req, res) {
                         }
                     ]
                 }
-            ]
+            ],
+            offset: pagination.start,
+            limit: pagination.limit
         }).then(orders => {
             if (!orders || orders.length == 0) {
                 SuccessResponse(res, { unique_id: vendor_unique_id, text: "Orders Not found" }, []);
             } else {
-                SuccessResponse(res, { unique_id: vendor_unique_id, text: "Orders loaded" }, orders);
+                SuccessResponse(res, { unique_id: vendor_unique_id, text: "Orders loaded" }, { ...orders, pages: pagination.pages });
             }
         }).catch(err => {
             ServerError(res, { unique_id: vendor_unique_id, text: err.message }, null);
@@ -279,8 +294,11 @@ export async function getVendorOrdersSpecifically(req, res) {
         if (!errors.isEmpty()) {
             ValidationError(res, { unique_id: vendor_unique_id, text: "Validation Error Occured" }, errors.array())
         } else {
+            const total_records = await ORDERS.count({ where: { vendor_unique_id, ...payload } });
+            const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
             ORDERS.findAndCountAll({
-                attributes: ['unique_id', 'user_unique_id', 'product_unique_id', 'tracking_number', 'shipping_fee_unique_id', 'quantity', 'amount', 'shipping_fee', 'credit', 'service_charge', 'payment_method', 'paid', 'shipped', 'disputed', 'delivery_status', 'updatedAt'],
+                attributes: ['unique_id', 'user_unique_id', 'product_unique_id', 'tracking_number', 'shipping_fee_unique_id', 'quantity', 'amount', 'shipping_fee', 'credit', 'service_charge', 'payment_method', 'paid', 'shipped', 'disputed', 'delivery_status', 'updatedAt', 'createdAt'],
                 where: {
                     vendor_unique_id,
                     ...payload
@@ -313,12 +331,14 @@ export async function getVendorOrdersSpecifically(req, res) {
                             }
                         ]
                     }
-                ]
+                ],
+                offset: pagination.start,
+                limit: pagination.limit
             }).then(orders => {
                 if (!orders || orders.length == 0) {
                     SuccessResponse(res, { unique_id: vendor_unique_id, text: "Orders Not found" }, []);
                 } else {
-                    SuccessResponse(res, { unique_id: vendor_unique_id, text: "Orders loaded" }, orders);
+                    SuccessResponse(res, { unique_id: vendor_unique_id, text: "Orders loaded" }, { ...orders, pages: pagination.pages });
                 }
             }).catch(err => {
                 ServerError(res, { unique_id: vendor_unique_id, text: err.message }, null);
@@ -328,11 +348,22 @@ export async function getVendorOrdersSpecifically(req, res) {
 
 };
 
-export function getRiderOrders(req, res) {
+export async function getRiderOrders(req, res) {
     const rider_unique_id = req.RIDER_UNIQUE_ID;
 
+    const total_records = await ORDERS.count({
+        where: { '$rider_shipping.rider_unique_id$': rider_unique_id }, 
+        include: [{
+            model: RIDER_SHIPPING,
+            as: 'rider_shipping',
+            required: true,
+            attributes: ['min_weight', 'max_weight', 'price', 'from_city', 'from_state', 'from_country', 'to_city', 'to_state', 'to_country']
+        }] 
+    });
+    const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
     ORDERS.findAndCountAll({
-        attributes: ['unique_id', 'user_unique_id', 'vendor_unique_id', 'product_unique_id', 'tracking_number', 'shipping_fee_unique_id', 'quantity', 'amount', 'shipping_fee', 'rider_credit', 'rider_service_charge', 'payment_method', 'paid', 'shipped', 'disputed', 'delivery_status', 'updatedAt'],
+        attributes: ['unique_id', 'user_unique_id', 'vendor_unique_id', 'product_unique_id', 'tracking_number', 'shipping_fee_unique_id', 'quantity', 'amount', 'shipping_fee', 'rider_credit', 'rider_service_charge', 'payment_method', 'paid', 'shipped', 'disputed', 'delivery_status', 'updatedAt', 'createdAt'],
         where: {
             '$rider_shipping.rider_unique_id$': rider_unique_id
         },
@@ -364,19 +395,21 @@ export function getRiderOrders(req, res) {
                 required: true,
                 attributes: ['min_weight', 'max_weight', 'price', 'from_city', 'from_state', 'from_country', 'to_city', 'to_state', 'to_country']
             }
-        ]
+        ],
+        offset: pagination.start,
+        limit: pagination.limit
     }).then(orders => {
         if (!orders || orders.length == 0) {
             SuccessResponse(res, { unique_id: rider_unique_id, text: "Orders Not found" }, []);
         } else {
-            SuccessResponse(res, { unique_id: rider_unique_id, text: "Orders loaded" }, orders);
+            SuccessResponse(res, { unique_id: rider_unique_id, text: "Orders loaded" }, { ...orders, pages: pagination.pages });
         }
     }).catch(err => {
         ServerError(res, { unique_id: rider_unique_id, text: err.message }, null);
     });
 };
 
-export function getRiderOrdersSpecifically(req, res) {
+export async function getRiderOrdersSpecifically(req, res) {
     const rider_unique_id = req.RIDER_UNIQUE_ID;
     const errors = validationResult(req);
     const payload = matchedData(req);
@@ -384,8 +417,19 @@ export function getRiderOrdersSpecifically(req, res) {
     if (!errors.isEmpty()) {
         ValidationError(res, { unique_id: rider_unique_id, text: "Validation Error Occured" }, errors.array())
     } else {
+        const total_records = await ORDERS.count({
+            where: { ...payload, '$rider_shipping.rider_unique_id$': rider_unique_id },
+            include: [{
+                model: RIDER_SHIPPING,
+                as: 'rider_shipping',
+                required: true,
+                attributes: ['min_weight', 'max_weight', 'price', 'from_city', 'from_state', 'from_country', 'to_city', 'to_state', 'to_country']
+            }]
+        });
+        const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
         ORDERS.findAndCountAll({
-            attributes: ['unique_id', 'user_unique_id', 'vendor_unique_id', 'product_unique_id', 'tracking_number', 'shipping_fee_unique_id', 'quantity', 'amount', 'shipping_fee', 'rider_credit', 'rider_service_charge', 'payment_method', 'paid', 'shipped', 'disputed', 'delivery_status', 'updatedAt'],
+            attributes: ['unique_id', 'user_unique_id', 'vendor_unique_id', 'product_unique_id', 'tracking_number', 'shipping_fee_unique_id', 'quantity', 'amount', 'shipping_fee', 'rider_credit', 'rider_service_charge', 'payment_method', 'paid', 'shipped', 'disputed', 'delivery_status', 'updatedAt', 'createdAt'],
             where: {
                 ...payload,
                 '$rider_shipping.rider_unique_id$': rider_unique_id
@@ -418,12 +462,14 @@ export function getRiderOrdersSpecifically(req, res) {
                     required: true,
                     attributes: ['min_weight', 'max_weight', 'price', 'from_city', 'from_state', 'from_country', 'to_city', 'to_state', 'to_country']
                 }
-            ]
+            ],
+            offset: pagination.start,
+            limit: pagination.limit
         }).then(orders => {
             if (!orders || orders.length == 0) {
                 SuccessResponse(res, { unique_id: rider_unique_id, text: "Orders Not found" }, []);
             } else {
-                SuccessResponse(res, { unique_id: rider_unique_id, text: "Orders loaded" }, orders);
+                SuccessResponse(res, { unique_id: rider_unique_id, text: "Orders loaded" }, { ...orders, pages: pagination.pages });
             }
         }).catch(err => {
             ServerError(res, { unique_id: rider_unique_id, text: err.message }, null);
@@ -434,13 +480,16 @@ export function getRiderOrdersSpecifically(req, res) {
 export async function getUserOrders(req, res) {
     const user_unique_id = req.UNIQUE_ID;
 
+    const total_records = await ORDERS.count({ where: { user_unique_id } });
+    const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
     ORDERS.findAndCountAll({
         attributes: ['unique_id', 'vendor_unique_id', 'product_unique_id', 'tracking_number', 'shipping_fee_unique_id', 'quantity', 'amount', 'shipping_fee', 'payment_method', 'paid', 'shipped', 'disputed', 'delivery_status', 'updatedAt', 'createdAt'],
         where: {
             user_unique_id
         },
         order: [
-            ['createdAt', 'ASC']
+            ['updatedAt', 'DESC']
         ],
         include: [
             {
@@ -467,19 +516,21 @@ export async function getUserOrders(req, res) {
                     }
                 ]
             }
-        ]
+        ],
+        offset: pagination.start,
+        limit: pagination.limit
     }).then(orders => {
         if (!orders || orders.length == 0) {
             SuccessResponse(res, { unique_id: user_unique_id, text: "Orders Not found" }, []);
         } else {
-            SuccessResponse(res, { unique_id: user_unique_id, text: "Orders loaded" }, orders);
+            SuccessResponse(res, { unique_id: user_unique_id, text: "Orders loaded" }, { ...orders, pages: pagination.pages });
         }
     }).catch(err => {
         ServerError(res, { unique_id: user_unique_id, text: err.message }, null);
     });
 };
 
-export function getUserOrdersSpecifically(req, res) {
+export async function getUserOrdersSpecifically(req, res) {
     const user_unique_id = req.UNIQUE_ID;
     const errors = validationResult(req);
     const payload = matchedData(req);
@@ -487,6 +538,9 @@ export function getUserOrdersSpecifically(req, res) {
     if (!errors.isEmpty()) {
         ValidationError(res, { unique_id: user_unique_id, text: "Validation Error Occured" }, errors.array())
     } else {
+        const total_records = await ORDERS.count({ where: { user_unique_id, ...payload } });
+        const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
         ORDERS.findAndCountAll({
             attributes: ['unique_id', 'vendor_unique_id', 'product_unique_id', 'tracking_number', 'shipping_fee_unique_id', 'quantity', 'amount', 'shipping_fee', 'payment_method', 'paid', 'shipped', 'disputed', 'delivery_status', 'updatedAt', 'createdAt'],
             where: {
@@ -525,12 +579,14 @@ export function getUserOrdersSpecifically(req, res) {
                         }
                     ]
                 }
-            ]
+            ],
+            offset: pagination.start,
+            limit: pagination.limit
         }).then(orders => {
             if (!orders || orders.length == 0) {
                 SuccessResponse(res, { unique_id: user_unique_id, text: "Orders Not found" }, []);
             } else {
-                SuccessResponse(res, { unique_id: user_unique_id, text: "Orders loaded" }, orders);
+                SuccessResponse(res, { unique_id: user_unique_id, text: "Orders loaded" }, { ...orders, pages: pagination.pages });
             }
         }).catch(err => {
             ServerError(res, { unique_id: user_unique_id, text: err.message }, null);

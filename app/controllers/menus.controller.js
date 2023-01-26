@@ -1,7 +1,7 @@
 import { validationResult, matchedData } from 'express-validator';
 import { v4 as uuidv4 } from 'uuid';
 import { ServerError, SuccessResponse, ValidationError, OtherSuccessResponse, NotFoundError, CreationSuccessResponse, BadRequestError, logger } from '../common/index.js';
-import { default_delete_status, default_status, tag_admin, url_path_without_limits, check_user_route, true_status, false_status, strip_text, anonymous } from '../config/config.js';
+import { default_delete_status, default_status, tag_admin, url_path_without_limits, check_user_route, true_status, false_status, strip_text, anonymous, paginate } from '../config/config.js';
 import db from "../models/index.js";
 
 const MENUS = db.menus;
@@ -10,7 +10,10 @@ const VENDOR_USERS = db.vendor_users;
 const PRODUCTS = db.products;
 const Op = db.Sequelize.Op;
 
-export function rootGetMenus(req, res) {
+export async function rootGetMenus(req, res) {
+    const total_records = await MENUS.count();
+    const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
     MENUS.findAndCountAll({
         attributes: { exclude: ['id'] },
         order: [
@@ -25,12 +28,14 @@ export function rootGetMenus(req, res) {
                 model: VENDOR_USERS,
                 attributes: ['firstname', 'middlename', 'lastname', 'email', 'mobile_number']
             }
-        ]
+        ],
+        offset: pagination.start,
+        limit: pagination.limit
     }).then(menus => {
         if (!menus || menus.length == 0) {
             SuccessResponse(res, { unique_id: tag_admin, text: "Menus Not found" }, []);
         } else {
-            SuccessResponse(res, { unique_id: tag_admin, text: "Menus loaded" }, menus);
+            SuccessResponse(res, { unique_id: tag_admin, text: "Menus loaded" }, { ...menus, pages: pagination.pages });
         }
     }).catch(err => {
         ServerError(res, { unique_id: tag_admin, text: err.message }, null);
@@ -71,13 +76,16 @@ export function rootGetMenu(req, res) {
     }
 };
 
-export function rootGetMenusSpecifically(req, res) {
+export async function rootGetMenusSpecifically(req, res) {
     const errors = validationResult(req);
     const payload = matchedData(req);
 
     if (!errors.isEmpty()) {
         ValidationError(res, { unique_id: tag_admin, text: "Validation Error Occured" }, errors.array())
     } else {
+        const total_records = await MENUS.count({ where: { ...payload } });
+        const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
         MENUS.findAndCountAll({
             attributes: { exclude: ['id'] },
             where: {
@@ -95,12 +103,14 @@ export function rootGetMenusSpecifically(req, res) {
                     model: VENDOR_USERS,
                     attributes: ['firstname', 'middlename', 'lastname', 'email', 'mobile_number']
                 }
-            ]
+            ],
+            offset: pagination.start,
+            limit: pagination.limit
         }).then(menus => {
             if (!menus || menus.length == 0) {
                 SuccessResponse(res, { unique_id: tag_admin, text: "Menus Not found" }, []);
             } else {
-                SuccessResponse(res, { unique_id: tag_admin, text: "Menus loaded" }, menus);
+                SuccessResponse(res, { unique_id: tag_admin, text: "Menus loaded" }, { ...menus, pages: pagination.pages });
             }
         }).catch(err => {
             ServerError(res, { unique_id: tag_admin, text: err.message }, null);
@@ -120,6 +130,9 @@ export async function getMenusByVendorGenerally(req, res) {
         if (!vendor_menus) {
             BadRequestError(res, { unique_id: anonymous, text: "Vendor Menus not found!" }, null);
         } else {
+            const total_records = await MENUS.count({ where: { vendor_unique_id: vendors.unique_id, status: default_status } });
+            const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
             MENUS.findAndCountAll({
                 attributes: { exclude: ['id', 'vendor_user_unique_id', 'status', 'createdAt', 'updatedAt'] },
                 where: {
@@ -134,12 +147,14 @@ export async function getMenusByVendorGenerally(req, res) {
                         model: VENDORS,
                         attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'verification']
                     }
-                ]
+                ],
+                offset: pagination.start,
+                limit: pagination.limit
             }).then(menus => {
                 if (!menus || menus.length == 0) {
                     SuccessResponse(res, { unique_id: anonymous, text: "Menus Not found" }, []);
                 } else {
-                    SuccessResponse(res, { unique_id: anonymous, text: "Menus loaded" }, menus);
+                    SuccessResponse(res, { unique_id: anonymous, text: "Menus loaded" }, { ...menus, pages: pagination.pages });
                 }
             }).catch(err => {
                 ServerError(res, { unique_id: anonymous, text: err.message }, null);
@@ -163,6 +178,9 @@ export async function getMenus(req, res) {
     if (!check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
         BadRequestError(res, { unique_id: vendor_unique_id, text: "You don't have access to perform this action!" }, null);
     } else {
+        const total_records = await MENUS.count({ where: { vendor_unique_id } });
+        const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
         MENUS.findAndCountAll({
             attributes: { exclude: ['id', 'vendor_unique_id'] },
             where: {
@@ -170,12 +188,14 @@ export async function getMenus(req, res) {
             },
             order: [
                 ['createdAt', 'DESC']
-            ]
+            ],
+            offset: pagination.start,
+            limit: pagination.limit
         }).then(menus => {
             if (!menus || menus.length == 0) {
                 SuccessResponse(res, { unique_id: vendor_unique_id, text: "Menus Not found" }, []);
             } else {
-                SuccessResponse(res, { unique_id: vendor_unique_id, text: "Menus loaded" }, menus);
+                SuccessResponse(res, { unique_id: vendor_unique_id, text: "Menus loaded" }, { ...menus, pages: pagination.pages });
             }
         }).catch(err => {
             ServerError(res, { unique_id: vendor_unique_id, text: err.message }, null);

@@ -1,7 +1,7 @@
 import { validationResult, matchedData } from 'express-validator';
 import { v4 as uuidv4 } from 'uuid';
 import { ServerError, SuccessResponse, ValidationError, OtherSuccessResponse, NotFoundError, CreationSuccessResponse, BadRequestError, logger } from '../common/index.js';
-import { default_delete_status, default_status, false_status, tag_admin, true_status } from '../config/config.js';
+import { default_delete_status, default_status, false_status, paginate, tag_admin, true_status } from '../config/config.js';
 import db from "../models/index.js";
 
 const CARTS = db.carts;
@@ -14,7 +14,10 @@ const RIDER_SHIPPING = db.rider_shipping;
 const RIDERS = db.riders;
 const Op = db.Sequelize.Op;
 
-export function rootGetCarts(req, res) {
+export async function rootGetCarts(req, res) {
+    const total_records = await CARTS.count();
+    const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
     CARTS.findAndCountAll({
         attributes: { exclude: ['id'] },
         order: [
@@ -49,25 +52,30 @@ export function rootGetCarts(req, res) {
                     }
                 ]
             }
-        ]
+        ],
+        offset: pagination.start,
+        limit: pagination.limit
     }).then(carts => {
         if (!carts || carts.length == 0) {
             SuccessResponse(res, { unique_id: tag_admin, text: "Carts Not found" }, []);
         } else {
-            SuccessResponse(res, { unique_id: tag_admin, text: "Carts loaded" }, carts);
+            SuccessResponse(res, { unique_id: tag_admin, text: "Carts loaded" }, { ...carts, pages: pagination.pages });
         }
     }).catch(err => {
         ServerError(res, { unique_id: tag_admin, text: err.message }, null);
     });
 };
 
-export function rootGetCartsSpecifically(req, res) {
+export async function rootGetCartsSpecifically(req, res) {
     const errors = validationResult(req);
     const payload = matchedData(req);
 
     if (!errors.isEmpty()) {
         ValidationError(res, { unique_id: tag_admin, text: "Validation Error Occured" }, errors.array())
     } else {
+        const total_records = await CARTS.count({ where: { ...payload } });
+        const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
         CARTS.findAndCountAll({
             attributes: { exclude: ['id'] },
             where: {
@@ -105,12 +113,14 @@ export function rootGetCartsSpecifically(req, res) {
                         }
                     ]
                 }
-            ]
+            ],
+            offset: pagination.start,
+            limit: pagination.limit
         }).then(carts => {
             if (!carts || carts.length == 0) {
                 SuccessResponse(res, { unique_id: tag_admin, text: "Carts Not found" }, []);
             } else {
-                SuccessResponse(res, { unique_id: tag_admin, text: "Carts loaded" }, carts);
+                SuccessResponse(res, { unique_id: tag_admin, text: "Carts loaded" }, { ...carts, pages: pagination.pages });
             }
         }).catch(err => {
             ServerError(res, { unique_id: tag_admin, text: err.message }, null);
@@ -172,8 +182,11 @@ export function rootGetCart(req, res) {
     }
 };
 
-export function getUserCarts(req, res) {
+export async function getUserCarts(req, res) {
     const user_unique_id = req.UNIQUE_ID;
+
+    const total_records = await CARTS.count({ where: { user_unique_id, status: default_status } });
+    const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
 
     CARTS.findAndCountAll({
         attributes: { exclude: ['user_unique_id', 'id', 'status', 'createdAt', 'updatedAt'] },
@@ -209,12 +222,14 @@ export function getUserCarts(req, res) {
                     }
                 ]
             }
-        ]
+        ],
+        offset: pagination.start,
+        limit: pagination.limit
     }).then(carts => {
         if (!carts || carts.length == 0) {
             SuccessResponse(res, { unique_id: user_unique_id, text: "Carts Not found" }, []);
         } else {
-            SuccessResponse(res, { unique_id: user_unique_id, text: "Carts loaded" }, carts);
+            SuccessResponse(res, { unique_id: user_unique_id, text: "Carts loaded" }, { ...carts, pages: pagination.pages });
         }
     }).catch(err => {
         ServerError(res, { unique_id: user_unique_id, text: err.message }, null);

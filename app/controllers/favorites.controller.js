@@ -1,7 +1,7 @@
 import { validationResult, matchedData } from 'express-validator';
 import { v4 as uuidv4 } from 'uuid';
 import { ServerError, SuccessResponse, ValidationError, OtherSuccessResponse, NotFoundError, CreationSuccessResponse, BadRequestError, logger } from '../common/index.js';
-import { default_delete_status, default_status, tag_admin, true_status, false_status } from '../config/config.js';
+import { default_delete_status, default_status, tag_admin, true_status, false_status, paginate } from '../config/config.js';
 import db from "../models/index.js";
 
 const FAVORITES = db.favorites;
@@ -10,7 +10,10 @@ const PRODUCTS = db.products;
 const PRODUCT_IMAGES = db.product_images;
 const Op = db.Sequelize.Op;
 
-export function rootGetFavorites(req, res) {
+export async function rootGetFavorites(req, res) {
+    const total_records = await FAVORITES.count();
+    const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
     FAVORITES.findAndCountAll({
         attributes: { exclude: ['id'] },
         order: [
@@ -31,12 +34,14 @@ export function rootGetFavorites(req, res) {
                     }
                 ]
             }
-        ]
+        ],
+        offset: pagination.start,
+        limit: pagination.limit
     }).then(favorites => {
         if (!favorites || favorites.length == 0) {
             SuccessResponse(res, { unique_id: tag_admin, text: "Favorites Not found" }, []);
         } else {
-            SuccessResponse(res, { unique_id: tag_admin, text: "Favorites loaded" }, favorites);
+            SuccessResponse(res, { unique_id: tag_admin, text: "Favorites loaded" }, { ...favorites, pages: pagination.pages });
         }
     }).catch(err => {
         ServerError(res, { unique_id: tag_admin, text: err.message }, null);
@@ -83,13 +88,16 @@ export function rootGetFavorite(req, res) {
     }
 };
 
-export function rootGetFavoritesSpecifically(req, res) {
+export async function rootGetFavoritesSpecifically(req, res) {
     const errors = validationResult(req);
     const payload = matchedData(req);
 
     if (!errors.isEmpty()) {
         ValidationError(res, { unique_id: tag_admin, text: "Validation Error Occured" }, errors.array())
     } else {
+        const total_records = await FAVORITES.count({ where: { ...payload } });
+        const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
         FAVORITES.findAndCountAll({
             attributes: { exclude: ['id'] },
             where: {
@@ -113,12 +121,14 @@ export function rootGetFavoritesSpecifically(req, res) {
                         }
                     ]
                 }
-            ]
+            ],
+            offset: pagination.start,
+            limit: pagination.limit
         }).then(favorites => {
             if (!favorites || favorites.length == 0) {
                 SuccessResponse(res, { unique_id: tag_admin, text: "Favorites Not found" }, []);
             } else {
-                SuccessResponse(res, { unique_id: tag_admin, text: "Favorites loaded" }, favorites);
+                SuccessResponse(res, { unique_id: tag_admin, text: "Favorites loaded" }, { ...favorites, pages: pagination.pages });
             }
         }).catch(err => {
             ServerError(res, { unique_id: tag_admin, text: err.message }, null);
@@ -126,8 +136,11 @@ export function rootGetFavoritesSpecifically(req, res) {
     }
 };
 
-export function getFavorites(req, res) {
+export async function getFavorites(req, res) {
     const user_unique_id = req.UNIQUE_ID;
+
+    const total_records = await FAVORITES.count({ where: { user_unique_id } });
+    const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
 
     FAVORITES.findAndCountAll({
         attributes: { exclude: ['id', 'user_unique_id', 'createdAt', 'status'] },
@@ -148,19 +161,21 @@ export function getFavorites(req, res) {
                     }
                 ]
             }
-        ]
+        ],
+        offset: pagination.start,
+        limit: pagination.limit
     }).then(favorites => {
         if (!favorites || favorites.length == 0) {
             SuccessResponse(res, { unique_id: user_unique_id, text: "Favorites Not found" }, []);
         } else {
-            SuccessResponse(res, { unique_id: user_unique_id, text: "Favorites loaded" }, favorites);
+            SuccessResponse(res, { unique_id: user_unique_id, text: "Favorites loaded" }, { ...favorites, pages: pagination.pages });
         }
     }).catch(err => {
         ServerError(res, { unique_id: user_unique_id, text: err.message }, null);
     });
 };
 
-export function getFavoriteSpecifically(req, res) {
+export async function getFavoriteSpecifically(req, res) {
     const user_unique_id = req.UNIQUE_ID;
     const errors = validationResult(req);
     const payload = matchedData(req);
@@ -168,6 +183,9 @@ export function getFavoriteSpecifically(req, res) {
     if (!errors.isEmpty()) {
         ValidationError(res, { unique_id: user_unique_id, text: "Validation Error Occured" }, errors.array())
     } else {
+        const total_records = await FAVORITES.count({ where: { user_unique_id, ...payload } });
+        const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
         FAVORITES.findOne({
             attributes: { exclude: ['id', 'user_unique_id', 'createdAt', 'status'] },
             where: {
@@ -185,12 +203,14 @@ export function getFavoriteSpecifically(req, res) {
                         }
                     ]
                 }
-            ]
+            ],
+            offset: pagination.start,
+            limit: pagination.limit
         }).then(favorite => {
             if (!favorite) {
                 NotFoundError(res, { unique_id: user_unique_id, text: "Favorite not found" }, null);
             } else {
-                SuccessResponse(res, { unique_id: user_unique_id, text: "Favorite loaded" }, favorite);
+                SuccessResponse(res, { unique_id: user_unique_id, text: "Favorite loaded" }, { ...favorite, pages: pagination.pages });
             }
         }).catch(err => {
             ServerError(res, { unique_id: user_unique_id, text: err.message }, null);

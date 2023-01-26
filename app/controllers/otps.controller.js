@@ -2,7 +2,7 @@ import { validationResult, matchedData } from 'express-validator';
 import { v4 as uuidv4 } from 'uuid';
 import moment from 'moment';
 import { ServerError, SuccessResponse, ValidationError, OtherSuccessResponse, NotFoundError, CreationSuccessResponse, BadRequestError, logger } from '../common/index.js';
-import { default_delete_status, default_status, false_status, random_numbers, tag_admin, true_status, validate_future_end_date } from '../config/config.js';
+import { default_delete_status, default_status, false_status, paginate, random_numbers, tag_admin, true_status, validate_future_end_date } from '../config/config.js';
 import db from "../models/index.js";
 
 const OTPS = db.otps;
@@ -10,7 +10,10 @@ const VENDORS = db.vendors;
 const VENDOR_USERS = db.vendor_users;
 const Op = db.Sequelize.Op;
 
-export function rootGetOtps(req, res) {
+export async function rootGetOtps(req, res) {
+    const total_records = await OTPS.count();
+    const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
     OTPS.findAndCountAll({
         attributes: { exclude: ['id'] },
         order: [
@@ -25,30 +28,34 @@ export function rootGetOtps(req, res) {
                 model: VENDOR_USERS,
                 attributes: ['firstname', 'middlename', 'lastname', 'email', 'mobile_number']
             }
-        ]
+        ],
+        offset: pagination.start,
+        limit: pagination.limit
     }).then(otps => {
         if (!otps || otps.length == 0) {
             SuccessResponse(res, { unique_id: tag_admin, text: "Otps Not found" }, []);
         } else {
-            SuccessResponse(res, { unique_id: tag_admin, text: "Otps loaded" }, otps);
+            SuccessResponse(res, { unique_id: tag_admin, text: "Otps loaded" }, { ...otps, pages: pagination.pages });
         }
     }).catch(err => {
         ServerError(res, { unique_id: tag_admin, text: err.message }, null);
     });
 };
 
-export function rootGetVendorOtps(req, res) {
+export async function rootGetVendorOtps(req, res) {
     const errors = validationResult(req);
     const payload = matchedData(req);
 
     if (!errors.isEmpty()) {
         ValidationError(res, { unique_id: tag_admin, text: "Validation Error Occured" }, errors.array())
-    }
-    else {
+    } else {
+        const total_records = await OTPS.count({ where: { ...payload } });
+        const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
         OTPS.findAndCountAll({
             attributes: { exclude: ['id'] },
             where : {
-                unique_id: payload.vendor_unique_id
+                ...payload
             },
             order: [
                 ['createdAt', 'DESC']
@@ -62,12 +69,14 @@ export function rootGetVendorOtps(req, res) {
                     model: VENDOR_USERS,
                     attributes: ['firstname', 'middlename', 'lastname', 'email', 'mobile_number']
                 }
-            ]
+            ],
+            offset: pagination.start,
+            limit: pagination.limit
         }).then(vendor_otps => {
             if (!vendor_otps || vendor_otps.length == 0) {
                 SuccessResponse(res, { unique_id: tag_admin, text: "Vendor Otps Not found" }, []);
             } else {
-                SuccessResponse(res, { unique_id: tag_admin, text: "Vendor Otps loaded" }, vendor_otps);
+                SuccessResponse(res, { unique_id: tag_admin, text: "Vendor Otps loaded" }, { ...vendor_otps, pages: pagination.pages });
             }
         }).catch(err => {
             ServerError(res, { unique_id: tag_admin, text: err.message }, null);
@@ -86,8 +95,7 @@ export function rootGetVendorOtpViaCode(req, res) {
         OTPS.findOne({
             attributes: { exclude: ['id'] },
             where: {
-                unique_id: payload.vendor_unique_id,
-                code: payload.code
+                ...payload
             },
             include: [
                 {
