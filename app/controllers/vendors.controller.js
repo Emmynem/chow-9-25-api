@@ -7,7 +7,7 @@ import {
     access_granted, access_revoked, access_suspended, default_delete_status, default_status, false_status, true_status, tag_admin, 
     platform_documents_path, platform_rename_document, cover_image_document_name, profile_image_document_name, save_platform_document_path, save_document_domain, 
     save_platform_document_dir, platform_join_path_and_file, platform_remove_unwanted_file, platform_remove_file, platform_documents_path_alt, 
-    file_length_5Mb, url_path_without_limits, check_user_route, strip_text, anonymous, super_admin_routes
+    file_length_5Mb, url_path_without_limits, check_user_route, strip_text, anonymous, super_admin_routes, paginate
 } from '../config/config.js';
 import db from "../models/index.js";
 
@@ -24,7 +24,10 @@ const Op = db.Sequelize.Op;
 
 const { existsSync, rmdirSync, rename } = fs;
 
-export function rootGetVendors(req, res) {
+export async function rootGetVendors(req, res) {
+    const total_records = await VENDORS.count();
+    const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
     VENDORS.findAndCountAll({
         attributes: { exclude: ['id'] },
         order: [
@@ -35,12 +38,14 @@ export function rootGetVendors(req, res) {
                 model: VENDOR_ACCOUNT,
                 attributes: ['balance', 'service_charge', 'updatedAt']
             }
-        ]
+        ],
+        offset: pagination.start,
+        limit: pagination.limit
     }).then(vendors => {
         if (!vendors || vendors.length == 0) {
             SuccessResponse(res, { unique_id: tag_admin, text: "Vendors Not found" }, []);
         } else {
-            SuccessResponse(res, { unique_id: tag_admin, text: "Vendors loaded" }, vendors);
+            SuccessResponse(res, { unique_id: tag_admin, text: "Vendors loaded" }, { ...vendors, pages: pagination.pages });
         }
     }).catch(err => {
         ServerError(res, { unique_id: tag_admin, text: err.message }, null);
@@ -77,13 +82,16 @@ export function rootGetVendor(req, res) {
     }
 };
 
-export function rootGetVendorsSpecifically(req, res) {
+export async function rootGetVendorsSpecifically(req, res) {
     const errors = validationResult(req);
     const payload = matchedData(req);
 
     if (!errors.isEmpty()) {
         ValidationError(res, { unique_id: tag_admin, text: "Validation Error Occured" }, errors.array())
     } else {
+        const total_records = await VENDORS.count({ where: { ...payload } });
+        const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
         VENDORS.findAndCountAll({
             attributes: { exclude: ['id'] },
             where: {
@@ -97,12 +105,14 @@ export function rootGetVendorsSpecifically(req, res) {
                     model: VENDOR_ACCOUNT,
                     attributes: ['balance', 'service_charge', 'updatedAt']
                 }
-            ]
+            ],
+            offset: pagination.start,
+            limit: pagination.limit
         }).then(vendors => {
             if (!vendors || vendors.length == 0) {
                 SuccessResponse(res, { unique_id: tag_admin, text: "Vendors Not found" }, []);
             } else {
-                SuccessResponse(res, { unique_id: tag_admin, text: "Vendors loaded" }, vendors);
+                SuccessResponse(res, { unique_id: tag_admin, text: "Vendors loaded" }, { ...vendors, pages: pagination.pages });
             }
         }).catch(err => {
             ServerError(res, { unique_id: tag_admin, text: err.message }, null);
@@ -110,13 +120,27 @@ export function rootGetVendorsSpecifically(req, res) {
     }
 };
 
-export function rootSearchVendors(req, res) {
+export async function rootSearchVendors(req, res) {
     const errors = validationResult(req);
     const payload = matchedData(req);
 
     if (!errors.isEmpty()) {
         ValidationError(res, { unique_id: tag_admin, text: "Validation Error Occured" }, errors.array())
     } else {
+        const total_records = await VENDORS.count({ 
+            where: {
+                name: {
+                    [Op.or]: {
+                        [Op.like]: `%${payload.search}`,
+                        [Op.startsWith]: `${payload.search}`,
+                        [Op.endsWith]: `${payload.search}`,
+                        [Op.substring]: `${payload.search}`,
+                    }
+                }
+            }
+        });
+        const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
         VENDORS.findAndCountAll({
             attributes: { exclude: ['id'] },
             where: {
@@ -138,12 +162,14 @@ export function rootSearchVendors(req, res) {
                     model: VENDOR_ACCOUNT,
                     attributes: ['balance', 'service_charge', 'updatedAt']
                 }
-            ]
+            ],
+            offset: pagination.start,
+            limit: pagination.limit
         }).then(vendors => {
             if (!vendors || vendors.length == 0) {
                 SuccessResponse(res, { unique_id: tag_admin, text: "Vendors Not found" }, []);
             } else {
-                SuccessResponse(res, { unique_id: tag_admin, text: "Vendors loaded" }, vendors);
+                SuccessResponse(res, { unique_id: tag_admin, text: "Vendors loaded" }, { ...vendors, pages: pagination.pages });
             }
         }).catch(err => {
             ServerError(res, { unique_id: tag_admin, text: err.message }, null);
@@ -151,13 +177,28 @@ export function rootSearchVendors(req, res) {
     }
 };
 
-export function searchVendors(req, res) {
+export async function searchVendors(req, res) {
     const errors = validationResult(req);
     const payload = matchedData(req);
 
     if (!errors.isEmpty()) {
         ValidationError(res, { unique_id: anonymous, text: "Validation Error Occured" }, errors.array())
     } else {
+        const total_records = await VENDORS.count({ 
+            where: {
+                name: {
+                    [Op.or]: {
+                        [Op.like]: `%${payload.search}`,
+                        [Op.startsWith]: `${payload.search}`,
+                        [Op.endsWith]: `${payload.search}`,
+                        [Op.substring]: `${payload.search}`,
+                    }
+                },
+                status: default_status
+            }
+        });
+        const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
         VENDORS.findAndCountAll({
             attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'verification'],
             where: {
@@ -175,11 +216,13 @@ export function searchVendors(req, res) {
                 ['name', 'ASC'],
                 ['createdAt', 'DESC']
             ],
+            offset: pagination.start,
+            limit: pagination.limit
         }).then(vendors => {
             if (!vendors || vendors.length == 0) {
                 SuccessResponse(res, { unique_id: anonymous, text: "Vendors Not found" }, []);
             } else {
-                SuccessResponse(res, { unique_id: anonymous, text: "Vendors loaded" }, vendors);
+                SuccessResponse(res, { unique_id: anonymous, text: "Vendors loaded" }, { ...vendors, pages: pagination.pages });
             }
         }).catch(err => {
             ServerError(res, { unique_id: anonymous, text: err.message }, null);

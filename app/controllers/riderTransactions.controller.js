@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { ServerError, SuccessResponse, ValidationError, OtherSuccessResponse, NotFoundError, CreationSuccessResponse, BadRequestError, logger } from '../common/index.js';
 import {
     default_delete_status, default_status, tag_admin, true_status, false_status, debt, processing, vendor_payment_methods, 
-    currency, withdrawal, max_debt, cancelled, completed, anonymous
+    currency, withdrawal, max_debt, cancelled, completed, anonymous, paginate
 } from '../config/config.js';
 import db from "../models/index.js";
 
@@ -14,7 +14,10 @@ const RIDER_BANK_ACCOUNTS = db.rider_bank_accounts;
 const APP_DEFAULTS = db.app_defaults;
 const Op = db.Sequelize.Op;
 
-export function rootGetRidersTransactions(req, res) {
+export async function rootGetRidersTransactions(req, res) {
+    const total_records = await RIDER_TRANSACTIONS.count();
+    const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
     RIDER_TRANSACTIONS.findAndCountAll({
         attributes: { exclude: ['id'] },
         order: [
@@ -25,12 +28,14 @@ export function rootGetRidersTransactions(req, res) {
                 model: RIDERS,
                 attributes: ['firstname', 'middlename', 'lastname', 'email', 'mobile_number', 'profile_image', 'verification', 'availability']
             }
-        ]
+        ],
+        offset: pagination.start,
+        limit: pagination.limit
     }).then(rider_transactions => {
         if (!rider_transactions || rider_transactions.length == 0) {
             SuccessResponse(res, { unique_id: tag_admin, text: "Transactions Not found" }, []);
         } else {
-            SuccessResponse(res, { unique_id: tag_admin, text: "Transactions loaded" }, rider_transactions);
+            SuccessResponse(res, { unique_id: tag_admin, text: "Transactions loaded" }, { ...rider_transactions, pages: pagination.pages });
         }
     }).catch(err => {
         ServerError(res, { unique_id: tag_admin, text: err.message }, null);
@@ -67,13 +72,16 @@ export function rootGetRiderTransaction(req, res) {
     }
 };
 
-export function rootGetRidersTransactionsSpecifically(req, res) {
+export async function rootGetRidersTransactionsSpecifically(req, res) {
     const errors = validationResult(req);
     const payload = matchedData(req);
 
     if (!errors.isEmpty()) {
         ValidationError(res, { unique_id: tag_admin, text: "Validation Error Occured" }, errors.array())
     } else {
+        const total_records = await RIDER_TRANSACTIONS.count({ where: { ...payload } });
+        const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
         RIDER_TRANSACTIONS.findAndCountAll({
             attributes: { exclude: ['id'] },
             where: {
@@ -87,12 +95,14 @@ export function rootGetRidersTransactionsSpecifically(req, res) {
                     model: RIDERS,
                     attributes: ['firstname', 'middlename', 'lastname', 'email', 'mobile_number', 'profile_image', 'verification', 'availability']
                 }
-            ]
+            ],
+            offset: pagination.start,
+            limit: pagination.limit
         }).then(rider_transactions => {
             if (!rider_transactions || rider_transactions.length == 0) {
                 SuccessResponse(res, { unique_id: tag_admin, text: "Transactions Not found" }, []);
             } else {
-                SuccessResponse(res, { unique_id: tag_admin, text: "Transactions loaded" }, rider_transactions);
+                SuccessResponse(res, { unique_id: tag_admin, text: "Transactions loaded" }, { ...rider_transactions, pages: pagination.pages });
             }
         }).catch(err => {
             ServerError(res, { unique_id: tag_admin, text: err.message }, null);
@@ -100,8 +110,11 @@ export function rootGetRidersTransactionsSpecifically(req, res) {
     }
 };
 
-export function getRiderTransactions(req, res) {
+export async function getRiderTransactions(req, res) {
     const rider_unique_id = req.RIDER_UNIQUE_ID;
+
+    const total_records = await RIDER_TRANSACTIONS.count({ where: { rider_unique_id, status: default_status } });
+    const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
 
     RIDER_TRANSACTIONS.findAndCountAll({
         attributes: { exclude: ['id', 'rider_unique_id', 'status'] },
@@ -111,12 +124,14 @@ export function getRiderTransactions(req, res) {
         },
         order: [
             ['createdAt', 'DESC']
-        ]
+        ],
+        offset: pagination.start,
+        limit: pagination.limit
     }).then(rider_transactions => {
         if (!rider_transactions || rider_transactions.length == 0) {
             SuccessResponse(res, { unique_id: rider_unique_id, text: "Transactions Not found" }, []);
         } else {
-            SuccessResponse(res, { unique_id: rider_unique_id, text: "Transactions loaded" }, rider_transactions);
+            SuccessResponse(res, { unique_id: rider_unique_id, text: "Transactions loaded" }, { ...rider_transactions, pages: pagination.pages });
         }
     }).catch(err => {
         ServerError(res, { unique_id: rider_unique_id, text: err.message }, null);

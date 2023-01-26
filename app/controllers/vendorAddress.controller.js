@@ -1,7 +1,7 @@
 import { validationResult, matchedData } from 'express-validator';
 import { v4 as uuidv4 } from 'uuid';
 import { ServerError, SuccessResponse, ValidationError, OtherSuccessResponse, NotFoundError, CreationSuccessResponse, BadRequestError, logger } from '../common/index.js';
-import { default_delete_status, default_status, tag_admin, url_path_without_limits, check_user_route } from '../config/config.js';
+import { default_delete_status, default_status, tag_admin, url_path_without_limits, check_user_route, paginate } from '../config/config.js';
 import db from "../models/index.js";
 
 const VENDOR_ADDRESS = db.vendor_address;
@@ -9,7 +9,10 @@ const VENDORS = db.vendors;
 const VENDOR_USERS = db.vendor_users;
 const Op = db.Sequelize.Op;
 
-export function rootGetVendorsAddress(req, res) {
+export async function rootGetVendorsAddress(req, res) {
+    const total_records = await VENDOR_ADDRESS.count();
+    const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
     VENDOR_ADDRESS.findAndCountAll({
         attributes: { exclude: ['id'] },
         order: [
@@ -20,25 +23,30 @@ export function rootGetVendorsAddress(req, res) {
                 model: VENDORS,
                 attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'pro']
             }
-        ]
+        ],
+        offset: pagination.start,
+        limit: pagination.limit
     }).then(vendors_address => {
         if (!vendors_address || vendors_address.length == 0) {
             SuccessResponse(res, { unique_id: tag_admin, text: "Vendors Address Not found" }, []);
         } else {
-            SuccessResponse(res, { unique_id: tag_admin, text: "Vendors Address loaded" }, vendors_address);
+            SuccessResponse(res, { unique_id: tag_admin, text: "Vendors Address loaded" }, { ...vendors_address, pages: pagination.pages });
         }
     }).catch(err => {
         ServerError(res, { unique_id: tag_admin, text: err.message }, null);
     });
 };
 
-export function rootGetVendorsAddressSpecifically(req, res) {
+export async function rootGetVendorsAddressSpecifically(req, res) {
     const errors = validationResult(req);
     const payload = matchedData(req);
 
     if (!errors.isEmpty()) {
         ValidationError(res, { unique_id: tag_admin, text: "Validation Error Occured" }, errors.array())
     } else {
+        const total_records = await VENDOR_ADDRESS.count({ where: { ...payload } });
+        const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
         VENDOR_ADDRESS.findAndCountAll({
             attributes: { exclude: ['id'] },
             where: {
@@ -52,12 +60,14 @@ export function rootGetVendorsAddressSpecifically(req, res) {
                     model: VENDORS,
                     attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'pro']
                 }
-            ]
+            ],
+            offset: pagination.start,
+            limit: pagination.limit
         }).then(vendors_address => {
             if (!vendors_address || vendors_address.length == 0) {
                 SuccessResponse(res, { unique_id: tag_admin, text: "Vendors Address Not found" }, []);
             } else {
-                SuccessResponse(res, { unique_id: tag_admin, text: "Vendors Address loaded" }, vendors_address);
+                SuccessResponse(res, { unique_id: tag_admin, text: "Vendors Address loaded" }, { ...vendors_address, pages: pagination.pages });
             }
         }).catch(err => {
             ServerError(res, { unique_id: tag_admin, text: err.message }, null);

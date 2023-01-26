@@ -1,7 +1,7 @@
 import { validationResult, matchedData } from 'express-validator';
 import { v4 as uuidv4 } from 'uuid';
 import { ServerError, SuccessResponse, ValidationError, OtherSuccessResponse, NotFoundError, CreationSuccessResponse, BadRequestError, logger } from '../common/index.js';
-import { default_delete_status, default_status, tag_admin, url_path_without_limits, check_user_route, true_status, false_status } from '../config/config.js';
+import { default_delete_status, default_status, tag_admin, url_path_without_limits, check_user_route, true_status, false_status, paginate } from '../config/config.js';
 import db from "../models/index.js";
 
 const VENDOR_BANK_ACCOUNTS = db.vendor_bank_accounts;
@@ -9,7 +9,10 @@ const VENDORS = db.vendors;
 const VENDOR_USERS = db.vendor_users;
 const Op = db.Sequelize.Op;
 
-export function rootGetVendorsBankAccounts(req, res) {
+export async function rootGetVendorsBankAccounts(req, res) {
+    const total_records = await VENDOR_BANK_ACCOUNTS.count();
+    const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
     VENDOR_BANK_ACCOUNTS.findAndCountAll({
         attributes: { exclude: ['id'] },
         order: [
@@ -20,25 +23,30 @@ export function rootGetVendorsBankAccounts(req, res) {
                 model: VENDORS,
                 attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'pro']
             }
-        ]
+        ],
+        offset: pagination.start,
+        limit: pagination.limit
     }).then(vendors_bank_accounts => {
         if (!vendors_bank_accounts || vendors_bank_accounts.length == 0) {
             SuccessResponse(res, { unique_id: tag_admin, text: "Vendors Bank Accounts Not found" }, []);
         } else {
-            SuccessResponse(res, { unique_id: tag_admin, text: "Vendors Bank Accounts loaded" }, vendors_bank_accounts);
+            SuccessResponse(res, { unique_id: tag_admin, text: "Vendors Bank Accounts loaded" }, { ...vendors_bank_accounts, pages: pagination.pages });
         }
     }).catch(err => {
         ServerError(res, { unique_id: tag_admin, text: err.message }, null);
     });
 };
 
-export function rootGetVendorsBankAccountsSpecifically(req, res) {
+export async function rootGetVendorsBankAccountsSpecifically(req, res) {
     const errors = validationResult(req);
     const payload = matchedData(req);
 
     if (!errors.isEmpty()) {
         ValidationError(res, { unique_id: tag_admin, text: "Validation Error Occured" }, errors.array())
     } else {
+        const total_records = await VENDOR_BANK_ACCOUNTS.count({ where: { ...payload } });
+        const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
         VENDOR_BANK_ACCOUNTS.findAndCountAll({
             attributes: { exclude: ['id'] },
             where: {
@@ -52,12 +60,14 @@ export function rootGetVendorsBankAccountsSpecifically(req, res) {
                     model: VENDORS,
                     attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'pro']
                 }
-            ]
+            ],
+            offset: pagination.start,
+            limit: pagination.limit
         }).then(vendors_bank_accounts => {
             if (!vendors_bank_accounts || vendors_bank_accounts.length == 0) {
                 SuccessResponse(res, { unique_id: tag_admin, text: "Vendor Bank Accounts Not found" }, []);
             } else {
-                SuccessResponse(res, { unique_id: tag_admin, text: "Vendor Bank Accounts loaded" }, vendors_bank_accounts);
+                SuccessResponse(res, { unique_id: tag_admin, text: "Vendor Bank Accounts loaded" }, { ...vendors_bank_accounts, pages: pagination.pages });
             }
         }).catch(err => {
             ServerError(res, { unique_id: tag_admin, text: err.message }, null);
@@ -65,7 +75,10 @@ export function rootGetVendorsBankAccountsSpecifically(req, res) {
     }
 };
 
-export function rootGetDefaultVendorsBankAccounts(req, res) {
+export async function rootGetDefaultVendorsBankAccounts(req, res) {
+    const total_records = await VENDOR_BANK_ACCOUNTS.count({ where: { default_bank: true_status } });
+    const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
     VENDOR_BANK_ACCOUNTS.findAndCountAll({
         attributes: { exclude: ['id'] },
         where: {
@@ -79,12 +92,14 @@ export function rootGetDefaultVendorsBankAccounts(req, res) {
                 model: VENDORS,
                 attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'pro']
             }
-        ]
+        ],
+        offset: pagination.start,
+        limit: pagination.limit
     }).then(vendors_bank_accounts => {
         if (!vendors_bank_accounts || vendors_bank_accounts.length == 0) {
             SuccessResponse(res, { unique_id: tag_admin, text: "Vendors Bank Accounts Not found" }, []);
         } else {
-            SuccessResponse(res, { unique_id: tag_admin, text: "Vendors Bank Accounts loaded" }, vendors_bank_accounts);
+            SuccessResponse(res, { unique_id: tag_admin, text: "Vendors Bank Accounts loaded" }, { ...vendors_bank_accounts, pages: pagination.pages });
         }
     }).catch(err => {
         ServerError(res, { unique_id: tag_admin, text: err.message }, null);
@@ -106,6 +121,9 @@ export async function getVendorBankAccounts(req, res) {
     if (!check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
         BadRequestError(res, { unique_id: vendor_unique_id, text: "You don't have access to perform this action!" }, null);
     } else {
+        const total_records = await VENDOR_BANK_ACCOUNTS.count({ where: { vendor_unique_id } });
+        const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
         VENDOR_BANK_ACCOUNTS.findAndCountAll({
             attributes: { exclude: ['id', 'vendor_unique_id'] },
             where: {
@@ -113,12 +131,14 @@ export async function getVendorBankAccounts(req, res) {
             },
             order: [
                 ['createdAt', 'DESC']
-            ]
+            ],
+            offset: pagination.start,
+            limit: pagination.limit
         }).then(vendor_bank_accounts => {
             if (!vendor_bank_accounts || vendor_bank_accounts.length == 0) {
                 SuccessResponse(res, { unique_id: vendor_unique_id, text: "Vendor Bank Accounts Not found" }, []);
             } else {
-                SuccessResponse(res, { unique_id: vendor_unique_id, text: "Vendor Bank Accounts loaded" }, vendor_bank_accounts);
+                SuccessResponse(res, { unique_id: vendor_unique_id, text: "Vendor Bank Accounts loaded" }, { ...vendor_bank_accounts, pages: pagination.pages });
             }
         }).catch(err => {
             ServerError(res, { unique_id: vendor_unique_id, text: err.message }, null);

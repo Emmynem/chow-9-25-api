@@ -1,7 +1,7 @@
 import { validationResult, matchedData } from 'express-validator';
 import { v4 as uuidv4 } from 'uuid';
 import { ServerError, SuccessResponse, ValidationError, OtherSuccessResponse, NotFoundError, CreationSuccessResponse, BadRequestError, logger } from '../common/index.js';
-import { default_delete_status, default_status, tag_admin, true_status, false_status, anonymous } from '../config/config.js';
+import { default_delete_status, default_status, tag_admin, true_status, false_status, anonymous, paginate } from '../config/config.js';
 import db from "../models/index.js";
 
 const RIDER_SHIPPING = db.rider_shipping;
@@ -12,7 +12,10 @@ const VENDORS = db.vendors;
 const VENDOR_ADDRESS = db.vendor_address;
 const Op = db.Sequelize.Op;
 
-export function rootGetRidersShipping(req, res) {
+export async function rootGetRidersShipping(req, res) {
+    const total_records = await RIDER_SHIPPING.count();
+    const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
     RIDER_SHIPPING.findAndCountAll({
         attributes: { exclude: ['id'] },
         order: [
@@ -23,12 +26,14 @@ export function rootGetRidersShipping(req, res) {
                 model: RIDERS,
                 attributes: ['firstname', 'middlename', 'lastname', 'email', 'mobile_number', 'verification', 'profile_image']
             }
-        ]
+        ],
+        offset: pagination.start,
+        limit: pagination.limit
     }).then(riders_shipping => {
         if (!riders_shipping || riders_shipping.length == 0) {
             SuccessResponse(res, { unique_id: tag_admin, text: "Riders Shipping Not found" }, []);
         } else {
-            SuccessResponse(res, { unique_id: tag_admin, text: "Riders Shipping loaded" }, riders_shipping);
+            SuccessResponse(res, { unique_id: tag_admin, text: "Riders Shipping loaded" }, { ...riders_shipping, pages: pagination.pages });
         }
     }).catch(err => {
         ServerError(res, { unique_id: tag_admin, text: err.message }, null);
@@ -65,13 +70,16 @@ export function rootGetRiderShipping(req, res) {
     }
 };
 
-export function rootGetRiderShippingSpecifically(req, res) {
+export async function rootGetRiderShippingSpecifically(req, res) {
     const errors = validationResult(req);
     const payload = matchedData(req);
 
     if (!errors.isEmpty()) {
         ValidationError(res, { unique_id: tag_admin, text: "Validation Error Occured" }, errors.array())
     } else {
+        const total_records = await RIDER_SHIPPING.count({ where: { ...payload } });
+        const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
         RIDER_SHIPPING.findAndCountAll({
             attributes: { exclude: ['id'] },
             where: {
@@ -85,12 +93,14 @@ export function rootGetRiderShippingSpecifically(req, res) {
                     model: RIDERS,
                     attributes: ['firstname', 'middlename', 'lastname', 'email', 'mobile_number', 'verification', 'profile_image']
                 }
-            ]
+            ],
+            offset: pagination.start,
+            limit: pagination.limit
         }).then(riders_shipping => {
             if (!riders_shipping || riders_shipping.length == 0) {
                 SuccessResponse(res, { unique_id: tag_admin, text: "Rider Shipping Not found" }, []);
             } else {
-                SuccessResponse(res, { unique_id: tag_admin, text: "Rider Shipping loaded" }, riders_shipping);
+                SuccessResponse(res, { unique_id: tag_admin, text: "Rider Shipping loaded" }, { ...riders_shipping, pages: pagination.pages });
             }
         }).catch(err => {
             ServerError(res, { unique_id: tag_admin, text: err.message }, null);
@@ -336,8 +346,11 @@ export async function getProductShipping(req, res) {
     }
 };
 
-export function getRiderShippings(req, res) {
+export async function getRiderShippings(req, res) {
     const rider_unique_id = req.RIDER_UNIQUE_ID;
+
+    const total_records = await RIDER_SHIPPING.count({ where: { rider_unique_id } });
+    const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
 
     RIDER_SHIPPING.findAndCountAll({
         attributes: { exclude: ['id', 'rider_unique_id', 'status', 'createdAt'] },
@@ -346,12 +359,14 @@ export function getRiderShippings(req, res) {
         },
         order: [
             ['createdAt', 'DESC']
-        ]
+        ],
+        offset: pagination.start,
+        limit: pagination.limit
     }).then(rider_shipping => {
         if (!rider_shipping || rider_shipping.length == 0) {
             SuccessResponse(res, { unique_id: rider_unique_id, text: "Rider Shipping Not found" }, []);
         } else {
-            SuccessResponse(res, { unique_id: rider_unique_id, text: "Rider Shipping loaded" }, rider_shipping);
+            SuccessResponse(res, { unique_id: rider_unique_id, text: "Rider Shipping loaded" }, { ...rider_shipping, pages: pagination.pages });
         }
     }).catch(err => {
         ServerError(res, { unique_id: rider_unique_id, text: err.message }, null);

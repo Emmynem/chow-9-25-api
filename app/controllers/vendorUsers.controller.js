@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { ServerError, SuccessResponse, CreationSuccessResponse, ValidationError, OtherSuccessResponse, NotFoundError, BadRequestError, logger } from '../common/index.js';
 import { 
     access_granted, access_revoked, access_suspended, default_delete_status, default_status, false_status, true_status, tag_admin, super_admin_routes,
-    url_path_without_limits, check_user_route 
+    url_path_without_limits, check_user_route, paginate 
 } from '../config/config.js';
 import db from "../models/index.js";
 
@@ -11,7 +11,10 @@ const VENDORS = db.vendors;
 const VENDOR_USERS = db.vendor_users;
 const Op = db.Sequelize.Op;
 
-export function rootGetVendorUsers(req, res) {
+export async function rootGetVendorUsers(req, res) {
+    const total_records = await VENDOR_USERS.count();
+    const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
     VENDOR_USERS.findAndCountAll({
         attributes: { exclude: ['id'] },
         order: [
@@ -22,12 +25,14 @@ export function rootGetVendorUsers(req, res) {
                 model: VENDORS,
                 attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'pro', 'verification']
             }
-        ]
+        ],
+        offset: pagination.start,
+        limit: pagination.limit
     }).then(vendor_users => {
         if (!vendor_users || vendor_users.length == 0) {
             SuccessResponse(res, { unique_id: tag_admin, text: "Vendor Users Not found" }, []);
         } else {
-            SuccessResponse(res, { unique_id: tag_admin, text: "Vendor Users loaded" }, vendor_users);
+            SuccessResponse(res, { unique_id: tag_admin, text: "Vendor Users loaded" }, { ...vendor_users, pages: pagination.pages });
         }
     }).catch(err => {
         ServerError(res, { unique_id: tag_admin, text: err.message }, null);
@@ -64,13 +69,81 @@ export function rootGetVendorUser(req, res) {
     }
 };
 
-export function rootSearchVendorUsers(req, res) {
+export async function rootSearchVendorUsers(req, res) {
     const errors = validationResult(req);
     const payload = matchedData(req);
 
     if (!errors.isEmpty()) {
         ValidationError(res, { unique_id: tag_admin, text: "Validation Error Occured" }, errors.array())
     } else {
+        const total_records = await VENDOR_USERS.count({
+            where: {
+                [Op.or]: [
+                    {
+                        firstname: {
+                            [Op.or]: {
+                                [Op.like]: `%${payload.search}`,
+                                [Op.startsWith]: `${payload.search}`,
+                                [Op.endsWith]: `${payload.search}`,
+                                [Op.substring]: `${payload.search}`,
+                            }
+                        }
+                    },
+                    {
+                        lastname: {
+                            [Op.or]: {
+                                [Op.like]: `%${payload.search}`,
+                                [Op.startsWith]: `${payload.search}`,
+                                [Op.endsWith]: `${payload.search}`,
+                                [Op.substring]: `${payload.search}`,
+                            }
+                        }
+                    },
+                    {
+                        middlename: {
+                            [Op.or]: {
+                                [Op.like]: `%${payload.search}`,
+                                [Op.startsWith]: `${payload.search}`,
+                                [Op.endsWith]: `${payload.search}`,
+                                [Op.substring]: `${payload.search}`,
+                            }
+                        }
+                    },
+                    {
+                        email: {
+                            [Op.or]: {
+                                [Op.like]: `%${payload.search}`,
+                                [Op.startsWith]: `${payload.search}`,
+                                [Op.endsWith]: `${payload.search}`,
+                                [Op.substring]: `${payload.search}`,
+                            }
+                        }
+                    },
+                    {
+                        mobile_number: {
+                            [Op.or]: {
+                                [Op.like]: `%${payload.search}`,
+                                [Op.startsWith]: `${payload.search}`,
+                                [Op.endsWith]: `${payload.search}`,
+                                [Op.substring]: `${payload.search}`,
+                            }
+                        }
+                    },
+                    {
+                        gender: {
+                            [Op.or]: {
+                                [Op.like]: `%${payload.search}`,
+                                [Op.startsWith]: `${payload.search}`,
+                                [Op.endsWith]: `${payload.search}`,
+                                [Op.substring]: `${payload.search}`,
+                            }
+                        }
+                    }
+                ]
+            }
+        });
+        const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
         VENDOR_USERS.findAndCountAll({
             attributes: { exclude: ['id'] },
             where: {
@@ -145,12 +218,14 @@ export function rootSearchVendorUsers(req, res) {
                     model: VENDORS,
                     attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'pro', 'verification']
                 }
-            ]
+            ],
+            offset: pagination.start,
+            limit: pagination.limit
         }).then(vendor_users => {
             if (!vendor_users || vendor_users.length == 0) {
                 SuccessResponse(res, { unique_id: tag_admin, text: "Vendor Users Not found" }, []);
             } else {
-                SuccessResponse(res, { unique_id: tag_admin, text: "Vendor Users loaded" }, vendor_users);
+                SuccessResponse(res, { unique_id: tag_admin, text: "Vendor Users loaded" }, { ...vendor_users, pages: pagination.pages });
             }
         }).catch(err => {
             ServerError(res, { unique_id: tag_admin, text: err.message }, null);
@@ -173,6 +248,19 @@ export async function getVendorUsers(req, res) {
     if (!check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
         BadRequestError(res, { unique_id: vendor_unique_id, text: "You don't have access to perform this action!" }, null);
     } else {
+        const total_records = await VENDOR_USERS.count({
+            where: {
+                vendor_unique_id,
+                unique_id: {
+                    [Op.ne]: vendor_user_unique_id
+                },
+                routes: {
+                    [Op.ne]: super_admin_routes
+                }
+            }
+        });
+        const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
         VENDOR_USERS.findAndCountAll({
             attributes: { exclude: ['id', 'vendor_unique_id'] },
             where: {
@@ -186,12 +274,14 @@ export async function getVendorUsers(req, res) {
             },
             order: [
                 ['createdAt', 'DESC']
-            ]
+            ],
+            offset: pagination.start,
+            limit: pagination.limit
         }).then(vendor_users => {
             if (!vendor_users || vendor_users.length == 0) {
                 SuccessResponse(res, { unique_id: vendor_unique_id, text: "Vendor Users Not found" }, []);
             } else {
-                SuccessResponse(res, { unique_id: vendor_unique_id, text: "Vendor Users loaded" }, vendor_users);
+                SuccessResponse(res, { unique_id: vendor_unique_id, text: "Vendor Users loaded" }, { ...vendor_users, pages: pagination.pages });
             }
         }).catch(err => {
             ServerError(res, { unique_id: vendor_unique_id, text: err.message }, null);

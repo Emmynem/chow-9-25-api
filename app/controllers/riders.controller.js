@@ -6,7 +6,7 @@ import {
     access_granted, access_revoked, access_suspended, default_delete_status, default_status, false_status, true_status, 
     tag_admin, user_documents_path, user_rename_document, profile_image_document_name, save_user_document_path, save_document_domain,
     save_user_document_dir, user_join_path_and_file, user_remove_unwanted_file, user_remove_file, user_documents_path_alt, file_length_5Mb,
-    super_admin_routes, url_path_without_limits, check_user_route
+    super_admin_routes, url_path_without_limits, check_user_route, paginate
 } from '../config/config.js';
 import db from "../models/index.js";
 
@@ -20,7 +20,10 @@ const Op = db.Sequelize.Op;
 
 const { existsSync, rmdirSync, rename } = fs;
 
-export function rootGetRiders(req, res) {
+export async function rootGetRiders(req, res) {
+    const total_records = await RIDERS.count();
+    const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
     RIDERS.findAndCountAll({
         attributes: { exclude: ['rider_private', 'id'] },
         order: [
@@ -35,12 +38,14 @@ export function rootGetRiders(req, res) {
                 model: RIDER_ACCOUNT,
                 attributes: ['balance', 'service_charge', 'updatedAt']
             }
-        ]
+        ],
+        offset: pagination.start,
+        limit: pagination.limit
     }).then(riders => {
         if (!riders || riders.length == 0) {
             SuccessResponse(res, { unique_id: tag_admin, text: "Riders Not found" }, []);
         } else {
-            SuccessResponse(res, { unique_id: tag_admin, text: "Riders loaded" }, riders);
+            SuccessResponse(res, { unique_id: tag_admin, text: "Riders loaded" }, { ...riders, pages: pagination.pages });
         }
     }).catch(err => {
         ServerError(res, { unique_id: tag_admin, text: err.message }, null);
@@ -81,13 +86,91 @@ export function rootGetRider(req, res) {
     }
 };
 
-export function rootSearchRiders(req, res) {
+export async function rootSearchRiders(req, res) {
     const errors = validationResult(req);
     const payload = matchedData(req);
 
     if (!errors.isEmpty()) {
         ValidationError(res, { unique_id: tag_admin, text: "Validation Error Occured" }, errors.array())
     } else {
+        const total_records = await RIDERS.count({
+            where: {
+                [Op.or]: [
+                    {
+                        firstname: {
+                            [Op.or]: {
+                                [Op.like]: `%${payload.search}`,
+                                [Op.startsWith]: `${payload.search}`,
+                                [Op.endsWith]: `${payload.search}`,
+                                [Op.substring]: `${payload.search}`,
+                            }
+                        }
+                    },
+                    {
+                        lastname: {
+                            [Op.or]: {
+                                [Op.like]: `%${payload.search}`,
+                                [Op.startsWith]: `${payload.search}`,
+                                [Op.endsWith]: `${payload.search}`,
+                                [Op.substring]: `${payload.search}`,
+                            }
+                        }
+                    },
+                    {
+                        middlename: {
+                            [Op.or]: {
+                                [Op.like]: `%${payload.search}`,
+                                [Op.startsWith]: `${payload.search}`,
+                                [Op.endsWith]: `${payload.search}`,
+                                [Op.substring]: `${payload.search}`,
+                            }
+                        }
+                    },
+                    {
+                        email: {
+                            [Op.or]: {
+                                [Op.like]: `%${payload.search}`,
+                                [Op.startsWith]: `${payload.search}`,
+                                [Op.endsWith]: `${payload.search}`,
+                                [Op.substring]: `${payload.search}`,
+                            }
+                        }
+                    },
+                    {
+                        mobile_number: {
+                            [Op.or]: {
+                                [Op.like]: `%${payload.search}`,
+                                [Op.startsWith]: `${payload.search}`,
+                                [Op.endsWith]: `${payload.search}`,
+                                [Op.substring]: `${payload.search}`,
+                            }
+                        }
+                    },
+                    {
+                        gender: {
+                            [Op.or]: {
+                                [Op.like]: `%${payload.search}`,
+                                [Op.startsWith]: `${payload.search}`,
+                                [Op.endsWith]: `${payload.search}`,
+                                [Op.substring]: `${payload.search}`,
+                            }
+                        }
+                    },
+                    {
+                        dob: {
+                            [Op.or]: {
+                                [Op.like]: `%${payload.search}`,
+                                [Op.startsWith]: `${payload.search}`,
+                                [Op.endsWith]: `${payload.search}`,
+                                [Op.substring]: `${payload.search}`,
+                            }
+                        }
+                    }
+                ]
+            }
+        });
+        const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
         RIDERS.findAndCountAll({
             attributes: { exclude: ['rider_private', 'id'] },
             where: {
@@ -179,12 +262,14 @@ export function rootSearchRiders(req, res) {
                     model: RIDER_ACCOUNT,
                     attributes: ['balance', 'service_charge', 'updatedAt']
                 }
-            ]
+            ],
+            offset: pagination.start,
+            limit: pagination.limit
         }).then(riders => {
             if (!riders || riders.length == 0) {
                 SuccessResponse(res, { unique_id: tag_admin, text: "Riders Not found" }, []);
             } else {
-                SuccessResponse(res, { unique_id: tag_admin, text: "Riders loaded" }, riders);
+                SuccessResponse(res, { unique_id: tag_admin, text: "Riders loaded" }, { ...riders, pages: pagination.pages });
             }
         }).catch(err => {
             ServerError(res, { unique_id: tag_admin, text: err.message }, null);
@@ -207,6 +292,9 @@ export async function getVendorRiders(req, res) {
     if (!check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
         BadRequestError(res, { unique_id: vendor_unique_id, text: "You don't have access to perform this action!" }, null);
     } else {
+        const total_records = await RIDERS.count({ where: { vendor_unique_id } });
+        const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
         RIDERS.findAndCountAll({
             attributes: { exclude: ['rider_private', 'id', 'profile_image_base_url', 'profile_image_dir', 'profile_image_file', 'profile_image_size', 'method'] },
             where: {
@@ -214,12 +302,14 @@ export async function getVendorRiders(req, res) {
             },
             order: [
                 ['createdAt', 'DESC']
-            ]
+            ],
+            offset: pagination.start,
+            limit: pagination.limit
         }).then(riders => {
             if (!riders || riders.length == 0) {
                 SuccessResponse(res, { unique_id: vendor_unique_id, text: "Riders Not found" }, []);
             } else {
-                SuccessResponse(res, { unique_id: vendor_unique_id, text: "Riders loaded" }, riders);
+                SuccessResponse(res, { unique_id: vendor_unique_id, text: "Riders loaded" }, { ...riders, pages: pagination.pages });
             }
         }).catch(err => {
             ServerError(res, { unique_id: vendor_unique_id, text: err.message }, null);

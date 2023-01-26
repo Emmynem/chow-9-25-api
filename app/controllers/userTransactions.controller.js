@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { ServerError, SuccessResponse, ValidationError, OtherSuccessResponse, NotFoundError, CreationSuccessResponse, BadRequestError, logger } from '../common/index.js';
 import {
     default_delete_status, default_status, tag_admin, true_status, false_status, deposit, processing, user_payment_methods,
-    currency, withdrawal, cancelled, completed, anonymous
+    currency, withdrawal, cancelled, completed, anonymous, paginate
 } from '../config/config.js';
 import db from "../models/index.js";
 
@@ -12,7 +12,10 @@ const USERS = db.users;
 const USER_ACCOUNT = db.user_account;
 const Op = db.Sequelize.Op;
 
-export function rootGetUsersTransactions(req, res) {
+export async function rootGetUsersTransactions(req, res) {
+    const total_records = await USER_TRANSACTIONS.count();
+    const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
     USER_TRANSACTIONS.findAndCountAll({
         attributes: { exclude: ['id'] },
         order: [
@@ -23,12 +26,14 @@ export function rootGetUsersTransactions(req, res) {
                 model: USERS,
                 attributes: ['firstname', 'middlename', 'lastname', 'email', 'mobile_number', 'profile_image']
             }
-        ]
+        ],
+        offset: pagination.start,
+        limit: pagination.limit
     }).then(user_transactions => {
         if (!user_transactions || user_transactions.length == 0) {
             SuccessResponse(res, { unique_id: tag_admin, text: "Transactions Not found" }, []);
         } else {
-            SuccessResponse(res, { unique_id: tag_admin, text: "Transactions loaded" }, user_transactions);
+            SuccessResponse(res, { unique_id: tag_admin, text: "Transactions loaded" }, { ...user_transactions, pages: pagination.pages });
         }
     }).catch(err => {
         ServerError(res, { unique_id: tag_admin, text: err.message }, null);
@@ -65,13 +70,16 @@ export function rootGetUserTransaction(req, res) {
     }
 };
 
-export function rootGetUsersTransactionsSpecifically(req, res) {
+export async function rootGetUsersTransactionsSpecifically(req, res) {
     const errors = validationResult(req);
     const payload = matchedData(req);
 
     if (!errors.isEmpty()) {
         ValidationError(res, { unique_id: tag_admin, text: "Validation Error Occured" }, errors.array())
     } else {
+        const total_records = await USER_TRANSACTIONS.count({ where: { ...payload } });
+        const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
         USER_TRANSACTIONS.findAndCountAll({
             attributes: { exclude: ['id'] },
             where: {
@@ -85,12 +93,14 @@ export function rootGetUsersTransactionsSpecifically(req, res) {
                     model: USERS,
                     attributes: ['firstname', 'middlename', 'lastname', 'email', 'mobile_number', 'profile_image']
                 }
-            ]
+            ],
+            offset: pagination.start,
+            limit: pagination.limit
         }).then(user_transactions => {
             if (!user_transactions || user_transactions.length == 0) {
                 SuccessResponse(res, { unique_id: tag_admin, text: "Transactions Not found" }, []);
             } else {
-                SuccessResponse(res, { unique_id: tag_admin, text: "Transactions loaded" }, user_transactions);
+                SuccessResponse(res, { unique_id: tag_admin, text: "Transactions loaded" }, { ...user_transactions, pages: pagination.pages });
             }
         }).catch(err => {
             ServerError(res, { unique_id: tag_admin, text: err.message }, null);
@@ -98,8 +108,11 @@ export function rootGetUsersTransactionsSpecifically(req, res) {
     }
 };
 
-export function getUserTransactions(req, res) {
+export async function getUserTransactions(req, res) {
     const user_unique_id = req.UNIQUE_ID;
+    
+    const total_records = await USER_TRANSACTIONS.count({ where: { user_unique_id, status: default_status } });
+    const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
 
     USER_TRANSACTIONS.findAndCountAll({
         attributes: { exclude: ['id', 'user_unique_id', 'status'] },
@@ -109,12 +122,14 @@ export function getUserTransactions(req, res) {
         },
         order: [
             ['createdAt', 'DESC']
-        ]
+        ],
+        offset: pagination.start,
+        limit: pagination.limit
     }).then(user_transactions => {
         if (!user_transactions || user_transactions.length == 0) {
             SuccessResponse(res, { unique_id: user_unique_id, text: "Transactions Not found" }, []);
         } else {
-            SuccessResponse(res, { unique_id: user_unique_id, text: "Transactions loaded" }, user_transactions);
+            SuccessResponse(res, { unique_id: user_unique_id, text: "Transactions loaded" }, { ...user_transactions, pages: pagination.pages });
         }
     }).catch(err => {
         ServerError(res, { unique_id: user_unique_id, text: err.message }, null);

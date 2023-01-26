@@ -1,14 +1,17 @@
 import { validationResult, matchedData } from 'express-validator';
 import { v4 as uuidv4 } from 'uuid';
 import { ServerError, SuccessResponse, ValidationError, OtherSuccessResponse, NotFoundError, CreationSuccessResponse, BadRequestError, logger } from '../common/index.js';
-import { default_delete_status, default_status, tag_admin, true_status, false_status } from '../config/config.js';
+import { default_delete_status, default_status, tag_admin, true_status, false_status, paginate } from '../config/config.js';
 import db from "../models/index.js";
 
 const RIDER_BANK_ACCOUNTS = db.rider_bank_accounts;
 const RIDERS = db.riders;
 const Op = db.Sequelize.Op;
 
-export function rootGetRidersBankAccounts(req, res) {
+export async function rootGetRidersBankAccounts(req, res) {
+    const total_records = await RIDER_BANK_ACCOUNTS.count();
+    const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
     RIDER_BANK_ACCOUNTS.findAndCountAll({
         attributes: { exclude: ['id'] },
         order: [
@@ -19,25 +22,30 @@ export function rootGetRidersBankAccounts(req, res) {
                 model: RIDERS,
                 attributes: ['firstname', 'middlename', 'lastname', 'email', 'mobile_number', 'verification', 'profile_image']
             }
-        ]
+        ],
+        offset: pagination.start,
+        limit: pagination.limit
     }).then(riders_bank_accounts => {
         if (!riders_bank_accounts || riders_bank_accounts.length == 0) {
             SuccessResponse(res, { unique_id: tag_admin, text: "Riders Bank Accounts Not found" }, []);
         } else {
-            SuccessResponse(res, { unique_id: tag_admin, text: "Riders Bank Accounts loaded" }, riders_bank_accounts);
+            SuccessResponse(res, { unique_id: tag_admin, text: "Riders Bank Accounts loaded" }, { ...riders_bank_accounts, pages: pagination.pages });
         }
     }).catch(err => {
         ServerError(res, { unique_id: tag_admin, text: err.message }, null);
     });
 };
 
-export function rootGetRidersBankAccountsSpecifically(req, res) {
+export async function rootGetRidersBankAccountsSpecifically(req, res) {
     const errors = validationResult(req);
     const payload = matchedData(req);
 
     if (!errors.isEmpty()) {
         ValidationError(res, { unique_id: tag_admin, text: "Validation Error Occured" }, errors.array())
     } else {
+        const total_records = await RIDER_BANK_ACCOUNTS.count({ where: { ...payload } });
+        const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
         RIDER_BANK_ACCOUNTS.findAndCountAll({
             attributes: { exclude: ['id'] },
             where: {
@@ -51,12 +59,14 @@ export function rootGetRidersBankAccountsSpecifically(req, res) {
                     model: RIDERS,
                     attributes: ['firstname', 'middlename', 'lastname', 'email', 'mobile_number', 'verification', 'profile_image']
                 }
-            ]
+            ],
+            offset: pagination.start,
+            limit: pagination.limit
         }).then(riders_bank_accounts => {
             if (!riders_bank_accounts || riders_bank_accounts.length == 0) {
                 SuccessResponse(res, { unique_id: tag_admin, text: "Rider Bank Accounts Not found" }, []);
             } else {
-                SuccessResponse(res, { unique_id: tag_admin, text: "Rider Bank Accounts loaded" }, riders_bank_accounts);
+                SuccessResponse(res, { unique_id: tag_admin, text: "Rider Bank Accounts loaded" }, { ...riders_bank_accounts, pages: pagination.pages });
             }
         }).catch(err => {
             ServerError(res, { unique_id: tag_admin, text: err.message }, null);
@@ -64,7 +74,10 @@ export function rootGetRidersBankAccountsSpecifically(req, res) {
     }
 };
 
-export function rootGetDefaultRidersBankAccounts(req, res) {
+export async function rootGetDefaultRidersBankAccounts(req, res) {
+    const total_records = await RIDER_BANK_ACCOUNTS.count({ where: { default_bank: true_status } });
+    const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
     RIDER_BANK_ACCOUNTS.findAndCountAll({
         attributes: { exclude: ['id'] },
         where: {
@@ -78,20 +91,25 @@ export function rootGetDefaultRidersBankAccounts(req, res) {
                 model: RIDERS,
                 attributes: ['firstname', 'middlename', 'lastname', 'email', 'mobile_number', 'verification', 'profile_image']
             }
-        ]
+        ],
+        offset: pagination.start,
+        limit: pagination.limit
     }).then(riders_bank_accounts => {
         if (!riders_bank_accounts || riders_bank_accounts.length == 0) {
             SuccessResponse(res, { unique_id: tag_admin, text: "Riders Bank Accounts Not found" }, []);
         } else {
-            SuccessResponse(res, { unique_id: tag_admin, text: "Riders Bank Accounts loaded" }, riders_bank_accounts);
+            SuccessResponse(res, { unique_id: tag_admin, text: "Riders Bank Accounts loaded" }, { ...riders_bank_accounts, pages: pagination.pages });
         }
     }).catch(err => {
         ServerError(res, { unique_id: tag_admin, text: err.message }, null);
     });
 };
 
-export function getRiderBankAccounts(req, res) {
+export async function getRiderBankAccounts(req, res) {
     const rider_unique_id = req.RIDER_UNIQUE_ID;
+
+    const total_records = await RIDER_BANK_ACCOUNTS.count({ where: { rider_unique_id } });
+    const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
 
     RIDER_BANK_ACCOUNTS.findAndCountAll({
         attributes: { exclude: ['id', 'rider_unique_id'] },
@@ -100,12 +118,14 @@ export function getRiderBankAccounts(req, res) {
         },
         order: [
             ['createdAt', 'DESC']
-        ]
+        ],
+        offset: pagination.start,
+        limit: pagination.limit
     }).then(rider_bank_accounts => {
         if (!rider_bank_accounts || rider_bank_accounts.length == 0) {
             SuccessResponse(res, { unique_id: rider_unique_id, text: "Rider Bank Accounts Not found" }, []);
         } else {
-            SuccessResponse(res, { unique_id: rider_unique_id, text: "Rider Bank Accounts loaded" }, rider_bank_accounts);
+            SuccessResponse(res, { unique_id: rider_unique_id, text: "Rider Bank Accounts loaded" }, { ...rider_bank_accounts, pages: pagination.pages });
         }
     }).catch(err => {
         ServerError(res, { unique_id: rider_unique_id, text: err.message }, null);

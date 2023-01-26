@@ -5,7 +5,7 @@ import { ServerError, SuccessResponse, ValidationError, OtherSuccessResponse, No
 import { 
     access_granted, access_revoked, access_suspended, default_delete_status, default_status, false_status, true_status, 
     tag_admin, user_documents_path, user_rename_document, profile_image_document_name, save_user_document_path, save_document_domain, 
-    save_user_document_dir, user_join_path_and_file, user_remove_unwanted_file, user_remove_file, user_documents_path_alt, file_length_5Mb
+    save_user_document_dir, user_join_path_and_file, user_remove_unwanted_file, user_remove_file, user_documents_path_alt, file_length_5Mb, paginate
 } from '../config/config.js';
 import db from "../models/index.js";
 
@@ -18,7 +18,10 @@ const Op = db.Sequelize.Op;
 
 const { existsSync, rmdirSync, rename } = fs;
 
-export function rootGetUsers (req, res) {
+export async function rootGetUsers (req, res) {
+    const total_records = await USERS.count();
+    const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
     USERS.findAndCountAll({
         attributes: { exclude: ['user_private', 'id'] },
         order: [
@@ -29,12 +32,14 @@ export function rootGetUsers (req, res) {
                 model: USER_ACCOUNT,
                 attributes: ['balance', 'updatedAt']
             }
-        ]
+        ],
+        offset: pagination.start,
+        limit: pagination.limit
     }).then(users => {
         if (!users || users.length == 0) {
             SuccessResponse(res, { unique_id: tag_admin, text: "Users Not found" }, []);
         } else {
-            SuccessResponse(res, { unique_id: tag_admin, text: "Users loaded" }, users);
+            SuccessResponse(res, { unique_id: tag_admin, text: "Users loaded" }, { ...users, pages: pagination.pages });
         }
     }).catch(err => {
         ServerError(res, { unique_id: tag_admin, text: err.message }, null);
@@ -71,13 +76,91 @@ export function rootGetUser (req, res) {
     }
 };
 
-export function rootSearchUsers(req, res) {
+export async function rootSearchUsers(req, res) {
     const errors = validationResult(req);
     const payload = matchedData(req);
 
     if (!errors.isEmpty()) {
         ValidationError(res, { unique_id: tag_admin, text: "Validation Error Occured" }, errors.array())
     } else {
+        const total_records = await USERS.count({
+            where: {
+                [Op.or]: [
+                    {
+                        firstname: {
+                            [Op.or]: {
+                                [Op.like]: `%${payload.search}`,
+                                [Op.startsWith]: `${payload.search}`,
+                                [Op.endsWith]: `${payload.search}`,
+                                [Op.substring]: `${payload.search}`,
+                            }
+                        }
+                    },
+                    {
+                        lastname: {
+                            [Op.or]: {
+                                [Op.like]: `%${payload.search}`,
+                                [Op.startsWith]: `${payload.search}`,
+                                [Op.endsWith]: `${payload.search}`,
+                                [Op.substring]: `${payload.search}`,
+                            }
+                        }
+                    },
+                    {
+                        middlename: {
+                            [Op.or]: {
+                                [Op.like]: `%${payload.search}`,
+                                [Op.startsWith]: `${payload.search}`,
+                                [Op.endsWith]: `${payload.search}`,
+                                [Op.substring]: `${payload.search}`,
+                            }
+                        }
+                    },
+                    {
+                        email: {
+                            [Op.or]: {
+                                [Op.like]: `%${payload.search}`,
+                                [Op.startsWith]: `${payload.search}`,
+                                [Op.endsWith]: `${payload.search}`,
+                                [Op.substring]: `${payload.search}`,
+                            }
+                        }
+                    },
+                    {
+                        mobile_number: {
+                            [Op.or]: {
+                                [Op.like]: `%${payload.search}`,
+                                [Op.startsWith]: `${payload.search}`,
+                                [Op.endsWith]: `${payload.search}`,
+                                [Op.substring]: `${payload.search}`,
+                            }
+                        }
+                    },
+                    {
+                        gender: {
+                            [Op.or]: {
+                                [Op.like]: `%${payload.search}`,
+                                [Op.startsWith]: `${payload.search}`,
+                                [Op.endsWith]: `${payload.search}`,
+                                [Op.substring]: `${payload.search}`,
+                            }
+                        }
+                    },
+                    {
+                        dob: {
+                            [Op.or]: {
+                                [Op.like]: `%${payload.search}`,
+                                [Op.startsWith]: `${payload.search}`,
+                                [Op.endsWith]: `${payload.search}`,
+                                [Op.substring]: `${payload.search}`,
+                            }
+                        }
+                    }
+                ]
+            }
+        });
+        const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
         USERS.findAndCountAll({
             attributes: { exclude: ['user_private', 'id'] },
             where: {
@@ -165,12 +248,14 @@ export function rootSearchUsers(req, res) {
                     model: USER_ACCOUNT,
                     attributes: ['balance', 'updatedAt']
                 }
-            ]
+            ],
+            offset: pagination.start,
+            limit: pagination.limit
         }).then(users => {
             if (!users || users.length == 0) {
                 SuccessResponse(res, { unique_id: tag_admin, text: "Users Not found" }, []);
             } else {
-                SuccessResponse(res, { unique_id: tag_admin, text: "Users loaded" }, users);
+                SuccessResponse(res, { unique_id: tag_admin, text: "Users loaded" }, { ...users, pages: pagination.pages });
             }
         }).catch(err => {
             ServerError(res, { unique_id: tag_admin, text: err.message }, null);

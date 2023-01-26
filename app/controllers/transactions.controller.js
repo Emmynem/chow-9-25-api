@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { ServerError, SuccessResponse, ValidationError, OtherSuccessResponse, NotFoundError, CreationSuccessResponse, BadRequestError, logger } from '../common/index.js';
 import { 
     default_delete_status, default_status, tag_admin, url_path_without_limits, check_user_route, true_status, false_status, debt, processing, 
-    vendor_payment_methods, currency, super_admin_routes, withdrawal, max_debt, cancelled, completed, anonymous
+    vendor_payment_methods, currency, super_admin_routes, withdrawal, max_debt, cancelled, completed, anonymous, paginate
 } from '../config/config.js';
 import db from "../models/index.js";
 
@@ -15,7 +15,10 @@ const VENDOR_BANK_ACCOUNTS = db.vendor_bank_accounts;
 const APP_DEFAULTS = db.app_defaults;
 const Op = db.Sequelize.Op;
 
-export function rootGetTransactions(req, res) {
+export async function rootGetTransactions(req, res) {
+    const total_records = await TRANSACTIONS.count();
+    const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
     TRANSACTIONS.findAndCountAll({
         attributes: { exclude: ['id'] },
         order: [
@@ -26,12 +29,14 @@ export function rootGetTransactions(req, res) {
                 model: VENDORS,
                 attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'pro', 'verification']
             }
-        ]
+        ],
+        offset: pagination.start,
+        limit: pagination.limit
     }).then(transactions => {
         if (!transactions || transactions.length == 0) {
             SuccessResponse(res, { unique_id: tag_admin, text: "Transactions Not found" }, []);
         } else {
-            SuccessResponse(res, { unique_id: tag_admin, text: "Transactions loaded" }, transactions);
+            SuccessResponse(res, { unique_id: tag_admin, text: "Transactions loaded" }, { ...transactions, pages: pagination.pages });
         }
     }).catch(err => {
         ServerError(res, { unique_id: tag_admin, text: err.message }, null);
@@ -68,13 +73,16 @@ export function rootGetTransaction(req, res) {
     }
 };
 
-export function rootGetTransactionsSpecifically(req, res) {
+export async function rootGetTransactionsSpecifically(req, res) {
     const errors = validationResult(req);
     const payload = matchedData(req);
 
     if (!errors.isEmpty()) {
         ValidationError(res, { unique_id: tag_admin, text: "Validation Error Occured" }, errors.array())
     } else {
+        const total_records = await TRANSACTIONS.count({ where: { ...payload } });
+        const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
         TRANSACTIONS.findAndCountAll({
             attributes: { exclude: ['id'] },
             where: {
@@ -88,12 +96,14 @@ export function rootGetTransactionsSpecifically(req, res) {
                     model: VENDORS,
                     attributes: ['name', 'stripped', 'email', 'profile_image', 'cover_image', 'pro', 'verification']
                 }
-            ]
+            ],
+            offset: pagination.start,
+            limit: pagination.limit
         }).then(transactions => {
             if (!transactions || transactions.length == 0) {
                 SuccessResponse(res, { unique_id: tag_admin, text: "Transactions Not found" }, []);
             } else {
-                SuccessResponse(res, { unique_id: tag_admin, text: "Transactions loaded" }, transactions);
+                SuccessResponse(res, { unique_id: tag_admin, text: "Transactions loaded" }, { ...transactions, pages: pagination.pages });
             }
         }).catch(err => {
             ServerError(res, { unique_id: tag_admin, text: err.message }, null);
@@ -116,6 +126,9 @@ export async function getTransactions(req, res) {
     if (!check_user_route(req.method, url_path_without_limits(req.path), vendor_user_routes.routes)) {
         BadRequestError(res, { unique_id: vendor_unique_id, text: "You don't have access to perform this action!" }, null);
     } else {
+        const total_records = await TRANSACTIONS.count({ where: { vendor_unique_id, status: default_status } });
+        const pagination = paginate(parseInt(req.query.page) || parseInt(req.body.page), parseInt(req.query.size) || parseInt(req.body.size), total_records);
+
         TRANSACTIONS.findAndCountAll({
             attributes: { exclude: ['id', 'vendor_unique_id', 'status'] },
             where: {
@@ -124,12 +137,14 @@ export async function getTransactions(req, res) {
             },
             order: [
                 ['createdAt', 'DESC']
-            ]
+            ],
+            offset: pagination.start,
+            limit: pagination.limit
         }).then(transactions => {
             if (!transactions || transactions.length == 0) {
                 SuccessResponse(res, { unique_id: vendor_unique_id, text: "Transactions Not found" }, []);
             } else {
-                SuccessResponse(res, { unique_id: vendor_unique_id, text: "Transactions loaded" }, transactions);
+                SuccessResponse(res, { unique_id: vendor_unique_id, text: "Transactions loaded" }, { ...transactions, pages: pagination.pages });
             }
         }).catch(err => {
             ServerError(res, { unique_id: vendor_unique_id, text: err.message }, null);
