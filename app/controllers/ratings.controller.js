@@ -313,7 +313,7 @@ export async function deleteRating(req, res) {
 
                 const middle_rating_index = Math.floor(ratings.length / 2);
                 const middle_rating = ratings[middle_rating_index];
-                const good_or_bad = payload.rating < middle_rating.value ? false : true;
+                const good_or_bad = last_rating.rating < middle_rating.value ? false : true;
 
                 const product_rating = await PRODUCTS.increment({ good_rating: good_or_bad ? 0 : -1, bad_rating: good_or_bad ? -1 : 0 }, { where: { unique_id: payload.product_unique_id }, transaction });
 
